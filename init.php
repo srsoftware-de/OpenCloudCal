@@ -13,9 +13,29 @@
     }
   }
 
+
+
+  function checkConfigTable($db){
+    $results=$db->query("SHOW TABLES LIKE 'config'");
+    if (!$results){
+      die(print_r($dbh->errorInfo(), TRUE));
+    }
+    if ($results->rowCount()>0){
+      echo 'table exists';
+    } else {
+      echo "table doesn't exist";
+    }
+  }
+
+  function checkTables($db){
+    checkConfigTable($db);
+  }
+
   session_start();
 
   $db = connectToDb($host,$database,$user,$pass);
+
+  checkTables($db);
 
   $db = null; // close databse connection
 
