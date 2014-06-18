@@ -13,22 +13,26 @@
     }
   }
 
-
-
   function checkConfigTable($db){
     $results=$db->query("SHOW TABLES LIKE 'config'");
     if (!$results){
       die(print_r($dbh->errorInfo(), TRUE));
     }
-    if ($results->rowCount()>0){
-      echo 'table exists';
-    } else {
+    if ($results->rowCount()<1){
       echo "table doesn't exist";
+      $sql = 'CREATE TABLE config (keyname VARCHAR(100) PRIMARY KEY, value TEXT NOT NULL);';
+      $db->exec($sql);
+    } else {
+      echo "table exists";
     }
   }
 
   function checkTables($db){
-    checkConfigTable($db);
+    try {
+      checkConfigTable($db);
+    } catch (PDOException $pdoex){
+      echo $pdoex->getMessage();
+    }
   }
 
   session_start();
