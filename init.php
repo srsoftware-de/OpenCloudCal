@@ -156,7 +156,4 @@
   $db = connectToDb($host,$database,$user,$pass);
 
   checkTables($db);
-
-  $db = null; // close databse connection
-
 ?>
