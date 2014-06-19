@@ -106,18 +106,12 @@
         $db->query($sql);
         unset($this->urls[$url->id]);
       } else {
-        die ("this is not an url"); // TODO: exception
+        if (is_int($url)){
+          $this->removeUrl(url::load($url));
+        } else {
+          $this->removeUrl(url::create($url));
+        }
       }
-    }
-
-    function removeUrlByAddress($address){
-      $url=new url(0,'',$address);
-      $this->removeUrl($url);
-    }
-    
-    function removeUrlById($uid){
-      $url=new url($uid,'');
-      $this->removeUrl($url);
     }
 
     /********* URLs ***********/

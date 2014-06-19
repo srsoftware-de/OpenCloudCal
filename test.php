@@ -45,6 +45,10 @@
   $app->removeTag(3);
   $app->removeTag('3');
 
+  $app->removeUrl($url1);
+  $app->removeUrl(2);
+  $app->removeUrl('http://example.com/test1');
+
   print_r(appointment::loadAll());
 
   $db = null; // close database connection
