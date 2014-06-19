@@ -30,9 +30,16 @@
     	foreach ($db->query($sql) as $row){
     		$instance=self::create_internal($row['title'], $row['description'], $row['start'], $row['end'], $row['coords']);
     		$instance->id=$id;
+    		$instance->loadRelated();
     		return $instance;
-    	}
-    	 
+    	}    	 
+    }
+    
+    /* loads tags, urls and sessions related to the current appointment */
+    function loadRelated(){
+    	$this->urls=$this->getUrls();
+    	$this->tags=$this->getTags();
+    	$this->sessions=$this->getSessions();
     }
 
     function save(){
@@ -189,7 +196,8 @@
       $sql="SELECT * FROM appointments";
       foreach ($db->query($sql) as $row){
       	$instance=self::create_internal($row['title'], $row['description'], $row['start'], $row['end'], $row['coords']);
-      	$instance->id=$row['aid'];      	 
+      	$instance->id=$row['aid'];
+      	$instance->loadRelated();      	 
         $result[]=$instance;
       }
       return $result;
