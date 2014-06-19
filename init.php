@@ -8,7 +8,7 @@
   function connectToDb($host,$database,$user,$pass){
     try {
       $db = new PDO("mysql:host=$host;dbname=$database", $user, $pass, array(PDO::ATTR_PERSISTENT => true)); // open db connection and cache it
-      print "databse opened\n";
+//      print "databse opened\n";
       return $db;
     } catch (PDOException $pdoex) {
       die($pdoex->getMessage());
@@ -22,13 +22,13 @@
       die(print_r($dbh->errorInfo(), TRUE));
     }
     if ($results->rowCount()<1){
-      echo "table doesn't exist\n";
+//      echo "table doesn't exist\n";
       $sql = 'CREATE TABLE config (keyname VARCHAR(100) PRIMARY KEY, value TEXT NOT NULL);';      
       $db->exec($sql);
       $sql = 'INSERT INTO config (keyname,value) VALUES ("dbversion","1")';
       $db->exec($sql);      
-    } else {
-      echo "table exists\n";
+//    } else {
+//      echo "table exists\n";
     }
   }
   
@@ -39,11 +39,11 @@
       die(print_r($dbh->errorInfo(), TRUE));
     }
     if ($results->rowCount()<1){
-      echo "table doesn't exist\n";
+//      echo "table doesn't exist\n";
       $sql = 'CREATE TABLE urls (uid INT PRIMARY KEY AUTO_INCREMENT, url TEXT NOT NULL);';
       $db->exec($sql);
-    } else {
-      echo "table exists\n";
+//    } else {
+//      echo "table exists\n";
     }
   }
 
@@ -54,11 +54,11 @@
       die(print_r($dbh->errorInfo(), TRUE));
     }
     if ($results->rowCount()<1){
-      echo "table doesn't exist\n";
+//      echo "table doesn't exist\n";
       $sql = 'CREATE TABLE tags (tid INT PRIMARY KEY AUTO_INCREMENT, keyword VARCHAR(100) NOT NULL);';
       $db->exec($sql);
-    } else {
-      echo "table exists\n";
+//    } else {
+//      echo "table exists\n";
     }
   }
   
@@ -69,11 +69,11 @@
       die(print_r($dbh->errorInfo(), TRUE));
     }
     if ($results->rowCount()<1){
-      echo "table doesn't exist\n";
+//      echo "table doesn't exist\n";
       $sql = 'CREATE TABLE sessions (sid INT PRIMARY KEY AUTO_INCREMENT, description TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME);';
       $db->exec($sql);
-    } else {
-      echo "table exists\n";
+//    } else {
+//      echo "table exists\n";
     }
   }
   
@@ -84,11 +84,11 @@
       die(print_r($dbh->errorInfo(), TRUE));
     }
     if ($results->rowCount()<1){
-      echo "table doesn't exist\n";
+//      echo "table doesn't exist\n";
       $sql = 'CREATE TABLE appointments (aid INT PRIMARY KEY AUTO_INCREMENT, description TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME, coords TEXT);';
       $db->exec($sql);
-    } else {
-      echo "table exists\n";
+//    } else {
+//      echo "table exists\n";
     }
   }
   
@@ -99,11 +99,11 @@
       die(print_r($dbh->errorInfo(), TRUE));
     }
     if ($results->rowCount()<1){
-      echo "table doesn't exist\n";
+//      echo "table doesn't exist\n";
       $sql = 'CREATE TABLE appointment_urls (aid INT NOT NULL REFERENCES appointments(aid),uid INT NOT NULL REFERENCES urls(uid), description TEXT, PRIMARY KEY (aid,uid));';
       $db->exec($sql);
-    } else {
-      echo "table exists\n";
+//    } else {
+//      echo "table exists\n";
     }
   }
   
@@ -114,11 +114,11 @@
       die(print_r($dbh->errorInfo(), TRUE));
     }
     if ($results->rowCount()<1){
-      echo "table doesn't exist\n";
+//      echo "table doesn't exist\n";
       $sql = 'CREATE TABLE appointment_sessions (aid INT NOT NULL REFERENCES appointments(aid),sid INT NOT NULL REFERENCES sessions(sid), PRIMARY KEY (aid,sid));';
       $db->exec($sql);
-    } else {
-      echo "table exists\n";
+//    } else {
+//      echo "table exists\n";
     }
   }
   
@@ -129,11 +129,11 @@
       die(print_r($dbh->errorInfo(), TRUE));
     }
     if ($results->rowCount()<1){
-      echo "table doesn't exist\n";
+//      echo "table doesn't exist\n";
       $sql = 'CREATE TABLE appointment_tags (aid INT NOT NULL REFERENCES appointments(aid),tid INT NOT NULL REFERENCES tags(tid), PRIMARY KEY (aid,tid));';
       $db->exec($sql);
-    } else {
-      echo "table exists\n";
+//    } else {
+//      echo "table exists\n";
     }
   }
 
@@ -155,7 +155,7 @@
 
   function occ_autoload($class_name) {
     $path = OCC_ROOT . "/include/class." . $class_name . ".php";
-    echo "occ_autoload called for $class_name\n";
+//    echo "occ_autoload called for $class_name\n";
     if (file_exists($path)) {
       require_once($path);
     } else {
