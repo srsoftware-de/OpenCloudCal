@@ -55,7 +55,7 @@
   	}
   	if ($results->rowCount()<1){
   		echo "table doesn't exist\n";
-  		$sql = 'CREATE TABLE tags (tid INT PRIMARY KEY AUTO_INCREMENT, keyword TEXT NOT NULL);';
+  		$sql = 'CREATE TABLE tags (tid INT PRIMARY KEY AUTO_INCREMENT, keyword VARCHAR(100) NOT NULL);';
   		$db->exec($sql);
   	} else {
   		echo "table exists\n";

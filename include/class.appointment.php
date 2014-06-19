@@ -12,6 +12,15 @@
 			$this->coords=$coords;
 		}
 		
+		function addTag($tag){
+			global $db;
+			if ($tag instanceof tag){
+				$sql="INSERT INTO appointment_tags (tid,aid) VALUES ($tag->id, $this->id)";
+				$db->query($sql);
+			} else {
+				$this->addTag(new tag($tag));
+			}
+		}
 		
 		/* loading all appointments, tags filter currently not implemented */
 		/* TODO: implement tag filter */
