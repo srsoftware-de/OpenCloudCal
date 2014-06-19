@@ -12,6 +12,8 @@
 			$this->coords=$coords;
 			$this->tags=$this->getTags();
 		}
+
+                /******* TAGS ****************/
 		
 		function getTags(){
 			global $db;
@@ -57,7 +59,45 @@
 			$tag=new tag($tid);
 			$this->removeTag($tag);
 		}
+
+                /****** TAGS **************/
+                /****** URLS **************/
+
+		function getUrls(){
+			global $db;
+			$urls=array();
+			$sql="SELECT uid FROM appointment_urls WHERE aid=$this->id";
+			foreach ($db->query($sql) as $row){
+				$url=new url($row['uid']);
+				$urls[$url->id]=$url;
+			}
+			return $urls;
+		}
 		
+		/* adds a url to the appointment */
+		function addUrl($url){
+			global $db;
+			if ($url instanceof url){
+				$sql="INSERT INTO appointment_urls (uid,aid) VALUES ($url->id, $this->id)";
+				$db->query($sql);
+				$this->urls[$url->id]=$url;
+			} else {
+				$this->addUrl(new url(0,$url));
+			}
+		}
+
+		/* remove url from appointment */
+		function removeUrl($url){
+			global $db;
+			if ($url instanceof url){
+				$sql="DELETE FROM appointment_urls WHERE uid=$url->id AND aid=$this->id";
+				$db->query($sql);
+				unset($this->urls[$url->id]);
+			} else {
+				die ("this is not an url"); // TODO: exception
+			}
+		}
+
 		/* loading all appointments, tags filter currently not implemented */
 		/* TODO: implement tag filter */
 		public static function loadAll($tags){
