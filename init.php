@@ -13,6 +13,7 @@
     }
   }
 
+  /* assures the existence of the config table */
   function checkConfigTable($db){
     $results=$db->query("SHOW TABLES LIKE 'config'");
     if (!$results){
@@ -27,6 +28,7 @@
     }
   }
 
+  /* assures the existence o all required database tables */
   function checkTables($db){
     try {
       checkConfigTable($db);
