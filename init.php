@@ -46,7 +46,7 @@
   }
 
   /* assures the existence of the tags table */
-  function checktagsTable($db){
+  function checkTagsTable($db){
   	$results=$db->query("SHOW TABLES LIKE 'tags'");
   	if (!$results){
   		die(print_r($dbh->errorInfo(), TRUE));
@@ -61,7 +61,7 @@
   }
   
   /* assures the existence of the sessions table */
-  function checksessionsTable($db){
+  function checkSessionsTable($db){
   	$results=$db->query("SHOW TABLES LIKE 'sessions'");
   	if (!$results){
   		die(print_r($dbh->errorInfo(), TRUE));
@@ -76,14 +76,29 @@
   }
   
   /* assures the existence of the appointments table */
-  function checkappointmentsTable($db){
+  function checkAppointmentsTable($db){
   	$results=$db->query("SHOW TABLES LIKE 'appointments'");
   	if (!$results){
   		die(print_r($dbh->errorInfo(), TRUE));
   	}
   	if ($results->rowCount()<1){
   		echo "table doesn't exist\n";
-  		$sql = 'CREATE TABLE appointments (sid INT PRIMARY KEY AUTO_INCREMENT, description TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME, coords TEXT);';
+  		$sql = 'CREATE TABLE appointments (aid INT PRIMARY KEY AUTO_INCREMENT, description TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME, coords TEXT);';
+  		$db->exec($sql);
+  	} else {
+  		echo "table exists\n";
+  	}
+  }
+  
+  /* assures the existence of the appointment_urls table */
+  function checkAppointmentUrlsTable($db){
+  	$results=$db->query("SHOW TABLES LIKE 'appointment_urls'");
+  	if (!$results){
+  		die(print_r($dbh->errorInfo(), TRUE));
+  	}
+  	if ($results->rowCount()<1){
+  		echo "table doesn't exist\n";
+  		$sql = 'CREATE TABLE appointment_urls (aid INT NOT NULL REFERENCES appointments(aid),uid INT NOT NULL REFERENCES urls(uid), PRIMARY KEY (aid,uid));';
   		$db->exec($sql);
   	} else {
   		echo "table exists\n";
@@ -98,7 +113,7 @@
       checkTagsTable($db);
       checkSessionsTable($db);
       checkAppointmentsTable($db);
-      
+      checkAppointmentUrlsTable($db);      
     } catch (PDOException $pdoex){
       echo $pdoex->getMessage();
     }
