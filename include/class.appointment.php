@@ -2,6 +2,8 @@
 
 	class appointment {
 		
+		/* create new appointment object */
+		/* TODO: load tags, urls and sessions */
 		function __construct($id,$description,$start, $end,$coords){
 			$this->id=$id;
 			$this->description=$description;
@@ -10,6 +12,9 @@
 			$this->coords=$coords;
 		}
 		
+		
+		/* loading all appointments, tags filter currently not implemented */
+		/* TODO: implement tag filter */
 		public static function loadAll($tags){
 			global $db;
 			$result=array();
