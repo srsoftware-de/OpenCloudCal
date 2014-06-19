@@ -18,7 +18,7 @@
 					$stm->execute(array($url));
 					$this->id=$db->lastInsertId();
 				}
-				$this->text=$url;
+				$this->address=$url;
 			} else { //id given => load
 				foreach ($db->query("SELECT url FROM urls WHERE uid=$id") as $row){
 					$this->url=$row['url'];

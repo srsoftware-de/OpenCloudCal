@@ -10,9 +10,20 @@
 			$this->start=$start;
 			$this->end=$end;
 			$this->coords=$coords;
-			$this->tags=$this->getTags();
+                        if ($id==0){
+                          $this->save();
+                        } 
+                        $this->tags=$this->getTags();
                         $this->urls=$this->getUrls();
 		}
+
+                function save(){
+                  global $db;
+                  $sql="INSERT INTO appointments (description, start, end, coords) VALUES (:description, :start, :end, :coords)";
+                  $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+                  $stm->execute(array(':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':coords' => $this->coords));
+                  $this->id=$db->lastInsertId();
+                }
 
                 /******* TAGS ****************/
 		
@@ -78,6 +89,9 @@
 		/* adds a url to the appointment */
 		function addUrl($url,$description=''){
 			global $db;
+                        if ($description==''){
+                          $description=$url;
+                        }
 			if ($url instanceof url){
 				$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES ($url->id, $this->id, ?)");
                                 $stm->execute(array($description));
@@ -113,8 +127,15 @@
 
 		/* loading all appointments, tags filter currently not implemented */
 		/* TODO: implement tag filter */
-		public static function loadAll($tags){
+		public static function loadAll($tags=''){
 			global $db;
+                        if (!is_array($tags)){
+                          if ($tags=''){
+                            $tags=array();
+                          } else {
+                            $tags=array($tags);
+                          }
+                        }
 			$result=array();
 			$sql="SELECT * FROM appointments";
 			foreach ($db->query($sql) as $row){
