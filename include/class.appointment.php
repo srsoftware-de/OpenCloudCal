@@ -98,6 +98,18 @@
 			}
 		}
 
+		function removeUrlByText($address){
+			$url=new url(0,$address);
+			$this->removeUrl($url);
+		}
+		
+		function removeUrlById($uid){
+			$url=new url($uid);
+			$this->removeUrl($url);
+		}
+
+                /********* URLs ***********/
+
 		/* loading all appointments, tags filter currently not implemented */
 		/* TODO: implement tag filter */
 		public static function loadAll($tags){
