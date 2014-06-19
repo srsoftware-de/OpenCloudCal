@@ -15,6 +15,7 @@
       } 
       $this->tags=$this->getTags();
       $this->urls=$this->getUrls();
+      $this->sessions=$this->getSessions();
     }
 
     function save(){
@@ -127,6 +128,18 @@
         $sessions[$session->id]=$session;
       }
       return $sessions;
+    }
+
+    /* adds a session to the appointment */
+    function addSession($session,$start=null,$end=null){
+      global $db;
+      if ($session instanceof session){
+        $sql="INSERT INTO appointment_sessions (sid,aid) VALUES ($session->id, $this->id)";
+        $db->query($sql);
+        $this->sessions[$session->id]=$session;
+      } else {
+        $this->addSession(session::create($session,$start,$end));
+      }
     }
 
     /* loading all appointments, tags filter currently not implemented */

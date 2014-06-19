@@ -5,7 +5,7 @@
   $tag1=tag::create('Tag 1');
   print_r($tag1);
 
-  $session1=session::create(0,'first session','2014-06-19 00:00:00','2014-06-19 00:00:00');
+  $session1=session::create('first session','2014-06-19 00:00:00','2014-06-19 00:00:00');
   print_r($session1);
 
   $url1=url::create('http://example.com/url/without/comment');
@@ -30,7 +30,7 @@
   $app->addUrl('http://example.com/test2','another test description');
   
   $app->addSession($session1);
-  
+  $app->addSession("second session","2014-06-19 00:00:00","2014-06-19 00:00:10" );
   print_r(appointment::loadAll());
 
   

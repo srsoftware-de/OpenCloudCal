@@ -10,7 +10,7 @@
       $instance = new self();
       $sql="INSERT INTO sessions (description, start, end) VALUES (:description,:start,:end)";              
       $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));      
-      $stm->execute(array(':description'=>$description,':start'=>$start,':end'=>$end));
+      $stm->execute(array(':description'=> $description,':start'=> $start,':end'=> $end));
       $instance->id=$db->lastInsertId();                  
       $instance->description=$description;                                       
       $instance->start=$start;                        
