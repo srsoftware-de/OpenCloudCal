@@ -1,6 +1,8 @@
 <?php
-
-  require 'config/db.php';
+	// get full path
+	define("OCC_ROOT", realpath(dirname(__FILE__)));
+	
+  require  (OCC_ROOT.'/config/db.php');
 
   /* this was written using http://code.tutsplus.com/tutorials/why-you-should-be-using-phps-pdo-for-database-access--net-12059 */
   function connectToDb($host,$database,$user,$pass){
@@ -151,6 +153,17 @@
     }
   }
 
+  function occ_autoload($class_name) {
+  	$path = OCC_ROOT . "/include/class." . $class_name . ".php";
+  	echo "occ_autoload called for $class_name\n";
+  	if (file_exists($path)) {
+  		require_once($path);
+  	} else {
+  		return false;
+  	}
+  }
+  spl_autoload_register('occ_autoload');
+  
   session_start();
 
   $db = connectToDb($host,$database,$user,$pass);
