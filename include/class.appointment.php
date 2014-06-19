@@ -140,6 +140,23 @@
       }
     }
 
+    /* remove session from appointment */
+    function removeSession($session){
+      global $db;
+      if ($session instanceof session){
+        $sql="DELETE FROM appointment_sessions WHERE sid=$session->id AND aid=$this->id";
+        $db->query($sql);
+        unset($this->sessions[$session->id]);
+      } else {
+        if (is_int($session)){
+          $this->removeSession(session::load($session));
+        } else {
+          die("can only remove sessions referenced by handle or id");
+        }
+      }
+    }
+
+
     /* loading all appointments, tags filter currently not implemented */
     /* TODO: implement tag filter */
     public static function loadAll($tags=''){

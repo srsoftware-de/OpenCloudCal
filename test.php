@@ -49,6 +49,9 @@
   $app->removeUrl(2);
   $app->removeUrl('http://example.com/test1');
 
+  $app->removeSession($session1);
+  $app->removeSession(2);
+
   print_r(appointment::loadAll());
 
   $db = null; // close database connection
