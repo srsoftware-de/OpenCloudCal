@@ -6,7 +6,7 @@
   function connectToDb($host,$database,$user,$pass){
     try {
       $db = new PDO("mysql:host=$host;dbname=$database", $user, $pass, array(PDO::ATTR_PERSISTENT => true)); // open db connection and cache it
-      print "databse opened";
+      print "databse opened\n";
       return $db;
     } catch (PDOException $pdoex) {
       die($pdoex->getMessage());
@@ -20,18 +20,34 @@
       die(print_r($dbh->errorInfo(), TRUE));
     }
     if ($results->rowCount()<1){
-      echo "table doesn't exist";
+      echo "table doesn't exist\n";
       $sql = 'CREATE TABLE config (keyname VARCHAR(100) PRIMARY KEY, value TEXT NOT NULL);';
       $db->exec($sql);
     } else {
-      echo "table exists";
+      echo "table exists\n";
     }
+  }
+  
+  /* assures the existence of the urls table */
+  function checkUrlsTable($db){
+  	$results=$db->query("SHOW TABLES LIKE 'urls'");
+  	if (!$results){
+  		die(print_r($dbh->errorInfo(), TRUE));
+  	}
+  	if ($results->rowCount()<1){
+  		echo "table doesn't exist\n";
+  		$sql = 'CREATE TABLE urls (uid INT PRIMARY KEY AUTO_INCREMENT, url TEXT NOT NULL);';
+  		$db->exec($sql);
+  	} else {
+  		echo "table exists\n";
+  	}
   }
 
   /* assures the existence o all required database tables */
   function checkTables($db){
     try {
       checkConfigTable($db);
+      checkUrlsTable($db);
     } catch (PDOException $pdoex){
       echo $pdoex->getMessage();
     }
