@@ -45,11 +45,27 @@
   	}
   }
 
+  /* assures the existence of the tags table */
+  function checktagsTable($db){
+  	$results=$db->query("SHOW TABLES LIKE 'tags'");
+  	if (!$results){
+  		die(print_r($dbh->errorInfo(), TRUE));
+  	}
+  	if ($results->rowCount()<1){
+  		echo "table doesn't exist\n";
+  		$sql = 'CREATE TABLE tags (tid INT PRIMARY KEY AUTO_INCREMENT, keyword TEXT NOT NULL);';
+  		$db->exec($sql);
+  	} else {
+  		echo "table exists\n";
+  	}
+  }
+
   /* assures the existence o all required database tables */
   function checkTables($db){
     try {
       checkConfigTable($db);
       checkUrlsTable($db);
+      checkTagsTable($db);
     } catch (PDOException $pdoex){
       echo $pdoex->getMessage();
     }
