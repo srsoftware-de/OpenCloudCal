@@ -7,7 +7,7 @@
   $appointments = appointment::loadAll($selected_tags);
   
   $app1=$appointments[0];
-  $app1->addTag('mund');
+  $app1->removeTagByText('mund');
   print_r($app1);
 
   $db = null; // close database connection

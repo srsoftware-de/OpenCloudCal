@@ -36,6 +36,28 @@
 			}
 		}
 		
+		/* remove tag from appointment */
+		function removeTag($tag){
+			global $db;
+			if ($tag instanceof tag){
+				$sql="DELETE FROM appointment_tags WHERE tid=$tag->id AND aid=$this->id";
+				$db->query($sql);
+				unset($this->tags[$tag->id]);
+			} else {
+				die ("this is not a tag"); // TODO: exception
+			}
+		}
+		
+		function removeTagByText($keyword){
+			$tag=new tag(0,$keyword);
+			$this->removeTag($tag);
+		}
+		
+		function removeTagById($tid){
+			$tag=new tag($tid);
+			$this->removeTag($tag);
+		}
+		
 		/* loading all appointments, tags filter currently not implemented */
 		/* TODO: implement tag filter */
 		public static function loadAll($tags){
