@@ -104,6 +104,21 @@
   		echo "table exists\n";
   	}
   }
+  
+  /* assures the existence of the appointment_sessions table */
+  function checkAppointmentSessionsTable($db){
+  	$results=$db->query("SHOW TABLES LIKE 'appointment_sessions'");
+  	if (!$results){
+  		die(print_r($dbh->errorInfo(), TRUE));
+  	}
+  	if ($results->rowCount()<1){
+  		echo "table doesn't exist\n";
+  		$sql = 'CREATE TABLE appointment_sessions (aid INT NOT NULL REFERENCES appointments(aid),sid INT NOT NULL REFERENCES sessions(sid), PRIMARY KEY (aid,sid));';
+  		$db->exec($sql);
+  	} else {
+  		echo "table exists\n";
+  	}
+  }
 
   /* assures the existence of all required database tables */
   function checkTables($db){
@@ -114,6 +129,7 @@
       checkSessionsTable($db);
       checkAppointmentsTable($db);
       checkAppointmentUrlsTable($db);      
+      checkAppointmentSessionsTable($db);      
     } catch (PDOException $pdoex){
       echo $pdoex->getMessage();
     }
