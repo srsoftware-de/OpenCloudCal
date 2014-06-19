@@ -4,25 +4,42 @@
     
     /* create new appointment object */
     /* TODO: load tags, urls and sessions */
-    function __construct($id,$description,$start, $end,$coords){
-      $this->id=$id;
-      $this->description=$description;
-      $this->start=$start;
-      $this->end=$end;
-      $this->coords=$coords;
-      if ($id==0){
-        $this->save();
-      } 
-      $this->tags=$this->getTags();
-      $this->urls=$this->getUrls();
-      $this->sessions=$this->getSessions();
+    function __construct(){
+    	
+    }
+    
+    private static function create_internal($title,$description,$start, $end,$coords){
+    	$instance=new self();
+    	$instance->title=$title;
+    	$instance->description=$description;
+    	$instance->start=$start;
+    	$instance->end=$end;
+    	$instance->coords=$coords;
+    	return $instance;    	 
+    }
+    
+    public static function create($title,$description,$start, $end,$coords){
+    	$instance=self::create_internal($title, $description, $start, $end, $coords);
+      $instance->save();
+      return $instance;
+    }
+    
+    public static function load($id){
+    	$instance=new self();    	 
+    	$sql="SELECT * FROM appointments WHERE aid=$id";
+    	foreach ($db->query($sql) as $row){
+    		$instance=self::create_internal($row['title'], $row['description'], $row['start'], $row['end'], $row['coords']);
+    		$instance->id=$id;
+    		return $instance;
+    	}
+    	 
     }
 
     function save(){
       global $db;
-      $sql="INSERT INTO appointments (description, start, end, coords) VALUES (:description, :start, :end, :coords)";
+      $sql="INSERT INTO appointments (title,description, start, end, coords) VALUES (:title,:description, :start, :end, :coords)";
       $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-      $stm->execute(array(':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':coords' => $this->coords));
+      $stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':coords' => $this->coords));
       $this->id=$db->lastInsertId();
     }
 
@@ -161,17 +178,19 @@
     /* TODO: implement tag filter */
     public static function loadAll($tags=''){
       global $db;
-                        if (!is_array($tags)){
-                          if ($tags=''){
-                            $tags=array();
-                          } else {
-                            $tags=array($tags);
-                          }
-                        }
+			if (!is_array($tags)){
+				if ($tags=''){
+					$tags=array();
+				} else {
+					$tags=array($tags);
+				}
+			}
       $result=array();
       $sql="SELECT * FROM appointments";
       foreach ($db->query($sql) as $row){
-        $result[]=new appointment($row['aid'],$row['description'],$row['start'],$row['end'],$row['coords']);
+      	$instance=self::create_internal($row['title'], $row['description'], $row['start'], $row['end'], $row['coords']);
+      	$instance->id=$row['aid'];      	 
+        $result[]=$instance;
       }
       return $result;
     }

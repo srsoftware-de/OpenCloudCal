@@ -19,7 +19,7 @@
   $session1=session::create('first session','2014-06-19 00:00:00','2014-06-19 00:00:00');
   print_r($session1);
 
-  $app=new appointment(0,"this is a test appointment","2014-06-19 00:00:00", "2014-06-19 00:00:00", "50.8542,12.0586");
+  $app=appointment::create("testappointment","this is a test appointment","2014-06-19 00:00:00", "2014-06-19 00:00:00", "50.8542,12.0586");
   print_r($app);
 
   echo "\n/************* addition tests **************/\n";
