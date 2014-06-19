@@ -59,13 +59,29 @@
   		echo "table exists\n";
   	}
   }
+  
+  /* assures the existence of the sessions table */
+  function checksessionsTable($db){
+  	$results=$db->query("SHOW TABLES LIKE 'sessions'");
+  	if (!$results){
+  		die(print_r($dbh->errorInfo(), TRUE));
+  	}
+  	if ($results->rowCount()<1){
+  		echo "table doesn't exist\n";
+  		$sql = 'CREATE TABLE sessions (sid INT PRIMARY KEY AUTO_INCREMENT, description TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME);';
+  		$db->exec($sql);
+  	} else {
+  		echo "table exists\n";
+  	}
+  }
 
-  /* assures the existence o all required database tables */
+  /* assures the existence of all required database tables */
   function checkTables($db){
     try {
       checkConfigTable($db);
       checkUrlsTable($db);
       checkTagsTable($db);
+      checksessionsTable($db);
     } catch (PDOException $pdoex){
       echo $pdoex->getMessage();
     }
