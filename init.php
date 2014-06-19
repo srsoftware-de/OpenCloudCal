@@ -1,7 +1,7 @@
 <?php
-	// get full path
-	define("OCC_ROOT", realpath(dirname(__FILE__)));
-	
+  // get full path
+  define("OCC_ROOT", realpath(dirname(__FILE__)));
+  
   require  (OCC_ROOT.'/config/db.php');
 
   /* this was written using http://code.tutsplus.com/tutorials/why-you-should-be-using-phps-pdo-for-database-access--net-12059 */
@@ -34,107 +34,107 @@
   
   /* assures the existence of the urls table */
   function checkUrlsTable($db){
-  	$results=$db->query("SHOW TABLES LIKE 'urls'");
-  	if (!$results){
-  		die(print_r($dbh->errorInfo(), TRUE));
-  	}
-  	if ($results->rowCount()<1){
-  		echo "table doesn't exist\n";
-  		$sql = 'CREATE TABLE urls (uid INT PRIMARY KEY AUTO_INCREMENT, url TEXT NOT NULL);';
-  		$db->exec($sql);
-  	} else {
-  		echo "table exists\n";
-  	}
+    $results=$db->query("SHOW TABLES LIKE 'urls'");
+    if (!$results){
+      die(print_r($dbh->errorInfo(), TRUE));
+    }
+    if ($results->rowCount()<1){
+      echo "table doesn't exist\n";
+      $sql = 'CREATE TABLE urls (uid INT PRIMARY KEY AUTO_INCREMENT, url TEXT NOT NULL);';
+      $db->exec($sql);
+    } else {
+      echo "table exists\n";
+    }
   }
 
   /* assures the existence of the tags table */
   function checkTagsTable($db){
-  	$results=$db->query("SHOW TABLES LIKE 'tags'");
-  	if (!$results){
-  		die(print_r($dbh->errorInfo(), TRUE));
-  	}
-  	if ($results->rowCount()<1){
-  		echo "table doesn't exist\n";
-  		$sql = 'CREATE TABLE tags (tid INT PRIMARY KEY AUTO_INCREMENT, keyword VARCHAR(100) NOT NULL);';
-  		$db->exec($sql);
-  	} else {
-  		echo "table exists\n";
-  	}
+    $results=$db->query("SHOW TABLES LIKE 'tags'");
+    if (!$results){
+      die(print_r($dbh->errorInfo(), TRUE));
+    }
+    if ($results->rowCount()<1){
+      echo "table doesn't exist\n";
+      $sql = 'CREATE TABLE tags (tid INT PRIMARY KEY AUTO_INCREMENT, keyword VARCHAR(100) NOT NULL);';
+      $db->exec($sql);
+    } else {
+      echo "table exists\n";
+    }
   }
   
   /* assures the existence of the sessions table */
   function checkSessionsTable($db){
-  	$results=$db->query("SHOW TABLES LIKE 'sessions'");
-  	if (!$results){
-  		die(print_r($dbh->errorInfo(), TRUE));
-  	}
-  	if ($results->rowCount()<1){
-  		echo "table doesn't exist\n";
-  		$sql = 'CREATE TABLE sessions (sid INT PRIMARY KEY AUTO_INCREMENT, description TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME);';
-  		$db->exec($sql);
-  	} else {
-  		echo "table exists\n";
-  	}
+    $results=$db->query("SHOW TABLES LIKE 'sessions'");
+    if (!$results){
+      die(print_r($dbh->errorInfo(), TRUE));
+    }
+    if ($results->rowCount()<1){
+      echo "table doesn't exist\n";
+      $sql = 'CREATE TABLE sessions (sid INT PRIMARY KEY AUTO_INCREMENT, description TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME);';
+      $db->exec($sql);
+    } else {
+      echo "table exists\n";
+    }
   }
   
   /* assures the existence of the appointments table */
   function checkAppointmentsTable($db){
-  	$results=$db->query("SHOW TABLES LIKE 'appointments'");
-  	if (!$results){
-  		die(print_r($dbh->errorInfo(), TRUE));
-  	}
-  	if ($results->rowCount()<1){
-  		echo "table doesn't exist\n";
-  		$sql = 'CREATE TABLE appointments (aid INT PRIMARY KEY AUTO_INCREMENT, description TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME, coords TEXT);';
-  		$db->exec($sql);
-  	} else {
-  		echo "table exists\n";
-  	}
+    $results=$db->query("SHOW TABLES LIKE 'appointments'");
+    if (!$results){
+      die(print_r($dbh->errorInfo(), TRUE));
+    }
+    if ($results->rowCount()<1){
+      echo "table doesn't exist\n";
+      $sql = 'CREATE TABLE appointments (aid INT PRIMARY KEY AUTO_INCREMENT, description TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME, coords TEXT);';
+      $db->exec($sql);
+    } else {
+      echo "table exists\n";
+    }
   }
   
   /* assures the existence of the appointment_urls table */
   function checkAppointmentUrlsTable($db){
-  	$results=$db->query("SHOW TABLES LIKE 'appointment_urls'");
-  	if (!$results){
-  		die(print_r($dbh->errorInfo(), TRUE));
-  	}
-  	if ($results->rowCount()<1){
-  		echo "table doesn't exist\n";
-  		$sql = 'CREATE TABLE appointment_urls (aid INT NOT NULL REFERENCES appointments(aid),uid INT NOT NULL REFERENCES urls(uid), description TEXT, PRIMARY KEY (aid,uid));';
-  		$db->exec($sql);
-  	} else {
-  		echo "table exists\n";
-  	}
+    $results=$db->query("SHOW TABLES LIKE 'appointment_urls'");
+    if (!$results){
+      die(print_r($dbh->errorInfo(), TRUE));
+    }
+    if ($results->rowCount()<1){
+      echo "table doesn't exist\n";
+      $sql = 'CREATE TABLE appointment_urls (aid INT NOT NULL REFERENCES appointments(aid),uid INT NOT NULL REFERENCES urls(uid), description TEXT, PRIMARY KEY (aid,uid));';
+      $db->exec($sql);
+    } else {
+      echo "table exists\n";
+    }
   }
   
   /* assures the existence of the appointment_sessions table */
   function checkAppointmentSessionsTable($db){
-  	$results=$db->query("SHOW TABLES LIKE 'appointment_sessions'");
-  	if (!$results){
-  		die(print_r($dbh->errorInfo(), TRUE));
-  	}
-  	if ($results->rowCount()<1){
-  		echo "table doesn't exist\n";
-  		$sql = 'CREATE TABLE appointment_sessions (aid INT NOT NULL REFERENCES appointments(aid),sid INT NOT NULL REFERENCES sessions(sid), PRIMARY KEY (aid,sid));';
-  		$db->exec($sql);
-  	} else {
-  		echo "table exists\n";
-  	}
+    $results=$db->query("SHOW TABLES LIKE 'appointment_sessions'");
+    if (!$results){
+      die(print_r($dbh->errorInfo(), TRUE));
+    }
+    if ($results->rowCount()<1){
+      echo "table doesn't exist\n";
+      $sql = 'CREATE TABLE appointment_sessions (aid INT NOT NULL REFERENCES appointments(aid),sid INT NOT NULL REFERENCES sessions(sid), PRIMARY KEY (aid,sid));';
+      $db->exec($sql);
+    } else {
+      echo "table exists\n";
+    }
   }
   
   /* assures the existence of the appointment_tags table */
   function checkAppointmentTagsTable($db){
-  	$results=$db->query("SHOW TABLES LIKE 'appointment_tags'");
-  	if (!$results){
-  		die(print_r($dbh->errorInfo(), TRUE));
-  	}
-  	if ($results->rowCount()<1){
-  		echo "table doesn't exist\n";
-  		$sql = 'CREATE TABLE appointment_tags (aid INT NOT NULL REFERENCES appointments(aid),tid INT NOT NULL REFERENCES tags(tid), PRIMARY KEY (aid,tid));';
-  		$db->exec($sql);
-  	} else {
-  		echo "table exists\n";
-  	}
+    $results=$db->query("SHOW TABLES LIKE 'appointment_tags'");
+    if (!$results){
+      die(print_r($dbh->errorInfo(), TRUE));
+    }
+    if ($results->rowCount()<1){
+      echo "table doesn't exist\n";
+      $sql = 'CREATE TABLE appointment_tags (aid INT NOT NULL REFERENCES appointments(aid),tid INT NOT NULL REFERENCES tags(tid), PRIMARY KEY (aid,tid));';
+      $db->exec($sql);
+    } else {
+      echo "table exists\n";
+    }
   }
 
   /* assures the existence of all required database tables */
@@ -154,13 +154,13 @@
   }
 
   function occ_autoload($class_name) {
-  	$path = OCC_ROOT . "/include/class." . $class_name . ".php";
-  	echo "occ_autoload called for $class_name\n";
-  	if (file_exists($path)) {
-  		require_once($path);
-  	} else {
-  		return false;
-  	}
+    $path = OCC_ROOT . "/include/class." . $class_name . ".php";
+    echo "occ_autoload called for $class_name\n";
+    if (file_exists($path)) {
+      require_once($path);
+    } else {
+      return false;
+    }
   }
   spl_autoload_register('occ_autoload');
   
