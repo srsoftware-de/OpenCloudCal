@@ -21,8 +21,10 @@
     }
     if ($results->rowCount()<1){
       echo "table doesn't exist\n";
-      $sql = 'CREATE TABLE config (keyname VARCHAR(100) PRIMARY KEY, value TEXT NOT NULL);';
+      $sql = 'CREATE TABLE config (keyname VARCHAR(100) PRIMARY KEY, value TEXT NOT NULL);';      
       $db->exec($sql);
+      $sql = 'INSERT INTO config (keyname,value) VALUES ("dbversion","1")';
+      $db->exec($sql);      
     } else {
       echo "table exists\n";
     }
