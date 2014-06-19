@@ -18,7 +18,6 @@
 				}
 				$this->text=$tag;
 			} else { //id given => load
-				$sql="SELECT keyword FROM tags WHERE tid=$id";
 				foreach ($db->query("SELECT keyword FROM tags WHERE tid=$id") as $row){
 					$this->text=$row['keyword'];
 					$this->id=$id;
