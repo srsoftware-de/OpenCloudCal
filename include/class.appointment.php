@@ -10,29 +10,29 @@
       $this->start=$start;
       $this->end=$end;
       $this->coords=$coords;
-                        if ($id==0){
-                          $this->save();
-                        } 
-                        $this->tags=$this->getTags();
-                        $this->urls=$this->getUrls();
+      if ($id==0){
+        $this->save();
+      } 
+      $this->tags=$this->getTags();
+      $this->urls=$this->getUrls();
     }
 
-                function save(){
-                  global $db;
-                  $sql="INSERT INTO appointments (description, start, end, coords) VALUES (:description, :start, :end, :coords)";
-                  $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-                  $stm->execute(array(':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':coords' => $this->coords));
-                  $this->id=$db->lastInsertId();
-                }
+    function save(){
+      global $db;
+      $sql="INSERT INTO appointments (description, start, end, coords) VALUES (:description, :start, :end, :coords)";
+      $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+      $stm->execute(array(':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':coords' => $this->coords));
+      $this->id=$db->lastInsertId();
+    }
 
-                /******* TAGS ****************/
+    /******* TAGS ****************/
     
     function getTags(){
       global $db;
       $tags=array();
       $sql="SELECT tid FROM appointment_tags WHERE aid=$this->id";
       foreach ($db->query($sql) as $row){
-                                $tag=tag::load($row['tid']);
+        $tag=tag::load($row['tid']);
         $tags[$tag->id]=$tag;
       }
       return $tags;
@@ -62,8 +62,8 @@
       }
     }
     
-                /****** TAGS **************/
-                /****** URLS **************/
+    /****** TAGS **************/
+    /****** URLS **************/
 
     function getUrls(){
       global $db;
@@ -115,7 +115,19 @@
       $this->removeUrl($url);
     }
 
-                /********* URLs ***********/
+    /********* URLs ***********/
+    /********* SESSIONs *******/
+
+    function getSessions(){
+      global $db;
+      $sessions=array();
+      $sql="SELECT sid FROM appointment_sessions WHERE aid=$this->id";
+      foreach ($db->query($sql) as $row){
+        $session=session::load($row['sid']);
+        $sessions[$session->id]=$session;
+      }
+      return $sessions;
+    }
 
     /* loading all appointments, tags filter currently not implemented */
     /* TODO: implement tag filter */

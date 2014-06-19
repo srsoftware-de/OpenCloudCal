@@ -29,7 +29,7 @@
   $app->addUrl('http://example.com/test1');
   $app->addUrl('http://example.com/test2','another test description');
   
-//  $app->addSession($session1);
+  $app->addSession($session1);
   
   print_r(appointment::loadAll());
 
