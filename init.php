@@ -100,7 +100,7 @@
   	}
   	if ($results->rowCount()<1){
   		echo "table doesn't exist\n";
-  		$sql = 'CREATE TABLE appointment_urls (aid INT NOT NULL REFERENCES appointments(aid),uid INT NOT NULL REFERENCES urls(uid), PRIMARY KEY (aid,uid));';
+  		$sql = 'CREATE TABLE appointment_urls (aid INT NOT NULL REFERENCES appointments(aid),uid INT NOT NULL REFERENCES urls(uid), description TEXT, PRIMARY KEY (aid,uid));';
   		$db->exec($sql);
   	} else {
   		echo "table exists\n";

@@ -11,6 +11,7 @@
 			$this->end=$end;
 			$this->coords=$coords;
 			$this->tags=$this->getTags();
+                        $this->urls=$this->getUrls();
 		}
 
                 /******* TAGS ****************/
@@ -66,23 +67,23 @@
 		function getUrls(){
 			global $db;
 			$urls=array();
-			$sql="SELECT uid FROM appointment_urls WHERE aid=$this->id";
+			$sql="SELECT uid,description FROM appointment_urls WHERE aid=$this->id";
 			foreach ($db->query($sql) as $row){
-				$url=new url($row['uid']);
+				$url=new url($row['uid'],$row['description']);
 				$urls[$url->id]=$url;
 			}
 			return $urls;
 		}
 		
 		/* adds a url to the appointment */
-		function addUrl($url){
+		function addUrl($url,$description=''){
 			global $db;
 			if ($url instanceof url){
-				$sql="INSERT INTO appointment_urls (uid,aid) VALUES ($url->id, $this->id)";
-				$db->query($sql);
+				$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES ($url->id, $this->id, ?)");
+                                $stm->execute(array($description));
 				$this->urls[$url->id]=$url;
 			} else {
-				$this->addUrl(new url(0,$url));
+				$this->addUrl(new url(0,$description,$url),$description);
 			}
 		}
 
