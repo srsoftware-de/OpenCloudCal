@@ -59,7 +59,11 @@
         $db->query($sql);
         unset($this->tags[$tag->id]);
       } else {
-        $this->removeTag(tag::create($tag));
+        if (is_int($tag)){
+          $this->removeTag(tag::load($tag));
+        } else {
+          $this->removeTag(tag::create($tag));
+        }
       }
     }
     
