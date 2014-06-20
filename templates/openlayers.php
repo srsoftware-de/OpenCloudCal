@@ -1,4 +1,4 @@
-<div style="width:50%; height:50%" id="map">
+<div id="map">
 <noscript>
 Map only visible, when javascript is available!
 </noscript>
