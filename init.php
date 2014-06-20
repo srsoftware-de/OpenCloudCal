@@ -171,29 +171,29 @@
     return $text;
   }
 
-  function parseDate($array, $prefix){
-    if (!isset($array[$prefix.'_year'])){
+  function parseDate($array){
+    if (!isset($array['year'])){
       return false;
     }
-    if (!isset($array[$prefix.'_month'])){
+    if (!isset($array['month'])){
       return false;
     }
-    if (!isset($array[$prefix.'_day'])){
+    if (!isset($array['day'])){
       return false;
     }
-    $d_string=$array[$prefix.'_year'].'-'.$array[$prefix.'_month'].'-'.$array[$prefix.'_day'];
+    $d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];
     return strtotime($d_string);
   }
   
-  function parseTime($array, $prefix){
+  function parseTime($array){
     $secs=0;
 
-    if (isset($array[$prefix.'_hour'])){
-      $hour=(int) $array[$prefix.'_hour'];
+    if (isset($array['hour'])){
+      $hour=(int) $array['hour'];
       $secs+=3600 * $hour;
     }
-    if (isset($array[$prefix.'_minute'])){
-      $min=(int) $array[$prefix.'_minute'];
+    if (isset($array['minute'])){
+      $min=(int) $array['minute'];
       $secs+=60 * $min;
     }
     return $secs;

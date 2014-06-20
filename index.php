@@ -8,23 +8,20 @@
 
   include 'templates/htmlhead.php';
 
-  if (isset($_POST['action'])){
-    $action = $_POST['action'];
-  } else {
-    $action = null;
-  }
-
-  if ($action == 'adddate'){
-    $start = parseDate($_POST,'start');
+  if (isset($_POST['newappointment'])){
+    $new_app_data=$_POST['newappointment'];
+    $start=parseDate($new_app_data['start']);
     if (!$start){
-      warn('invalid data given for start date!');
-    } else {
-      $end = parseDate($_POST,'end');
+      warn('invalid start date');
+    } else {    
+      $end=parseDate($new_app_data['end']);
       if (!$end){
-        warn('invalid data given for end date!');
+        warn('invalid end date');
       } else {
-        $start+=parseTime($_POST,'start');
-        $end+=parseTime($_POST,'end');
+        $start+=parseTime($new_app_data['start']);
+        $end+=parseTime($new_app_data['end']);
+        echo $start.PHP_EOL;
+        echo $end.PHP_EOL;
       }
     }
   } else {
