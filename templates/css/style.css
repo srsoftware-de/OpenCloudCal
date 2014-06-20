@@ -1,20 +1,44 @@
-textarea{
-  width: 580px;
-  height: 280px;
+*{
+	padding: 0;
+	margin: 0;
 }
-.left{
-  width: 48%;
-  background-color: lime;
+.left,.right{
+	width: 50%;
+	float: left;
 }
-.right{
-  width: 48%;
-  background-color: yellow;
+#description textarea{
+	width: 400px;
+	height: 300px;
 }
-div.start,div.end{
-  float: left;
+td{
+	text-align: center;
+}
+td.description{
+	text-align: left;
 }
 
+.datepicker,.timepicker{
+	display: inline;
+	margin-right: 20px;
+}
+.end{
+	margin-top: 10px;
+}
+.submit{
+	clear: both;
+}
+textarea{
+  width: 100px;
+  height: 100px;
+}
 #map{
-  width: 500px;
-  height: 380px;
+  width: 100%;
+  height: 320px;
+}
+table {
+  border-collapse: collapse;	
+}
+table *{
+	font-weight: normal;
+  border: 1px solid gray;
 }

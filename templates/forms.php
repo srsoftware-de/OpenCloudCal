@@ -45,8 +45,6 @@
       $day+=1;
     }
     print '  </select>'.PHP_EOL;
-
-
     print '</div>'.PHP_EOL;
 
   }

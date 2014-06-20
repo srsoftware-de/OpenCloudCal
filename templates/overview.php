@@ -1,3 +1,4 @@
+<h2><?php echo loc('appointment overview');?></h2>
 <table class="appointments">
   <tr class="appointment">
     <th class="datestart"><?php echo loc('Start date'); ?></th>
@@ -11,12 +12,12 @@
 <?php
 foreach ($appointments as $appointment){
   print '<tr class="appointment">'.PHP_EOL;
-  print '  <th class="datestart">'.$appointment->start.'</th>'.PHP_EOL;
-  print '  <th class="dateend">'.$appointment->end.'</th>'.PHP_EOL;
-  print '  <th class="title">'.$appointment->title.'</th>'.PHP_EOL;
-  print '  <th class="description">'.$appointment->description.'</th>'.PHP_EOL;
-  print '  <th class="location">'.$appointment->location.'<br/>'.$appointment->coords.'</th>'.PHP_EOL;
-  print '  <th class="tags">';
+  print '  <td class="datestart">'.$appointment->start.'</th>'.PHP_EOL;
+  print '  <td class="dateend">'.$appointment->end.'</th>'.PHP_EOL;
+  print '  <td class="title">'.$appointment->title.'</th>'.PHP_EOL;
+  print '  <td class="description">'.str_replace("\n", "<br/>", $appointment->description).'</th>'.PHP_EOL;
+  print '  <td class="location">'.$appointment->location.'<br/>'.$appointment->coords.'</th>'.PHP_EOL;
+  print '  <td class="tags">';
   foreach ($appointment->tags as $tag){
     print $tag->text." ";
   }
