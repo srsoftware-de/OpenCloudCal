@@ -162,11 +162,20 @@
       return false;
     }
   }
+
+  function loc($text){
+    global $locale;
+    if (isset($locale) && array_key_exists($text,$locale)){
+      return $locale[$text];
+    }
+    return $text;
+  }
+
   spl_autoload_register('occ_autoload');
   
-  session_start();
-
   $db = connectToDb($host,$database,$user,$pass);
 
   checkTables($db);
+
+  require OCC_ROOT."/locale/de.php";
 ?>

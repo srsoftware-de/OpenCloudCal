@@ -32,6 +32,21 @@
       $month+=1;
     }
     print '  </select>'.PHP_EOL;
+
+    $day=1;
+    $selected_day=date('d',$time);
+    print '  <select name="'.$name.'_day" size="1">'.PHP_EOL;
+    for ($i=0; $i<31; $i++){
+      if ($day==$selected_day){
+        print '    <option selected>'.$day.'</option>'.PHP_EOL;
+      } else {
+        print '    <option>'.$day.'</option>'.PHP_EOL;
+      }
+      $day+=1;
+    }
+    print '  </select>'.PHP_EOL;
+
+
     print '</div>'.PHP_EOL;
 
   }
