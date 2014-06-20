@@ -171,6 +171,42 @@
     return $text;
   }
 
+  function parseDate($array, $prefix){
+    if (!isset($array[$prefix.'_year'])){
+      return false;
+    }
+    if (!isset($array[$prefix.'_month'])){
+      return false;
+    }
+    if (!isset($array[$prefix.'_day'])){
+      return false;
+    }
+    $d_string=$array[$prefix.'_year'].'-'.$array[$prefix.'_month'].'-'.$array[$prefix.'_day'];
+    return strtotime($d_string);
+  }
+  
+  function parseTime($array, $prefix){
+    $secs=0;
+
+    if (isset($array[$prefix.'_hour'])){
+      $hour=(int) $array[$prefix.'_hour'];
+      $secs+=3600 * $hour;
+    }
+    if (isset($array[$prefix.'_minute'])){
+      $min=(int) $array[$prefix.'_minute'];
+      $secs+=60 * $min;
+    }
+    return $secs;
+  }
+
+  
+
+  function warn($message){
+    $warn.='<p>'.loc($message).'</p>'.PHP_EOL;
+  }
+
+  $warn = "";
+
   spl_autoload_register('occ_autoload');
   
   $db = connectToDb($host,$database,$user,$pass);
