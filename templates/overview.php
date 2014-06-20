@@ -1,11 +1,11 @@
 <table class="appointments">
   <tr class="appointment">
-    <th class="datestart">Start date</th>
-    <th class="dateend">end date</th>
-    <th class="title">title</th>
-    <th class="description">description</th>
-    <th class="coords">location</th>
-    <th class="tags">tags</th>
+    <th class="datestart"><?php echo loc('Start date'); ?></th>
+    <th class="dateend"><?php echo loc('End date'); ?></th>
+    <th class="title"><?php echo loc('Title'); ?></th>
+    <th class="description"><?php echo loc('Description'); ?></th>
+    <th class="coords"><?php echo loc('Location');?></th>
+    <th class="tags"><?php echo loc('Tags'); ?></th>
   </tr>
 
 <?php
