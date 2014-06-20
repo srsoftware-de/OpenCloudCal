@@ -44,9 +44,12 @@
 
     function save(){
       global $db;
+      $format='Y-m-d H:i:0';
+      $start=date($format,$this->start);
+      $end=date($format,$this->end);
       $sql="INSERT INTO appointments (title,description, start, end, coords) VALUES (:title,:description, :start, :end, :coords)";
       $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-      $stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':coords' => $this->coords));
+      $stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $start, ':end' => $end, ':coords' => $this->coords));
       $this->id=$db->lastInsertId();
     }
 

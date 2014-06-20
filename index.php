@@ -20,6 +20,7 @@
       } else {
         $start+=parseTime($new_app_data['start']);
         $end+=parseTime($new_app_data['end']);
+        appointment::create($new_app_data['title'],$new_app_data['description'],$start,$end,null);
         echo $start.PHP_EOL;
         echo $end.PHP_EOL;
       }
