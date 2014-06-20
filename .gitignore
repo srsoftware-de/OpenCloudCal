@@ -1,3 +1,4 @@
 *.autosave
 *.dia~
+*.swp
 config/db.php
