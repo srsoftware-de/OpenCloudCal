@@ -85,7 +85,7 @@
     }
     if ($results->rowCount()<1){
 //      echo "table doesn't exist\n";
-      $sql = 'CREATE TABLE appointments (aid INT PRIMARY KEY AUTO_INCREMENT, title TEXT NOT NULL,description TEXT, start DATETIME NOT NULL, end DATETIME, coords TEXT);';
+      $sql = 'CREATE TABLE appointments (aid INT PRIMARY KEY AUTO_INCREMENT, title TEXT NOT NULL,description TEXT, start DATETIME NOT NULL, end DATETIME, location TEXT, coords TEXT);';
       $db->exec($sql);
 //    } else {
 //      echo "table exists\n";

@@ -4,6 +4,8 @@
 <form class="adddate" method="POST">
   <div class="titledescription">
     <?php echo loc('title'); ?> <input type="text" name="newappointment[title]"/><br/>
+    <?php echo loc('location'); ?> <input type="text" name="newappointment[location]"/><br/>
+    <?php echo loc('coordinates'); ?><input type="text" name="newappointment[coordinates]"/><br/>
     <?php echo loc('description'); ?> <textarea name="newappointment[description]"></textarea><br/>
     <?php echo loc('tags'); ?> <input type="text" name="newappointment[tags]"/><br/>
   </div>
@@ -18,3 +20,4 @@
   <input type="checkbox" name="addsession"/><?php echo loc('Add a session to this appointment in the next step.'); ?>
   <?php echo '<input type="submit" value="'.loc('create new appointment').'"/><br/>'.PHP_EOL; ?>
 </form>
+<?php include 'openlayers'; ?>

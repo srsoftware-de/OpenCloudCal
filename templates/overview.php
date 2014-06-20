@@ -4,7 +4,7 @@
     <th class="dateend">end date</th>
     <th class="title">title</th>
     <th class="description">description</th>
-    <th class="coords">coordinates</th>
+    <th class="coords">location</th>
     <th class="tags">tags</th>
   </tr>
 
@@ -15,7 +15,7 @@ foreach ($appointments as $appointment){
   print '  <th class="dateend">'.$appointment->end.'</th>'.PHP_EOL;
   print '  <th class="title">'.$appointment->title.'</th>'.PHP_EOL;
   print '  <th class="description">'.$appointment->description.'</th>'.PHP_EOL;
-  print '  <th class="coords">'.$appointment->coords.'</th>'.PHP_EOL;
+  print '  <th class="location">'.$appointment->location.'<br/>'.$appointment->coords.'</th>'.PHP_EOL;
   print '  <th class="tags">';
   foreach ($appointment->tags as $tag){
     print $tag->text." ";
