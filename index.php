@@ -29,6 +29,10 @@
       }
     }
   }
+  
+  if (isset($_GET['tag'])){
+  	$selected_tags[]=$_GET['tag'];
+  }
 
   $appointments = appointment::loadAll($selected_tags);
   include 'templates/adddateform.php';
