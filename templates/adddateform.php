@@ -2,6 +2,7 @@
   include 'forms.php';
 ?>
 <form class="adddate" method="POST">
+  <input type="hidden" name="action" value="adddate" />
   <div class="titledescription">
     <?php echo loc('title'); ?> <input type="text" name="title"/><br/>
     <?php echo loc('description'); ?> <textarea name='description'></textarea><br/>
@@ -16,5 +17,5 @@
     </div>
   </div>
   <input type="checkbox" name="addsession"/><?php echo loc('Add a session to this appointment in the next step.'); ?>
-  <input type="submit" value="Neuen Termin anlegen"/><br/>
+  <?php echo '<input type="submit" name="adddate" value="'.loc('create new appointment').'"/><br/>'.PHP_EOL; ?>
 </form>
