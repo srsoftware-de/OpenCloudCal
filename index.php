@@ -21,7 +21,7 @@
         if ($end<$start){
           $end=$start;
         }
-        $app=appointment::create($new_app_data['title'],$new_app_data['description'],$start,$end,$new_app_data['location'],null);
+        $app=appointment::create($new_app_data['title'],$new_app_data['description'],$start,$end,$new_app_data['location'],$new_app_data['coordinates']);
         $tags=explode(' ',$new_app_data['tags']);
         foreach ($tags as $tag){
           $app->addTag($tag);
