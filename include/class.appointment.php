@@ -234,7 +234,7 @@
       	$appointment=self::create_internal($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords']);
       	$appointment->id=$row['aid'];
       	$appointment->loadRelated();      	 
-        $appointments[]=$appointment;
+        $appointments[$appointment->id]=$appointment;
       }
       return $appointments;
     }
