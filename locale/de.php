@@ -1,6 +1,7 @@
 <?php
 $locale=array(
 		'Actions' => 'Aktionen',
+		'Add a link to this appointment in the next step.' => 'Füge im nächsten Schritt einen Link zu diesem Termin hinzu.',
 		'Add a session to this appointment in the next step.' => 'Füge im nächsten Schritt eine Session zu diesem Termin hinzu.',
 		'appointment overview' => 'Terminübersicht',
 		'coordinates' => 'Koordinaten',

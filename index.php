@@ -6,10 +6,6 @@ $selected_tags = array();
 
 include 'templates/htmlhead.php';
 
-
-
-
-
 if (isset($_POST['newappointment'])){
 	$app=parseAppointmentData($_POST['newappointment']);
 	if ($app){
@@ -18,14 +14,14 @@ if (isset($_POST['newappointment'])){
 		foreach ($tags as $tag){
 			$app->addTag($tag);
 		}		
-	}
+	}	
 }
 
 if (isset($_POST['editappointment'])){
 	$app=parseAppointmentData($_POST['editappointment']);
 	if ($app){
 		$app->save();
-	}
+	}		
 }
 
 if (isset($_GET['tag'])){

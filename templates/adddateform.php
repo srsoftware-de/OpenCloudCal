@@ -31,6 +31,7 @@
   </div>    
   <div class="submit">
   	<input type="checkbox" name="addsession"/> <?php echo loc('Add a session to this appointment in the next step.'); ?>
-  	<?php echo '<input type="submit" value="'.loc('create new appointment').'"/><br/>'.PHP_EOL; ?>
+   	<input type="checkbox" name="addurl"/> <?php echo loc('Add a link to this appointment in the next step.'); ?>
+   	<?php echo '<input type="submit" value="'.loc('create new appointment').'"/><br/>'.PHP_EOL; ?>
   </div>
 </form>
