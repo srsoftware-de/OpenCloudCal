@@ -14,6 +14,9 @@ if (isset($_POST['newappointment'])){
 		foreach ($tags as $tag){
 			$appointment->addTag($tag);
 		}		
+	} else {
+		unset($_POST['addsession']);
+		unset($_POST['addlink']);
 	}	
 }
 
@@ -27,9 +30,8 @@ if (isset($_POST['editappointment'])){
 	if ($appointment){
 		$appointment->save();
 	}
+	$appointment->loadRelated();
 }
-
-
 
 if (isset($_GET['tag'])){
 	$selected_tags[]=$_GET['tag'];
