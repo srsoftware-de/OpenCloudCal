@@ -70,7 +70,7 @@
     }
     if ($results->rowCount()<1){
 //      echo "table doesn't exist\n";
-      $sql = 'CREATE TABLE sessions (sid INT PRIMARY KEY AUTO_INCREMENT, description TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME);';
+      $sql = 'CREATE TABLE sessions (sid INT PRIMARY KEY AUTO_INCREMENT, aid INT NOT NULL REFERENCES appointment(aid), description TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME);';
       $db->exec($sql);
 //    } else {
 //      echo "table exists\n";
@@ -143,10 +143,9 @@
       checkConfigTable($db);
       checkUrlsTable($db);
       checkTagsTable($db);
-      checkSessionsTable($db);
       checkAppointmentsTable($db);
+      checkSessionsTable($db);
       checkAppointmentUrlsTable($db);      
-      checkAppointmentSessionsTable($db);      
       checkAppointmentTagsTable($db);      
     } catch (PDOException $pdoex){
       echo $pdoex->getMessage();
@@ -232,6 +231,33 @@
   		$app->id=$data['id'];
   	}
   	return $app;
+  }
+  
+  function parseSessionData($data){
+  	global $db_time_format;
+  	if (empty($data['description'])){
+  		warn('no title given');
+  		return false;
+  	}
+  	$start=parseDate($data['start']);
+  	if (!$start){
+  		warn('invalid start date');
+  		return false;
+  	}
+  	$end=parseDate($data['end']);
+  	if (!$end){
+  		warn('invalid end date');
+  		return false;
+  	}
+  	$start+=parseTime($data['start']);
+  	$end+=parseTime($data['end']);
+  	if ($end<$start){
+  		$end=$start;
+  	}
+  	$start=date($db_time_format,$start);
+  	$end=date($db_time_format,$end);
+  	$session=session::create($data['aid'],$data['description'],$start,$end);
+  	return $session;
   }
 
   $warnings = "";

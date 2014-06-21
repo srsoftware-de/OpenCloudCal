@@ -17,7 +17,10 @@ if (isset($_POST['newappointment'])){
 	}	
 }
 
-
+if (isset($_POST['newsession'])){
+	$session=parseSessionData($_POST['newsession']);
+	$appointment=appointment::load($session->aid);	
+}
 
 if (isset($_POST['editappointment'])){
 	$appointment=parseAppointmentData($_POST['editappointment']);

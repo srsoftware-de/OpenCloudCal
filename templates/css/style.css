@@ -63,3 +63,6 @@ table *{
 	text-align: center;
 	font-weight: bold;
 }
+#mapdiv{
+	height: 400px;
+}

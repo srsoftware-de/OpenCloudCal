@@ -60,7 +60,7 @@
     function loadRelated(){
     	$this->urls=$this->getUrls();
     	$this->tags=$this->getTags();
-    	$this->sessions=$this->getSessions();
+    	$this->sessions=session::loadAll($this->id);
     }
     
     function delete($id=false){
@@ -184,17 +184,6 @@
 
     /********* URLs ***********/
     /********* SESSIONs *******/
-
-    function getSessions(){
-      global $db;
-      $sessions=array();
-      $sql="SELECT sid FROM appointment_sessions WHERE aid=$this->id";
-      foreach ($db->query($sql) as $row){
-        $session=session::load($row['sid']);
-        $sessions[$session->id]=$session;
-      }
-      return $sessions;
-    }
 
     /* adds a session to the appointment */
     function addSession($session,$start=null,$end=null){
