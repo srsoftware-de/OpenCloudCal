@@ -203,6 +203,36 @@
   	global $warnings;
     $warnings.='<p>'.loc($message).'</p>'.PHP_EOL;
   }
+  
+  function parseAppointmentData($data){
+  	global $db_time_format;
+  	if (empty($data['title'])){
+  		warn('no title given');
+  		return false;
+  	}
+  	$start=parseDate($data['start']);
+  	if (!$start){
+  		warn('invalid start date');
+  		return false;
+  	}
+  	$end=parseDate($data['end']);
+  	if (!$end){
+  		warn('invalid end date');
+  		return false;
+  	}
+  	$start+=parseTime($data['start']);
+  	$end+=parseTime($data['end']);
+  	if ($end<$start){
+  		$end=$start;
+  	}
+  	$start=date($db_time_format,$start);
+  	$end=date($db_time_format,$end);
+  	$app=appointment::create($data['title'],$data['description'],$start,$end,$data['location'],$data['coordinates'],false);
+  	if (isset($data['id'])){
+  		$app->id=$data['id'];
+  	}
+  	return $app;
+  }
 
   $warnings = "";
   $db_time_format='Y-m-d H:i:0';
