@@ -5,7 +5,8 @@
     <th class="title"><?php echo loc('Title'); ?></th>
     <th class="coords"><?php echo loc('Location');?></th>
     <th class="tags"><?php echo loc('Tags'); ?></th>
-  </tr>
+    <th class="edit"><?php echo loc('Actions'); ?></th>
+    </tr>
 
 <?php
 foreach ($appointments as $app){
@@ -17,10 +18,9 @@ foreach ($appointments as $app){
   if ($app->coords){
 		print '<br/><a href="'.$app->mapLink().'">'.implode(', ',$app->coords).'</a>';
 	}
-	print '</th>'.PHP_EOL;
-  print '  <td class="tags">'.PHP_EOL;
-  print $app->tagLinks();
-  print '  </td>'.PHP_EOL;
+	print '  </td>'.PHP_EOL;
+  print '  <td class="tags">'.$app->tagLinks().'</td>'.PHP_EOL;
+  print '  <td class="edit"><a href="?edit='.$app->id.'">'.loc('edit').'</a></td>'.PHP_EOL;
   print '</th>'.PHP_EOL;  
 }
 ?>

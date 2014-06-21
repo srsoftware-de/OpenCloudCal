@@ -5,6 +5,9 @@
   }
 ?>
 <form class="adddate" method="POST" action=".">
+  <?php if ($appointment){
+  	echo '<input type="hidden" name="editappointment[id]" value="'.$appointment->id.'" />'; 
+  }?>
   <div class="left">
   	<div id="title">
     	<?php echo loc('title').'<input type="text" name="editappointment[title]"';
