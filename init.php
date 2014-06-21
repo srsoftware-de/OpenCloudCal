@@ -204,7 +204,7 @@
     $warnings.='<p>'.loc($message).'</p>'.PHP_EOL;
   }
 
-  $warn = "";
+  $warnings = "";
 
   spl_autoload_register('occ_autoload');
   
