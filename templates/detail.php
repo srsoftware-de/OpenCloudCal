@@ -26,12 +26,14 @@ echo '<a href="?delete='.$appointment->id.'">'.loc('delete').'</a>'.PHP_EOL;
 		echo '  <th class="sessionstart">'.loc('Start').'</th>'.PHP_EOL;
 		echo '  <th class="sessionend">'.loc('End').'</th>'.PHP_EOL;
 		echo '  <th class="description">'.loc('Description').'</th>'.PHP_EOL;
+		echo '  <th class="actions">'.loc('Actions').'</th>'.PHP_EOL;
 		echo '</tr>'.PHP_EOL;
 		foreach ($appointment->sessions as $session){
 			print '<tr class="session">'.PHP_EOL;
 			print '  <td class="sessionstart">'.$session->start.'</td>'.PHP_EOL;
 			print '  <td class="sessionend">'.$session->end.'</td>'.PHP_EOL;
 			print '  <td class="description">'.$session->description.'</td>'.PHP_EOL;
+			print '  <td class="delsession"><a href="?show='.$appointment->id.'&deletesession='.$session->id.'">'.loc('delete').'</a></td>'.PHP_EOL;
 			print '</tr>'.PHP_EOL;
 		}
 		echo '</table>';

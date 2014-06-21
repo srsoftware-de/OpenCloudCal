@@ -47,6 +47,17 @@
     	return $sessions;
     }
     
+    function delete($sid=false){
+    	global $db;
+    	if (!$sid){
+    		return;
+    	}
+    	$sql = "DELETE FROM sessions WHERE sid=:sid";
+    	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    	$stm->execute(array(':sid'=>$sid));
+    
+    }
+    
   }
   
 ?>

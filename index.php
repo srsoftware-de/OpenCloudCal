@@ -37,6 +37,11 @@ if (isset($_GET['tag'])){
 	$selected_tags[]=$_GET['tag'];
 }
 
+if (isset($_GET['deletesession'])){
+	$sid=$_GET['deletesession'];
+	session::delete($sid);
+}
+
 if (isset($_POST['addsession'])){
 	include 'templates/addsession.php';
 	include 'templates/detail.php';	
