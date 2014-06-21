@@ -1,7 +1,7 @@
 <?php
   include 'forms.php';
 ?>
-<form class="adddate" method="POST">
+<form class="adddate" method="POST" action=".">
   <div class="left">
   	<div id="title">
     	<?php echo loc('title'); ?> <input type="text" name="newappointment[title]"/>

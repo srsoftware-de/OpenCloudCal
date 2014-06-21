@@ -42,3 +42,16 @@ table *{
 	font-weight: normal;
   border: 1px solid gray;
 }
+.warnings{
+	position: fixed;
+	z-index: 1000;
+	top: 0;
+	right: 0;
+	padding: 20px;
+	width: 50%;
+	margin: auto;
+	background-color: red;
+	text-align: center;
+	color: white;
+	font-weight: bold;
+}

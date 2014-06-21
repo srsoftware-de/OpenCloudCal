@@ -200,7 +200,8 @@
   }
 
   function warn($message){
-    $warn.='<p>'.loc($message).'</p>'.PHP_EOL;
+  	global $warnings;
+    $warnings.='<p>'.loc($message).'</p>'.PHP_EOL;
   }
 
   $warn = "";
