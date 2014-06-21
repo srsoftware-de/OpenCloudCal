@@ -90,8 +90,8 @@
       	$sql="INSERT INTO appointments (title,description, start, end, location, coords) VALUES (:title,:description, :start, :end, :location, :coords)";      	
       	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));      
       	$stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':location' => $this->location,':coords' => $coords));
+      	$this->id=$db->lastInsertId();
       }
-      $this->id=$db->lastInsertId();
     }
 
     /******* TAGS ****************/

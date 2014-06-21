@@ -7,28 +7,35 @@ $selected_tags = array();
 include 'templates/htmlhead.php';
 
 if (isset($_POST['newappointment'])){
-	$app=parseAppointmentData($_POST['newappointment']);
-	if ($app){
-		$app->save();
+	$appointment=parseAppointmentData($_POST['newappointment']);
+	if ($appointment){
+		$appointment->save();
 		$tags=explode(' ',$_POST['newappointment']['tags']);
 		foreach ($tags as $tag){
-			$app->addTag($tag);
+			$appointment->addTag($tag);
 		}		
 	}	
 }
 
+
+
 if (isset($_POST['editappointment'])){
-	$app=parseAppointmentData($_POST['editappointment']);
-	if ($app){
-		$app->save();
-	}		
+	$appointment=parseAppointmentData($_POST['editappointment']);
+	if ($appointment){
+		$appointment->save();
+	}
 }
+
+
 
 if (isset($_GET['tag'])){
 	$selected_tags[]=$_GET['tag'];
 }
 
-if (isset($_GET['show'])){
+if (isset($_POST['addsession'])){
+	include 'templates/addsession.php';
+	include 'templates/detail.php';	
+} else if (isset($_GET['show'])){
 	$app_id=$_GET['show'];
 	$appointment=appointment::load($app_id);
 	include 'templates/detail.php';
@@ -56,7 +63,7 @@ if (isset($_GET['show'])){
 	include 'templates/overview.php';
 }
 
-if (isset($_GET['debug']) && $_GET['debug']=='true'){
+//if (isset($_GET['debug']) && $_GET['debug']=='true'){
 	echo "<textarea>";
 	print_r($_POST);
 	echo "</textarea>";
@@ -65,7 +72,12 @@ if (isset($_GET['debug']) && $_GET['debug']=='true'){
 		print_r($appointments);
 		echo "</textarea>";
 	}
-}
+	if (isset($appointment)){
+		echo "<textarea>";
+		print_r($appointment);
+		echo "</textarea>";
+	}
+	//}
 
 include 'templates/bottom.php';
 
