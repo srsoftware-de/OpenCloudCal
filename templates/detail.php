@@ -10,6 +10,10 @@
 <div id="coordinates"><?php
 	if ($appointment->coords){ ?>
 		<div id="mapdiv"></div>
+		<noscript>
+		<?php echo loc("You decided to not use JavaScript. That is totally ok, but you will not be able to use the interactive map. Don't worry, you can still enter coordinates manually!"); ?>
+		</noscript>
+		
   	<script src="scripts/OpenLayers.js"></script>
   	<script>
     	map = new OpenLayers.Map("mapdiv");
@@ -25,6 +29,3 @@
   	</script>
 	<?php }
 ?></div>
-<pre>EPSG:4326
-<?php print_r($appointment); ?>
-</pre>

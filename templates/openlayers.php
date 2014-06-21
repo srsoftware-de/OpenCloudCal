@@ -1,6 +1,6 @@
 <div id="map">
 <noscript>
-Map only visible, when javascript is available!
+<?php echo loc("You decided to not use JavaScript. That is totally ok, but you will not be able to use the interactive map. Don't worry, you can still enter coordinates manually!"); ?>
 </noscript>
 <script src="scripts/OpenLayers.js"></script>
 <script defer="defer" type="text/javascript">

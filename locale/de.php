@@ -25,6 +25,7 @@ $locale=array(
 		'Tags' => 'Schlüsselworte/Tags',
 		'title' => 'Titel',
 		'Title' => 'Titel',
-		'Yes'	=> 'Ja'
+		'Yes'	=> 'Ja',
+		"You decided to not use JavaScript. That is totally ok, but you will not be able to use the interactive map. Don't worry, you can still enter coordinates manually!" => 'Sie haben siche entschieden, JavaScript nicht zuzulassen. Das it vollkommen okay, bedeutet aber, dass die interaktive Karte nicht verfügbar ist. Koordinaten können nur händisch eingegeben werden.'
 );
 ?>
