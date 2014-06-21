@@ -8,8 +8,8 @@
     	
     }
     
-    private static function create_internal($title,$description,$start, $end,$location,$coords){
-    	$instance=new self();
+    public static function create($title,$description,$start, $end,$location,$coords,$save=true){
+      $instance=new self();
     	$instance->title=$title;
     	$instance->description=$description;
     	$instance->start=$start;
@@ -21,13 +21,10 @@
       	$instance->coords=array('lat'=>$c[0],'lon'=>$c[1]);
       } else {
       	$instance->coords=false;
-      }      
-	   	return $instance;    	 
-    }    
-    
-    public static function create($title,$description,$start, $end,$location,$coords){
-    	$instance=self::create_internal($title, $description, $start, $end, $location,$coords);
-      $instance->save();
+      }
+      if ($save){      
+    		$instance->save();
+      }
       return $instance;
     }
     
@@ -52,7 +49,7 @@
     	$instance=new self();    	 
     	$sql="SELECT * FROM appointments WHERE aid=$id";
     	foreach ($db->query($sql) as $row){
-    		$instance=self::create_internal($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords']);
+    		$instance=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false);
     		$instance->id=$id;
     		$instance->loadRelated();
     		return $instance;
@@ -73,12 +70,9 @@
       } else {
       	$coords=null;
       }
-      $format='Y-m-d H:i:0';
-      $start=date($format,$this->start);
-      $end=date($format,$this->end);
       $sql="INSERT INTO appointments (title,description, start, end, location, coords) VALUES (:title,:description, :start, :end, :location, :coords)";
       $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));      
-      $stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $start, ':end' => $end, ':location' => $this->location,':coords' => $coords));
+      $stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':location' => $this->location,':coords' => $coords));
       $this->id=$db->lastInsertId();
     }
 
@@ -231,7 +225,7 @@
       	$results=$db->query($sql);
       }
       foreach ($results as $row){
-      	$appointment=self::create_internal($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords']);
+      	$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
       	$appointment->id=$row['aid'];
       	$appointment->loadRelated();      	 
         $appointments[$appointment->id]=$appointment;
