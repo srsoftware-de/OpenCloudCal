@@ -185,26 +185,30 @@
     }
 
 
-    /* loading all appointments, tags filter currently not implemented */
-    /* TODO: implement tag filter */
-    public static function loadAll($tags=''){
+    /* loading all appointments */
+    public static function loadAll($tags=null){
       global $db;
-			if (!is_array($tags)){
-				if ($tags=''){
-					$tags=array();
-				} else {
+      $appointments=array();
+      
+      if ($tags!=null){
+				if (!is_array($tags)){
 					$tags=array($tags);
 				}
-			}
-      $result=array();
-      $sql="SELECT * FROM appointments ORDER BY start";
-      foreach ($db->query($sql) as $row){
-      	$instance=self::create_internal($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords']);
-      	$instance->id=$row['aid'];
-      	$instance->loadRelated();      	 
-        $result[]=$instance;
+				$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE keyword IN (?) ORDER BY start";
+				$stm=$db->prepare($sql);
+				$stm->execute($tags);
+				$results=$stm->fetchAll();
+      } else {
+      	$sql="SELECT * FROM appointments ORDER BY start";
+      	$results=$db->query($sql);
       }
-      return $result;
+      foreach ($results as $row){
+      	$appointment=self::create_internal($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords']);
+      	$appointment->id=$row['aid'];
+      	$appointment->loadRelated();      	 
+        $appointments[]=$appointment;
+      }
+      return $appointments;
     }
   }
 ?>
