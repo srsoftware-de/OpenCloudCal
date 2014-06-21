@@ -55,3 +55,11 @@ table *{
 	color: white;
 	font-weight: bold;
 }
+.confirmation{
+	width: 100%;
+	padding: 5px;
+	background-color: yellow;
+	color: red;
+	text-align: center;
+	font-weight: bold;
+}

@@ -14,14 +14,17 @@ $locale=array(
 		'Description' => 'Beschreibung',
 		'location' => 'Ort',
 		'Location' => 'Ort',
+		'No' => 'Nein',
 		'Proudly developed using PHP and JavaScript. Find the sources at <a href="%link">Github</a>.' => 'Entwickelt mit PHP und JavaScript. Hol dir den Quellcode auf <a href="%link">Github</a>.',
 		'save changes' => 'Änderungen speichern',
+		'Seriously, delete "%apptitle"?'=>'Soll "%apptitle" wirklich gelöscht werden?',
 		'start date' => 'Startdatum',
 		'Start date' => 'Startdatum',
 		'start time' => 'Startzeit',
 		'tags' => 'Schlüsselworte/Tags',
 		'Tags' => 'Schlüsselworte/Tags',
 		'title' => 'Titel',
-		'Title' => 'Titel'
+		'Title' => 'Titel',
+		'Yes'	=> 'Ja'
 );
 ?>

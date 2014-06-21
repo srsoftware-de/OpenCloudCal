@@ -1,4 +1,8 @@
-<h2><?php echo $appointment->title ?></h2><?php echo '<a href="?edit='.$appointment->id.'">'.loc('edit').'</a>'; ?>
+<h2><?php echo $appointment->title ?></h2>
+<?php 
+	echo '<a href="?edit='.$appointment->id.'">'.loc('edit').'</a>&nbsp;'; 
+	echo '<a href="?delete='.$appointment->id.'">'.loc('delete').'</a>'.PHP_EOL;
+	?>
 <div id="detail_time"><?php echo $appointment->start.' - '.$appointment->end; ?></div>
 <div id="description"><?php echo str_replace("\n", "<br/>\n", $appointment->description); ?></div>
 <div id="location"><?php echo $appointment->location; ?></div>

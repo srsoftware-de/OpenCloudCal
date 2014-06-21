@@ -62,7 +62,18 @@
     	$this->tags=$this->getTags();
     	$this->sessions=$this->getSessions();
     }
-
+    
+    function delete($id=false){
+    	global $db;
+    	if (!$id){
+    		return;
+    	}
+    	$sql = "DELETE FROM appointments WHERE aid=:id";
+    	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    	$stm->execute(array(':id'=>$id));
+    	 
+    }
+    
     function save(){
       global $db;
       if ($this->coords){
