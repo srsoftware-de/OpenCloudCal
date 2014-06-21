@@ -13,6 +13,7 @@
   'location' => 'Ort',
   'Location' => 'Ort',
   'Proudly developed using PHP and JavaScript. Find the sources at <a href="%link">Github</a>.' => 'Entwickelt mit PHP und JavaScript. Hol dir den Quellcode auf <a href="%link">Github</a>.',
+  		'save changes' => 'Änderungen speichern',
   'start date' => 'Startdatum',
   'Start date' => 'Startdatum',
   'start time' => 'Startzeit',
