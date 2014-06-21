@@ -1,7 +1,8 @@
-<h2><?php echo $appointment->title ?></h2>
+<h2><?php echo $appointment->title ?></h2><?php echo '<a href="?edit='.$appointment->id.'">'.loc('edit').'</a>'; ?>
 <div id="detail_time"><?php echo $appointment->start.' - '.$appointment->end; ?></div>
 <div id="description"><?php echo str_replace("\n", "<br/>\n", $appointment->description); ?></div>
 <div id="location"><?php echo $appointment->location; ?></div>
+<div id="tags"><?php echo loc('tags').': '.$appointment->tagLinks(); ?></div>
 <div id="coordinates"><?php
 	if ($appointment->coords){ ?>
 		<div id="mapdiv"></div>

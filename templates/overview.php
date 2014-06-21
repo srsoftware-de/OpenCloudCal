@@ -18,10 +18,9 @@ foreach ($appointments as $app){
 		print '<br/><a href="'.$app->mapLink().'">'.implode(', ',$app->coords).'</a>';
 	}
 	print '</th>'.PHP_EOL;
-  print '  <td class="tags">';
-  foreach ($app->tags as $tag){
-    print '<a href="?tag='.$tag->text.'">'.$tag->text.'</a> ';
-  }
+  print '  <td class="tags">'.PHP_EOL;
+  print $app->tagLinks();
+  print '  </td>'.PHP_EOL;
   print '</th>'.PHP_EOL;  
 }
 ?>

@@ -31,6 +31,15 @@
       return $instance;
     }
     
+    function tagLinks(){
+    	$result="";
+    	foreach ($this->tags as $tag){
+    		$result.='<a href="?tag='.$tag->text.'">'.$tag->text.'</a> '.PHP_EOL;
+    	}
+    	return $result;
+    	 
+    }
+    
     function mapLink(){
     	if ($this->coords){
     		return 'http://www.openstreetmap.org/?mlat='.$this->coords['lat'].'&mlon='.$this->coords['lon'].'&zoom=15';
