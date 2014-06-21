@@ -16,7 +16,7 @@
     	$instance->end=$end;
       $instance->location=$location;
       
-      $c=explode(',',$coords);
+      $c=explode(',',str_replace(' ', '', $coords));
       if (count($c)==2){
       	$instance->coords=array('lat'=>$c[0],'lon'=>$c[1]);
       } else {

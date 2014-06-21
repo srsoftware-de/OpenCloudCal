@@ -31,13 +31,11 @@
   			echo '/>'; ?> 
   	</div>
   	<div id="description">
-    	<?php echo loc('description'); ?> <textarea name="editappointment[description]"><?php 
+    	<?php echo loc('description'); ?><textarea name="editappointment[description]"><?php 
     		if ($appointment){
   		  	echo $appointment->description;
   			}
-				?>
-  			</textarea>
-  		 
+				?></textarea>  		 
   	</div>  
   	<div id="tags">
 			<?php echo loc('tags').'<input type="text" name="editappointment[tags]"';

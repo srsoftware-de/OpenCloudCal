@@ -5,6 +5,7 @@ $locale=array(
 		'appointment overview' => 'Terminübersicht',
 		'coordinates' => 'Koordinaten',
 		'create new appointment' => 'Neuen Termin anlegen',
+		'delete' => 'löschen',
 		'edit' => 'Bearbeiten',
 		'end date (optional)' => 'Enddatum (optional)',
 		'End date' => 'Enddatum',
