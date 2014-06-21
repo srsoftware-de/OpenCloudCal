@@ -23,7 +23,7 @@
   <div class="right">
   	<?php include 'openlayers.php'; ?>
   	<div class="start">
-      <?php echo loc('start date'); datepicker('newappointment[start]'); echo loc('start time'); timepicker('newappointment[start]',time()); ?>
+      <?php echo loc('start date'); datepicker('newappointment[start]'); echo loc('start time'); timepicker('newappointment[start]',date($db_time_format)); ?>
   	</div>
   	<div class="end">
     	<?php echo loc('end date (optional)'); datepicker('newappointment[end]'); echo loc('end time'); timepicker('newappointment[end]') ?>

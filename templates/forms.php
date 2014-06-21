@@ -1,14 +1,15 @@
 <?php
   function datepicker($name,$time=null){
+  	global $db_time_format;
     date_default_timezone_set('UTC');
 
     if ($time==null){
-      $time=time();
+      $time=date($db_time_format);
     }
     print '<div class="datepicker">'.PHP_EOL;
 
     $year=date('Y');
-    $selected_year=date('Y',$time);
+    $selected_year=substr($time, 0,4);
     print '  <select name="'.$name.'[year]" size="1">'.PHP_EOL;
     for ($i=0; $i<10; $i++){
       if ($year==$selected_year){
@@ -21,7 +22,7 @@
     print '  </select>'.PHP_EOL;
 
     $month=1;
-    $selected_month=date('m',$time);
+    $selected_month=ltrim(substr($time, 5,2),'0');
     print '  <select name="'.$name.'[month]" size="1">'.PHP_EOL;
     for ($i=0; $i<12; $i++){
       if ($month==$selected_month){
@@ -34,7 +35,7 @@
     print '  </select>'.PHP_EOL;
 
     $day=1;
-    $selected_day=date('d',$time);
+    $selected_day=ltrim(substr($time, 8,2),'0');
     print '  <select name="'.$name.'[day]" size="1">'.PHP_EOL;
     for ($i=0; $i<31; $i++){
       if ($day==$selected_day){
@@ -57,7 +58,7 @@
     if ($time==null){
       $selected_hour=0;     
     } else {
-      $selected_hour = date('H',$time);
+      $selected_hour = ltrim(substr($time, 11,2),'0');
     }
     $hour=0;
     print '  <select name="'.$name.'[hour]" size="1">'.PHP_EOL;
@@ -74,7 +75,7 @@
     if ($time==null){
       $selected_minute=0;
     } else {
-      $selected_minute=date('i',$time);
+      $selected_minute=ltrim(substr($time, 14,2),'0');
     }
     $minute=0;
     print '  <select name="'.$name.'[minute]" size="1">'.PHP_EOL;
@@ -92,5 +93,7 @@
 
   }
 
-
+  if (!isset($appointment)){
+  	$appointment=false;
+  }
 ?>

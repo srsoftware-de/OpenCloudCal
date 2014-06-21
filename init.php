@@ -205,7 +205,8 @@
   }
 
   $warnings = "";
-
+  $db_time_format='Y-m-d H:i:0';
+  
   spl_autoload_register('occ_autoload');
   
   $db = connectToDb($host,$database,$user,$pass);
