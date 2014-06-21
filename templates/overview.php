@@ -8,18 +8,18 @@
   </tr>
 
 <?php
-foreach ($appointments as $appointment){
-	$c=explode(',',$appointment->coords);
+foreach ($appointments as $app){
   print '<tr class="appointment">'.PHP_EOL;
-  print '  <td class="datestart">'.$appointment->start.'</th>'.PHP_EOL;
-  print '  <td class="title"><a href=".?show='.$appointment->id.'">'.$appointment->title.'</a></th>'.PHP_EOL;  
-  print '  <td class="location">'.$appointment->location;
-  if (count($c)==2){
-		print '<br/><a href="http://www.openstreetmap.org/?mlat='.$c[0].'&mlon='.$c[1].'&zoom=15">'.$appointment->coords.'</a>';
+  print '  <td class="datestart">'.$app->start.'</th>'.PHP_EOL;
+  print '  <td class="title"><a href=".?show='.$app->id.'">'.$app->title.'</a></th>'.PHP_EOL;  
+  print '  <td class="location">'.$app->location;
+  
+  if ($app->coords){
+		print '<br/><a href="'.$app->mapLink().'">'.implode(', ',$app->coords).'</a>';
 	}
 	print '</th>'.PHP_EOL;
   print '  <td class="tags">';
-  foreach ($appointment->tags as $tag){
+  foreach ($app->tags as $tag){
     print '<a href="?tag='.$tag->text.'">'.$tag->text.'</a> ';
   }
   print '</th>'.PHP_EOL;  

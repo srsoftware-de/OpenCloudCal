@@ -15,9 +15,15 @@
     	$instance->start=$start;
     	$instance->end=$end;
       $instance->location=$location;
-    	$instance->coords=$coords;
-    	return $instance;    	 
-    }
+      
+      $c=explode(',',$coords);
+      if (count($c)==2){
+      	$instance->coords=array('lat'=>$c[0],'lon'=>$c[1]);
+      } else {
+      	$instance->coords=false;
+      }      
+	   	return $instance;    	 
+    }    
     
     public static function create($title,$description,$start, $end,$location,$coords){
     	$instance=self::create_internal($title, $description, $start, $end, $location,$coords);
@@ -25,7 +31,15 @@
       return $instance;
     }
     
+    function mapLink(){
+    	if ($this->coords){
+    		return 'http://www.openstreetmap.org/?mlat='.$this->coords['lat'].'&mlon='.$this->coords['lon'].'&zoom=15';
+    	}
+    	return false;
+    }
+    
     public static function load($id){
+    	global $db;
     	$instance=new self();    	 
     	$sql="SELECT * FROM appointments WHERE aid=$id";
     	foreach ($db->query($sql) as $row){
@@ -45,12 +59,17 @@
 
     function save(){
       global $db;
+      if ($this->coords){
+      	$coords=implode(',', $this->coords);      	
+      } else {
+      	$coords=null;
+      }
       $format='Y-m-d H:i:0';
       $start=date($format,$this->start);
       $end=date($format,$this->end);
       $sql="INSERT INTO appointments (title,description, start, end, location, coords) VALUES (:title,:description, :start, :end, :location, :coords)";
-      $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-      $stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $start, ':end' => $end, ':location' => $this->location,':coords' => $this->coords));
+      $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));      
+      $stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $start, ':end' => $end, ':location' => $this->location,':coords' => $coords));
       $this->id=$db->lastInsertId();
     }
 

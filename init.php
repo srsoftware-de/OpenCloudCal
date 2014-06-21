@@ -199,8 +199,6 @@
     return $secs;
   }
 
-  
-
   function warn($message){
     $warn.='<p>'.loc($message).'</p>'.PHP_EOL;
   }
