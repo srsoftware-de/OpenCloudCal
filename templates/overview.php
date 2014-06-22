@@ -19,7 +19,7 @@ DTEND:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->end).'Z'.
 END:VEVENT	
 <?php } // foreach ?>
 <?php } else {?>
-<h2><?php echo loc('appointment overview');?></h2>
+<h2><a href='.'><?php echo loc('appointment overview');?></a></h2>
 <table class="appointments">
   <tr class="appointment">
     <th class="datestart"><?php echo loc('Start date'); ?></th>
@@ -50,6 +50,6 @@ foreach ($appointments as $app){
 ?>
 </table>
 <div class="bottomline right">
-<a class="button" href="?format=ical">iCal</a>
+<a class="button" href="?<?php if (isset($_GET['tag'])) echo 'tag='.$_GET['tag'].'&'; ?>format=ical">iCal</a>
 </div>
 <?php } ?>
