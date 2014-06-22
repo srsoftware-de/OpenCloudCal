@@ -68,12 +68,16 @@
     	if (!$id){
     		return;
     	}
-    	$sql = "DELETE FROM appointments WHERE aid=:id";
+    	
+    	$sql = "DELETE FROM sessions WHERE aid=:id";
     	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
     	$stm->execute(array(':id'=>$id));
     	 
+    	$sql = "DELETE FROM appointments WHERE aid=:id";
+    	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    	$stm->execute(array(':id'=>$id));
     }
-    
+  
     function save(){
       global $db;
       if ($this->coords){
@@ -183,36 +187,6 @@
     }
 
     /********* URLs ***********/
-    /********* SESSIONs *******/
-
-    /* adds a session to the appointment */
-    function addSession($session,$start=null,$end=null){
-      global $db;
-      if ($session instanceof session){
-        $sql="INSERT INTO appointment_sessions (sid,aid) VALUES ($session->id, $this->id)";
-        $db->query($sql);
-        $this->sessions[$session->id]=$session;
-      } else {
-        $this->addSession(session::create($session,$start,$end));
-      }
-    }
-
-    /* remove session from appointment */
-    function removeSession($session){
-      global $db;
-      if ($session instanceof session){
-        $sql="DELETE FROM appointment_sessions WHERE sid=$session->id AND aid=$this->id";
-        $db->query($sql);
-        unset($this->sessions[$session->id]);
-      } else {
-        if (is_int($session)){
-          $this->removeSession(session::load($session));
-        } else {
-          die("can only remove sessions referenced by handle or id");
-        }
-      }
-    }
-
 
     /* loading all appointments */
     public static function loadAll($tags=null){
