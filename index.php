@@ -90,13 +90,13 @@ if (isset($_POST['addsession'])){
 		$appointment=appointment::delete($app_id);	
 		$appointments = appointment::loadAll($selected_tags);
 		include 'templates/adddateform.php';
+		include 'templates/overview.php';
 	} else {
 		$appointments = appointment::loadAll($selected_tags);
 		$appointment=$appointments[$app_id];
 		include 'templates/confirmdelete.php';
 		include 'templates/detail.php';
 	}
-	include 'templates/overview.php';
 	
 } else {
 	$appointments = appointment::loadAll($selected_tags);
@@ -104,7 +104,7 @@ if (isset($_POST['addsession'])){
 	include 'templates/overview.php';
 }
 
-//if (isset($_GET['debug']) && $_GET['debug']=='true'){
+if (isset($_GET['debug']) && $_GET['debug']=='true'){
 	echo "<textarea>";
 	print_r($_POST);
 	echo "</textarea>";
@@ -118,7 +118,7 @@ if (isset($_POST['addsession'])){
 		print_r($appointment);
 		echo "</textarea>";
 	}
-//} 
+} 
 
 include 'templates/bottom.php';
 

@@ -17,7 +17,7 @@ $end=date($db_time_format,$start_sec+3600);
 	<h2>
 		<?php echo loc('add session');?>
 	</h2>
-	<form class="addsession" method="POST">
+	<form class="addsession" method="POST" action="?show=<?php echo $appointment->id; ?>">
 		<?php echo '<input type="hidden" name="newsession[aid]" value="'.$appointment->id.'" />'.PHP_EOL;?>
 		<div class="start">
 			<?php echo loc('start'); datepicker('newsession[start]',$start); echo loc('start time'); timepicker('newsession[start]',$start); ?>
