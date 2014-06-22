@@ -4,14 +4,6 @@ require 'init.php';
 
 $selected_tags = array();
 
-if (isset($_GET['format'])){
-	if ($_GET['format']=='ical'){
-		header('Content-type: text/calendar; charset=utf-8');
-		header('Content-Disposition: inline; filename=calendar.ics');		
-		$format='ical';
-	}
-}
-
 include 'templates/htmlhead.php';
 
 /* if data for a new appointment is recieved, handle it */
@@ -108,7 +100,7 @@ if (isset($_POST['addsession'])){
 
 } else if (isset($_GET['edit'])) {
 	$app_id=$_GET['edit'];
-	$appointments = appointment::loadCurrent($selected_tags);
+	$appointments = appointment::loadAll($selected_tags);
 	$appointment=$appointments[$app_id];
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';

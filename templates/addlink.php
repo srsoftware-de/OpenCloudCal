@@ -1,6 +1,6 @@
 <?php
-	include 'forms.php';
 	if ($format=='html') {
+		include 'forms.php';
 ?>
 <div class="addlink">
 	<h2>

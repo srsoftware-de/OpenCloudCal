@@ -71,7 +71,6 @@
 	<noscript>
 		<?php echo loc("You decided to not use JavaScript. That is totally ok, but you will not be able to use the interactive map. Don't worry, you can still enter coordinates manually!"); ?>
 	</noscript>
-
 	<script src="scripts/OpenLayers.js"></script>
 	<script>
     	map = new OpenLayers.Map("mapdiv");
@@ -88,4 +87,31 @@
 	<?php }
 	?>
 </div>
+<div class="bottomline right">
+<a class="button" href="?show=<?php echo $appointment->id; ?>&format=ical">iCal</a>
+</div>
+<?php 
+
+
+
+
+
+} else if ($format=='ical') { ?>
+BEGIN:VEVENT
+UID:<?php echo $appointment->id.'@'.$_SERVER['HTTP_HOST'].PHP_EOL; ?>
+DTSTART:<?php echo str_replace(array('-',' ',':'),array('','T',''),$appointment->start).'Z'.PHP_EOL; ?>
+CATEGORIES:<?php echo $appointment->tags(',').PHP_EOL; ?>
+CLASS:PUBLIC
+DESCRIPTION:<?php echo str_replace("\r\n","\\n",$appointment->description).PHP_EOL; ?>
+DTSTAMP:<?php echo str_replace(array('-',' ',':'),array('','T',''),$appointment->start).'Z'.PHP_EOL; ?>
+GEO:<?php echo $appointment->coords['lat'].'\;'.$appointment->coords['lon'].PHP_EOL;?>
+LOCATION:<?php echo $appointment->location.PHP_EOL; ?>
+SUMMARY:<?php echo $appointment->title.PHP_EOL; ?>
+<?php
+foreach ($appointment->urls as $url){
+	print 'URL:'.$url->address.PHP_EOL;
+} 
+?>
+DTEND:<?php echo str_replace(array('-',' ',':'),array('','T',''),$appointment->end).'Z'.PHP_EOL; ?>
+END:VEVENT
 <?php } ?>
