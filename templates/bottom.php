@@ -7,7 +7,7 @@ END:VCALENDAR
     }
     ?>
     <div class="bottomline">
-    <?php echo 'OpenCloudCal 0.5 - '.str_replace('%link', 'https://github.com/SRSoftware/OpenCloudCal', loc('Proudly developed using PHP and JavaScript. Find the sources at <a href="%link">Github</a>.')); ?>
+    <?php echo 'OpenCloudCal 0.6 - '.str_replace('%link', 'https://github.com/SRSoftware/OpenCloudCal', loc('Proudly developed using PHP and JavaScript. Find the sources at <a href="%link">Github</a>.')); ?>
     </div>
   </body>
 </html>
