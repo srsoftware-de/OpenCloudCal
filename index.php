@@ -137,7 +137,7 @@ if (isset($_POST['addsession'])){
 	include 'templates/overview.php';
 }
 
-//if (isset($_GET['debug']) && $_GET['debug']=='true'){
+if (isset($_GET['debug']) && $_GET['debug']=='true'){
 	echo "<textarea>";
 	print_r($_POST);
 	echo "</textarea>";
@@ -151,7 +151,7 @@ if (isset($_POST['addsession'])){
 		print_r($appointment);
 		echo "</textarea>";
 	}
-//} 
+} 
 
 include 'templates/bottom.php';
 
