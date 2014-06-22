@@ -99,7 +99,7 @@ END:VEVENT
 	<tr>
 		<td>
 			<a href="?format=webdav">
-				<img src="/cloud/remote.php/caldav/?sabreAction=asset&assetName=icons%2Fparent.png" width="24" alt="Parent" />
+				<img src="templates/img/folder.png" width="24" alt="Parent" />
 			</a>
 		</td>
 		<td>
@@ -112,7 +112,7 @@ END:VEVENT
 	<?php
 	foreach ($appointments as $app){ ?>
 <tr>
-<td><a href="?format=ical&show=<?php echo $app->id; ?>"><img src="/cloud/remote.php/caldav/?sabreAction=asset&assetName=icons%2Ffile.png" alt="" width="24" /></a></td>
+<td><a href="?format=ical&show=<?php echo $app->id; ?>"><img src="templates/img/file.png" alt="" width="24" /></a></td>
 <td><a href="?format=ical&show=<?php echo $app->id; ?>">appointment<?php echo $app->id; ?>.ics</a></td>
 <td>text/calendar; charset=utf-8</td>
 <td>1024</td>
