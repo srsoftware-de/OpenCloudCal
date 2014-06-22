@@ -30,10 +30,14 @@ $end=date($db_time_format,$start_sec+3600);
 			<input type="text" name="newsession[description]" />
 		</div>
 		<div class="submit">
-			<input type="checkbox" name="addsession" />
-			<?php echo loc('Add a session to this appointment in the next step.'); ?>
-			<input type="checkbox" name="addlink" />
-			<?php echo loc('Add a link to this appointment in the next step.'); ?>
+		  <input type="checkbox" id="addsession" name="addsession" />
+		  <label for="addsession">
+				<?php echo loc('Add a session to this appointment in the next step.'); ?>
+			</label>
+			<input type="checkbox" id="addlink" name="addlink" />
+			<label for="addlink">			
+				<?php echo loc('Add a link to this appointment in the next step.'); ?>
+			</label>
 			<?php echo '<input type="submit" value="'.loc('add session').'"/><br/>'.PHP_EOL; ?>
 		</div>
 	</form>

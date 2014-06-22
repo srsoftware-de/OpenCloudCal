@@ -24,7 +24,11 @@ if (isset($_POST['newappointment'])){
 /* if sessiondata is provided: create session */
 if (isset($_POST['newsession'])){
 	$session=parseSessionData($_POST['newsession']);
-	$appointment=appointment::load($session->aid);	
+	if ($session){
+		$session->save();
+		$appointment=appointment::load($session->aid);
+		
+	}
 }
 
 if (isset($_POST['editappointment'])){
@@ -75,7 +79,7 @@ if (isset($_POST['addsession'])){
 	include 'templates/overview.php';
 }
 
-//if (isset($_GET['debug']) && $_GET['debug']=='true'){
+if (isset($_GET['debug']) && $_GET['debug']=='true'){
 	echo "<textarea>";
 	print_r($_POST);
 	echo "</textarea>";
@@ -89,7 +93,7 @@ if (isset($_POST['addsession'])){
 		print_r($appointment);
 		echo "</textarea>";
 	}
-	//}
+}
 
 include 'templates/bottom.php';
 

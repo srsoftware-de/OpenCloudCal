@@ -1,7 +1,8 @@
 <h2>
 	<?php echo $appointment->title ?>
 </h2>
-<?php 
+<a href="."><?php echo loc('Back to overview'); ?></a>
+<?php
 echo '<a href="?edit='.$appointment->id.'">'.loc('edit').'</a>&nbsp;';
 echo '<a href="?delete='.$appointment->id.'">'.loc('delete').'</a>'.PHP_EOL;
 ?>
@@ -41,6 +42,7 @@ echo '<a href="?delete='.$appointment->id.'">'.loc('delete').'</a>'.PHP_EOL;
 	?>
 </div>
 <div id="coordinates">
+	<h3><?php echo loc('Map'); ?></h3>
 	<?php
 	if ($appointment->coords){ ?>
 	<div id="mapdiv"></div>

@@ -235,6 +235,10 @@
   
   function parseSessionData($data){
   	global $db_time_format;
+  	if (empty($data['aid'])){
+  		warn('no session given');
+  		return false;
+  	}  	 
   	if (empty($data['description'])){
   		warn('no title given');
   		return false;
@@ -256,7 +260,7 @@
   	}
   	$start=date($db_time_format,$start);
   	$end=date($db_time_format,$end);
-  	$session=session::create($data['aid'],$data['description'],$start,$end);
+  	$session=session::create($data['aid'],$data['description'],$start,$end,false); // create, but do not save, yet
   	return $session;
   }
 

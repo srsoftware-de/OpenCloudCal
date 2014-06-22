@@ -1,37 +1,48 @@
 <?php
-  include 'forms.php';
+include 'forms.php';
 ?>
 <form class="adddate" method="POST">
-  <div class="left">
-  	<div id="title">
-    	<?php echo loc('title'); ?> <input type="text" name="newappointment[title]"/>
-  	</div>
-  	<div id="location">
-    	<?php echo loc('location'); ?> <input type="text" name="newappointment[location]"/>
-  	</div>
-  	<div id="coordinates">
-    	<?php echo loc('coordinates'); ?><input type="text" id="coords" name="newappointment[coordinates]"/>
-  	</div>
-  	<div id="description">
-    	<?php echo loc('description'); ?> <textarea name="newappointment[description]"></textarea>
-  	</div>  
-  	<div id="tags">
-    	<?php echo loc('tags'); ?> <input type="text" name="newappointment[tags]"/>
-  	</div>
-  	
-  </div>
-  <div class="right">
-  	<?php include 'openlayers.php'; ?>
-  	<div class="start">
-      <?php echo loc('start date'); datepicker('newappointment[start]'); echo loc('start time'); timepicker('newappointment[start]',date($db_time_format)); ?>
-  	</div>
-  	<div class="end">
-    	<?php echo loc('end date (optional)'); datepicker('newappointment[end]'); echo loc('end time'); timepicker('newappointment[end]') ?>
-  	</div>  	  	
-  </div>    
-  <div class="submit">
-  	<input type="checkbox" name="addsession"/> <?php echo loc('Add a session to this appointment in the next step.'); ?>
-   	<input type="checkbox" name="addurl"/> <?php echo loc('Add a link to this appointment in the next step.'); ?>
-   	<?php echo '<input type="submit" value="'.loc('create new appointment').'"/><br/>'.PHP_EOL; ?>
-  </div>
+	<div class="left">
+		<div id="title">
+			<?php echo loc('title'); ?>
+			<input type="text" name="newappointment[title]" />
+		</div>
+		<div id="location">
+			<?php echo loc('location'); ?>
+			<input type="text" name="newappointment[location]" />
+		</div>
+		<div id="coordinates">
+			<?php echo loc('coordinates'); ?>
+			<input type="text" id="coords" name="newappointment[coordinates]" />
+		</div>
+		<div id="description">
+			<?php echo loc('description'); ?>
+			<textarea name="newappointment[description]"></textarea>
+		</div>
+		<div id="tags">
+			<?php echo loc('tags'); ?>
+			<input type="text" name="newappointment[tags]" />
+		</div>
+
+	</div>
+	<div class="right">
+		<?php include 'openlayers.php'; ?>
+		<div class="start">
+			<?php echo loc('start date'); datepicker('newappointment[start]'); echo loc('start time'); timepicker('newappointment[start]',date($db_time_format)); ?>
+		</div>
+		<div class="end">
+			<?php echo loc('end date (optional)'); datepicker('newappointment[end]'); echo loc('end time'); timepicker('newappointment[end]') ?>
+		</div>
+	</div>
+	<div class="submit">
+		  <input type="checkbox" id="addsession" name="addsession" />
+		  <label for="addsession">
+				<?php echo loc('Add a session to this appointment in the next step.'); ?>
+			</label>
+			<input type="checkbox" id="addlink" name="addlink" />
+			<label for="addlink">			
+				<?php echo loc('Add a link to this appointment in the next step.'); ?>
+			</label>
+		<?php echo '<input type="submit" value="'.loc('create new appointment').'"/><br/>'.PHP_EOL; ?>
+	</div>
 </form>

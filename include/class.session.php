@@ -5,18 +5,26 @@
     function __construct(){
     }
 
-    public static function create($aid,$description,$start,$end){
-      global $db;
+    public static function create($aid,$description,$start,$end,$save=true){
       $instance = new self();
-      $sql="INSERT INTO sessions (description, aid, start, end) VALUES (:description, :aid, :start,:end)";              
-      $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));      
-      $stm->execute(array(':description'=> $description,':aid'=>$aid,':start'=> $start,':end'=> $end));
-      $instance->id=$db->lastInsertId();     
       $instance->aid=$aid;             
       $instance->description=$description;                                       
       $instance->start=$start;                        
-      $instance->end=$end;                       
+      $instance->end=$end;
+
+      if ($save){
+      	$instance->save();
+      }
+      
       return $instance;
+    }
+    
+    function save(){
+      global $db;
+      $sql="INSERT INTO sessions (description, aid, start, end) VALUES (:description, :aid, :start,:end)";
+    	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    	$stm->execute(array(':description'=> $this->description,':aid'=>$this->aid,':start'=> $this->start,':end'=> $this->end));
+    	$this->id=$db->lastInsertId();
     }
     
     public static function load($id){
@@ -36,12 +44,8 @@
     	global $db;
     	$sessions=array();
     	foreach ($db->query("SELECT * FROM sessions WHERE aid=$aid") as $row){
-    		$instance=new self();
+    		$instance=self::create($aid, $row['description'], $row['start'], $row['end'],false);    		
     		$instance->id=$row['sid'];
-    		$instance->aid=$aid;
-    		$instance->description=$row['description'];
-    		$instance->start=$row['start'];
-    		$instance->end=$row['end'];
     		$sessions[]=$instance;
     	}
     	return $sessions;
