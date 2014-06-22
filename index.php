@@ -23,11 +23,10 @@ if (isset($_POST['newappointment'])){
 
 /* if sessiondata is provided: create session */
 if (isset($_POST['newsession'])){
-	$session=parseSessionData($_POST['newsession']);
-	if ($session){
-		$session->save();
-		$appointment=appointment::load($session->aid);
-		
+	$session=parseSessionData($_POST['newsession']); // try to create session
+	if ($session){ // if successfull:
+		$session->save(); // save session
+		$appointment=appointment::load($session->aid);		
 	}
 }
 
@@ -51,28 +50,33 @@ if (isset($_GET['deletesession'])){
 if (isset($_POST['addsession'])){
 	include 'templates/addsession.php';
 	include 'templates/detail.php';	
+	
 } else if (isset($_GET['show'])){
 	$app_id=$_GET['show'];
 	$appointment=appointment::load($app_id);
 	include 'templates/detail.php';
+	
 } else if (isset($_GET['edit'])) {
 	$app_id=$_GET['edit'];
 	$appointments = appointment::loadAll($selected_tags);
 	$appointment=$appointments[$app_id];
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';
+	
 } else if (isset($_GET['delete'])){
 	$app_id=$_GET['delete'];
 	if (isset($_GET['confirm']) && $_GET['confirm']=='yes'){
 		$appointment=appointment::delete($app_id);	
 		$appointments = appointment::loadAll($selected_tags);
+		include 'templates/adddateform.php';
 	} else {
 		$appointments = appointment::loadAll($selected_tags);
 		$appointment=$appointments[$app_id];
 		include 'templates/confirmdelete.php';
+		include 'templates/detail.php';
 	}
-	include 'templates/adddateform.php';
-	include 'templates/overview.php';	
+	include 'templates/overview.php';
+	
 } else {
 	$appointments = appointment::loadAll($selected_tags);
 	include 'templates/adddateform.php';
