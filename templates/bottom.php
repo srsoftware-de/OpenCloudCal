@@ -1,4 +1,7 @@
-    <?php
+<?php if ($format=='ical') { ?>
+X-WR-CALNAME:OpenCloudCal
+END:VCALENDAR
+<?php } else {	
     if (strlen($warnings)>3){
       echo '<div class="warnings">'.$warnings.'</div>'.PHP_EOL;
     }
@@ -8,3 +11,4 @@
     </div>
   </body>
 </html>
+<?php } ?>

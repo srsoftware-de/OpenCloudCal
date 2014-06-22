@@ -296,4 +296,6 @@
   checkTables($db);
 
   require OCC_ROOT."/locale/de.php";
+  
+  $format='html';
 ?>

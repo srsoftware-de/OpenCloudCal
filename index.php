@@ -4,6 +4,14 @@ require 'init.php';
 
 $selected_tags = array();
 
+if (isset($_GET['format'])){
+	if ($_GET['format']=='ical'){
+		header('Content-type: text/calendar; charset=utf-8');
+		header('Content-Disposition: inline; filename=calendar.ics');		
+		$format='ical';
+	}
+}
+
 include 'templates/htmlhead.php';
 
 /* if data for a new appointment is recieved, handle it */

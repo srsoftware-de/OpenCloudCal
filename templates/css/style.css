@@ -97,6 +97,7 @@ table tr{
 	height: 50%;
 }
 .bottomline{
+	background-color: white;
 	position: fixed;
 	bottom: 0;
 }

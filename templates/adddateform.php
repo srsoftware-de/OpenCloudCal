@@ -1,4 +1,4 @@
-<?php
+<?php if ($format=='html') { 
 include 'forms.php';
 ?>
 <form class="adddate" method="POST">
@@ -46,3 +46,4 @@ include 'forms.php';
 		<?php echo '<input type="submit" value="'.loc('create new appointment').'"/><br/>'.PHP_EOL; ?>
 	</div>
 </form>
+<?php } ?>

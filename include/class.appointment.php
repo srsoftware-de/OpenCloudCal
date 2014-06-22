@@ -213,5 +213,13 @@
       }
       return $appointments;
     }
+    
+    function tags($separator){
+    	$res=array();
+    	foreach ($this->tags as $tag){
+    		$res[]=$tag->text;
+    	}
+    	return implode($separator, $res);
+    }
   }
 ?>
