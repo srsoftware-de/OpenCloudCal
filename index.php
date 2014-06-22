@@ -6,20 +6,22 @@ $selected_tags = array();
 
 include 'templates/htmlhead.php';
 
+/* if data for a new appointment is recieved, handle it */
 if (isset($_POST['newappointment'])){
-	$appointment=parseAppointmentData($_POST['newappointment']);
+	$appointment=parseAppointmentData($_POST['newappointment']); // create new appointment
 	if ($appointment){
-		$appointment->save();
+		$appointment->save(); // save new appointment
 		$tags=explode(' ',$_POST['newappointment']['tags']);
 		foreach ($tags as $tag){
-			$appointment->addTag($tag);
+			$appointment->addTag($tag); // add tags
 		}		
-	} else {
-		unset($_POST['addsession']);
-		unset($_POST['addlink']);
+	} else { // if appointment data is invalid
+		unset($_POST['addsession']); // do not add sessions
+		unset($_POST['addlink']); // do not add links
 	}	
 }
 
+/* if sessiondata is provided: create session */
 if (isset($_POST['newsession'])){
 	$session=parseSessionData($_POST['newsession']);
 	$appointment=appointment::load($session->aid);	
