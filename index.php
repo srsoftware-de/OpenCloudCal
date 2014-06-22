@@ -102,13 +102,13 @@ if (isset($_POST['addsession'])){
 		$tag->aid=$appointment->id;
 		$appointment->addTag($tag);
 	}	
-	$appointments = appointment::loadAll($selected_tags);
+	$appointments = appointment::loadCurrent($selected_tags);
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';
 
 } else if (isset($_GET['edit'])) {
 	$app_id=$_GET['edit'];
-	$appointments = appointment::loadAll($selected_tags);
+	$appointments = appointment::loadCurrent($selected_tags);
 	$appointment=$appointments[$app_id];
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';
@@ -117,18 +117,22 @@ if (isset($_POST['addsession'])){
 	$app_id=$_GET['delete'];
 	if (isset($_GET['confirm']) && $_GET['confirm']=='yes'){
 		$appointment=appointment::delete($app_id);	
-		$appointments = appointment::loadAll($selected_tags);
+		$appointments = appointment::loadCurrent($selected_tags);
 		include 'templates/adddateform.php';
 		include 'templates/overview.php';
 	} else {
-		$appointments = appointment::loadAll($selected_tags);
+		$appointments = appointment::loadCurrent($selected_tags);
 		$appointment=$appointments[$app_id];
 		include 'templates/confirmdelete.php';
 		include 'templates/detail.php';
 	}
 	
-} else {
+} else if (isset($_GET['past'])){
 	$appointments = appointment::loadAll($selected_tags);
+	include 'templates/adddateform.php';
+	include 'templates/overview.php';	
+} else {
+	$appointments = appointment::loadCurrent($selected_tags);
 	include 'templates/adddateform.php';
 	include 'templates/overview.php';
 }

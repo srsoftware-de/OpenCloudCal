@@ -186,7 +186,6 @@
     }
 
     /********* URLs ***********/
-
     /* loading all appointments */
     public static function loadAll($tags=null){
       global $db;
@@ -211,6 +210,33 @@
         $appointments[$appointment->id]=$appointment;
       }
       return $appointments;
+    }
+    
+    public static function loadCurrent($tags=null){
+    	global $db,$db_time_format;
+    	$appointments=array();
+    	
+    	$now=date($db_time_format);
+    
+    	if ($tags!=null){
+    		if (!is_array($tags)){
+    			$tags=array($tags);
+    		}
+    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE start>$now AND keyword IN (?) ORDER BY start";
+    		$stm=$db->prepare($sql);
+    		$stm->execute($tags);
+    		$results=$stm->fetchAll();
+    	} else {
+    		$sql="SELECT * FROM appointments WHERE start>'$now' ORDER BY start";
+    		$results=$db->query($sql);
+    	}
+    	foreach ($results as $row){
+    		$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
+    		$appointment->id=$row['aid'];
+    		$appointment->loadRelated();
+    		$appointments[$appointment->id]=$appointment;
+    	}
+    	return $appointments;
     }
     
     function tags($separator){
