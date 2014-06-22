@@ -195,6 +195,9 @@
       $min=(int) $array['minute'];
       $secs+=60 * $min;
     }
+    if (isset($array['addtime'])){
+    	$secs+=(int)$array['addtime'];
+    }
     return $secs;
   }
 

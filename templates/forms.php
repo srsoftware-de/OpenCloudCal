@@ -46,6 +46,15 @@
       $day+=1;
     }
     print '  </select>'.PHP_EOL;
+    if (isset($_GET['clone'])||isset($_GET['edit'])){
+    	print '+<select name="'.$name.'[addtime]">'.PHP_EOL; ?>
+    	<option>0</option>
+    	<option value="<?php echo (7*86400); ?>">7</option>
+    	<option value="<?php echo (14*86400); ?>">14</option>
+    	<option value="<?php echo (21*86400); ?>">21</option>
+    	<option value="<?php echo (28*86400); ?>">28</option>
+    	</select>&nbsp;<?php echo loc('days'); 
+    }
     print '</div>'.PHP_EOL;
 
   }
@@ -90,7 +99,6 @@
     print '  </select>'.PHP_EOL;
 
     print '</div>'.PHP_EOL;
-
   }
 
   if (!isset($appointment)){

@@ -95,9 +95,11 @@ if (isset($_POST['addsession'])){
 	unset($appointment->id);
 	$appointment->save();
 	foreach ($appointment->urls as $url){
+		$url->aid=$appointment->id;
 		$appointment->addUrl($url);
 	}
 	foreach ($appointment->tags as $tag){
+		$tag->aid=$appointment->id;
 		$appointment->addTag($tag);
 	}	
 	$appointments = appointment::loadAll($selected_tags);
@@ -131,7 +133,7 @@ if (isset($_POST['addsession'])){
 	include 'templates/overview.php';
 }
 
-if (isset($_GET['debug']) && $_GET['debug']=='true'){
+//if (isset($_GET['debug']) && $_GET['debug']=='true'){
 	echo "<textarea>";
 	print_r($_POST);
 	echo "</textarea>";
@@ -145,7 +147,7 @@ if (isset($_GET['debug']) && $_GET['debug']=='true'){
 		print_r($appointment);
 		echo "</textarea>";
 	}
-} 
+//} 
 
 include 'templates/bottom.php';
 
