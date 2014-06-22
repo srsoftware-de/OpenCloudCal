@@ -5,20 +5,9 @@ class url {
 	function __construct(){
 	}
 
-	public static function create($address,$description=null){
-		global $db;
+	public static function create($appointment_id,$address,$description=null){
 		$instance=new self();
-
-		$stm=$db->prepare("SELECT * FROM urls WHERE url=?");
-		$stm->execute(array($address));
-		$results=$stm->fetchAll();
-		if ($results){
-			$instance->id=$results[0]['uid'];
-		} else {
-			$stm=$db->prepare("INSERT INTO urls (url) VALUES (?)");
-			$stm->execute(array($address));
-			$instance->id=$db->lastInsertId();
-		}
+		$instance->aid=$appointment_id;
 		if ($description==null){
 			$instance->description=$address;
 		} else {
@@ -26,6 +15,20 @@ class url {
 		}
 		$instance->address=$address;
 		return $instance;
+	}
+	
+	function save(){
+		global $db;
+		$stm=$db->prepare("SELECT * FROM urls WHERE url=?");
+		$stm->execute(array($this->address));
+		$results=$stm->fetchAll();
+		if ($results){
+			$this->id=$results[0]['uid'];
+		} else {
+			$stm=$db->prepare("INSERT INTO urls (url) VALUES (?)");
+			$stm->execute(array($this->address));
+			$this->id=$db->lastInsertId();
+		}		
 	}
 
 	public static function load($id){

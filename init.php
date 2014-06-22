@@ -236,11 +236,11 @@
   function parseSessionData($data){
   	global $db_time_format;
   	if (empty($data['aid'])){
-  		warn('no session given');
+  		warn('no appointment given');
   		return false;
   	}  	 
   	if (empty($data['description'])){
-  		warn('no title given');
+  		warn('no description given');
   		return false;
   	}
   	$start=parseDate($data['start']);
@@ -262,6 +262,24 @@
   	$end=date($db_time_format,$end);
   	$session=session::create($data['aid'],$data['description'],$start,$end,false); // create, but do not save, yet
   	return $session;
+  }
+  
+  function parseLinkData($data){
+  	global $db_time_format;
+  	if (empty($data['aid'])){
+  		warn('no appointment given');
+  		return false;
+  	}
+    	if (empty($data['description'])){
+  		warn('no description given');
+  		return false;
+  	}
+    if (empty($data['url'])){
+  		warn('no url given');
+  		return false;
+  	}
+  	$url=url::create($data['aid'],$data['url'],$data['description']);
+  	return $url;
   }
 
   $warnings = "";

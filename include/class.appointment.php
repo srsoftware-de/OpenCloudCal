@@ -5,7 +5,8 @@
     /* create new appointment object */
     /* TODO: load tags, urls and sessions */
     function __construct(){
-    	
+			$urls=array();
+			$sessions=array();    	
     }
     
     public static function create($title,$description,$start, $end,$location,$coords,$save=true){
@@ -156,17 +157,15 @@
     }
     
     /* adds a url to the appointment */
-    function addUrl($url,$description=null){
+    function addUrl($url){
       global $db;
       if ($url instanceof url){
-        if ($description==null){
-          $description=$url->description;
-        }
-        $stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES ($url->id, $this->id, ?)");
-                                $stm->execute(array($description));
+        $stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+				$stm->execute(array(':uid'=>$url->id,':aid'=>$url->aid,':description'=>$url->description));
         $this->urls[$url->id]=$url;
       } else {
-        $this->addUrl(url::create($url,$description));
+        $url=url::create($this->id,$url,$description);
+        $this->addUrl($url);
       }
     }
 

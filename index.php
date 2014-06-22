@@ -30,6 +30,16 @@ if (isset($_POST['newsession'])){
 	}
 }
 
+/* if sessiondata is provided: create session */
+if (isset($_POST['newlink'])){
+	$link=parseLinkData($_POST['newlink']); // try to create session
+	if ($link){ // if successfull:
+		$link->save(); // save session
+		$appointment=appointment::load($link->aid);
+		$appointment->addUrl($link);
+	}
+}
+
 if (isset($_POST['editappointment'])){
 	$appointment=parseAppointmentData($_POST['editappointment']);
 	if ($appointment){
@@ -49,6 +59,10 @@ if (isset($_GET['deletesession'])){
 
 if (isset($_POST['addsession'])){
 	include 'templates/addsession.php';
+	include 'templates/detail.php';	
+	
+} else if (isset($_POST['addlink'])){
+	include 'templates/addlink.php';
 	include 'templates/detail.php';	
 	
 } else if (isset($_GET['show'])){
@@ -83,7 +97,7 @@ if (isset($_POST['addsession'])){
 	include 'templates/overview.php';
 }
 
-if (isset($_GET['debug']) && $_GET['debug']=='true'){
+//if (isset($_GET['debug']) && $_GET['debug']=='true'){
 	echo "<textarea>";
 	print_r($_POST);
 	echo "</textarea>";
@@ -97,7 +111,7 @@ if (isset($_GET['debug']) && $_GET['debug']=='true'){
 		print_r($appointment);
 		echo "</textarea>";
 	}
-}
+//} 
 
 include 'templates/bottom.php';
 

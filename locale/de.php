@@ -3,6 +3,7 @@ $locale=array(
 		'Actions' => 'Aktionen',
 		'Add a link to this appointment in the next step.' => 'Füge im nächsten Schritt einen Link zu diesem Termin hinzu.',
 		'Add a session to this appointment in the next step.' => 'Füge im nächsten Schritt eine Session zu diesem Termin hinzu.',
+		'add link' => 'Link hinzufügen',
 		'add session' => 'Session hinzufügen',
 		'appointment overview' => 'Terminübersicht',
 		'Back to overview' => 'Zurück zur Übersicht',
@@ -31,6 +32,7 @@ $locale=array(
 		'Tags' => 'Schlüsselworte/Tags',
 		'title' => 'Titel',
 		'Title' => 'Titel',
+		'url' => 'Adresse',
 		'Yes'	=> 'Ja',
 		"You decided to not use JavaScript. That is totally ok, but you will not be able to use the interactive map. Don't worry, you can still enter coordinates manually!" => 'Sie haben siche entschieden, JavaScript nicht zuzulassen. Das it vollkommen okay, bedeutet aber, dass die interaktive Karte nicht verfügbar ist. Koordinaten können nur händisch eingegeben werden.'
 );
