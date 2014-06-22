@@ -8,6 +8,7 @@ $locale=array(
 		'Address' => 'Adresse',
 		'appointment overview' => 'Terminübersicht',
 		'Back to overview' => 'Zurück zur Übersicht',
+		'clone' => 'klonen',
 		'coordinates' => 'Koordinaten',
 		'create new appointment' => 'Neuen Termin anlegen',
 		'delete' => 'löschen',

@@ -86,7 +86,6 @@
       } else {
       	$coords=null;
       }
-
       if (isset($this->id)){
       	$sql="UPDATE appointments SET title=:title,description=:description, start=:start, end=:end, location=:location, coords=:coords WHERE aid=:id";
       	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));

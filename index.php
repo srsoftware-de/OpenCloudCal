@@ -89,6 +89,21 @@ if (isset($_POST['addsession'])){
 	$appointment=appointment::load($app_id);
 	include 'templates/detail.php';
 	
+} else if (isset($_GET['clone'])) {
+	$app_id=$_GET['clone'];
+	$appointment=appointment::load($app_id);
+	unset($appointment->id);
+	$appointment->save();
+	foreach ($appointment->urls as $url){
+		$appointment->addUrl($url);
+	}
+	foreach ($appointment->tags as $tag){
+		$appointment->addTag($tag);
+	}	
+	$appointments = appointment::loadAll($selected_tags);
+	include 'templates/editdateform.php';
+	include 'templates/overview.php';
+
 } else if (isset($_GET['edit'])) {
 	$app_id=$_GET['edit'];
 	$appointments = appointment::loadAll($selected_tags);

@@ -4,6 +4,7 @@
 </h2>
 <a class="button" href="."><?php echo loc('Back to overview'); ?></a>
 <a class="button" href="?edit=<?php echo $appointment->id; ?>"><?php echo loc('edit'); ?></a>&nbsp;
+<a class="button" href="?clone=<?php echo $appointment->id; ?>"><?php echo loc('clone'); ?></a>&nbsp;
 <a class="button" href="?delete=<?php echo $appointment->id; ?>"><?php echo loc('delete'); ?></a>
 <div id="detail_time">
 	<?php echo $appointment->start.' - '.$appointment->end; ?>
