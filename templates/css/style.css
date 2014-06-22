@@ -114,3 +114,7 @@ table tr{
 tr.session td{
 	padding: 5px;
 }
+.right{
+	text-align: right;
+	right: 0;
+}

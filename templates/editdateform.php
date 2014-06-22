@@ -1,9 +1,10 @@
-<?php
+<?php if ($format=='html') {
   include 'forms.php';
   if (!isset($appointment)){
   	$appointment=false;
   }
 ?>
+
 <form class="adddate" method="POST" action="?show=<?php echo $appointment->id; ?>">
   <?php if ($appointment){
   	echo '<input type="hidden" name="editappointment[id]" value="'.$appointment->id.'" />'; 
@@ -94,3 +95,4 @@
   	<?php echo '<input type="submit" value="'.loc('save changes').'"/><br/>'.PHP_EOL; ?>
   </div>
 </form>
+<?php } ?>

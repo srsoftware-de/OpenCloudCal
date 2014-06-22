@@ -49,4 +49,7 @@ foreach ($appointments as $app){
 }
 ?>
 </table>
+<div class="bottomline right">
+<a class="button" href="?format=ical">iCal</a>
+</div>
 <?php } ?>

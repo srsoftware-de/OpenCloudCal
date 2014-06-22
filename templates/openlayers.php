@@ -1,3 +1,4 @@
+<?php if ($format=='html') { ?>
 <div id="map">
 <noscript>
 <?php echo loc("You decided to not use JavaScript. That is totally ok, but you will not be able to use the interactive map. Don't worry, you can still enter coordinates manually!"); ?>
@@ -47,3 +48,4 @@
 
 </script>
 </div>
+<?php } ?>

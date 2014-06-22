@@ -1,5 +1,6 @@
 <?php
 	include 'forms.php';
+	if ($format=='html') {
 ?>
 <div class="addlink">
 	<h2>
@@ -28,3 +29,4 @@
 		</div>
 	</form>
 </div>
+<?php }?>

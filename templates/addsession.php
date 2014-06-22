@@ -12,7 +12,7 @@ if (isset($appointment->sessions)){
 	}
 }
 $end=date($db_time_format,$start_sec+3600);
-?>
+if ($format=='html') { ?>
 <div class="addsession">
 	<h2>
 		<?php echo loc('add session');?>
@@ -42,3 +42,4 @@ $end=date($db_time_format,$start_sec+3600);
 		</div>
 	</form>
 </div>
+<?php } ?>

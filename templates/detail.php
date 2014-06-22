@@ -1,3 +1,4 @@
+<?php if ($format=='html') { ?>
 <h2>
 	<?php echo $appointment->title ?>
 </h2>
@@ -86,3 +87,4 @@
 	<?php }
 	?>
 </div>
+<?php } ?>
