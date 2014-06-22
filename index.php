@@ -38,7 +38,7 @@ if (isset($_POST['newsession'])){
 	}
 }
 
-/* if sessiondata is provided: create session */
+/* if linkdata is provided: create session */
 if (isset($_POST['newlink'])){
 	$link=parseLinkData($_POST['newlink']); // try to create session
 	if ($link){ // if successfull:
@@ -48,6 +48,7 @@ if (isset($_POST['newlink'])){
 	}
 }
 
+/* if edited appointment data is provided: save! */
 if (isset($_POST['editappointment'])){
 	$appointment=parseAppointmentData($_POST['editappointment']);
 	if ($appointment){
@@ -56,15 +57,18 @@ if (isset($_POST['editappointment'])){
 	$appointment->loadRelated();
 }
 
+/* if a tag is provided: use it */
 if (isset($_GET['tag'])){
 	$selected_tags[]=$_GET['tag'];
 }
 
+/* session shall be deleted. */
 if (isset($_GET['deletesession'])){
 	$sid=$_GET['deletesession'];
 	session::delete($sid);
 }
 
+/* link shall be removed from appointment */
 if (isset($_GET['deletelink'])){
 	$uid=$_GET['deletelink'];
 	$aid=$_GET['show'];
