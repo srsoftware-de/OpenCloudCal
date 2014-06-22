@@ -46,14 +46,15 @@
       $day+=1;
     }
     print '  </select>'.PHP_EOL;
-    if (isset($_GET['clone'])||isset($_GET['edit'])){
-    	print '+<select name="'.$name.'[addtime]">'.PHP_EOL; ?>
+    if (isset($_GET['clone'])||isset($_GET['edit'])){ ?>
+    	+<select name="<?php print $name.'[addtime]';?>">
     	<option>0</option>
-    	<option value="<?php echo (7*86400); ?>">7</option>
-    	<option value="<?php echo (14*86400); ?>">14</option>
-    	<option value="<?php echo (21*86400); ?>">21</option>
-    	<option value="<?php echo (28*86400); ?>">28</option>
-    	</select>&nbsp;<?php echo loc('days'); 
+    	<option value="<?php echo (7*86400); ?>">1</option>
+    	<option value="<?php echo (14*86400); ?>">2</option>
+    	<option value="<?php echo (21*86400); ?>">3</option>
+    	<option value="<?php echo (28*86400); ?>">4</option>
+    	<option value="<?php echo (35*86400); ?>">5</option>
+    	</select>&nbsp;<?php echo loc('weeks'); 
     }
     print '</div>'.PHP_EOL;
 
