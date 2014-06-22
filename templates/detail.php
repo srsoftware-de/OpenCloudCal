@@ -18,9 +18,10 @@ echo '<a href="?delete='.$appointment->id.'">'.loc('delete').'</a>'.PHP_EOL;
 <div id="tags">
 	<?php echo loc('tags').': '.$appointment->tagLinks(); ?>
 </div>
-<div id="sessions">
+
 	<?php
 	if (isset($appointment->sessions) && count($appointment->sessions)>0){
+		echo '<div id="sessions">'.PHP_EOL;
 		echo '<h3>'.loc('Sessions').'</h3>'.PHP_EOL;
 		echo '<table class="sessions">'.PHP_EOL;
 		echo '<tr class="session">'.PHP_EOL;
@@ -38,9 +39,30 @@ echo '<a href="?delete='.$appointment->id.'">'.loc('delete').'</a>'.PHP_EOL;
 			print '</tr>'.PHP_EOL;
 		}
 		echo '</table>';
+		echo '</div>'.PHP_EOL;
 	}
+
+	if (isset($appointment->urls) && count($appointment->urls)>0){
+		echo '<div id="links">'.PHP_EOL;
+		echo '<h3>'.loc('Links').'</h3>'.PHP_EOL;
+		echo '<table class="links">'.PHP_EOL;
+		echo '<tr class="link">'.PHP_EOL;
+		echo '  <th class="description">'.loc('Description').'</th>'.PHP_EOL;
+		echo '  <th class="address">'.loc('Address').'</th>'.PHP_EOL;
+		echo '  <th class="actions">'.loc('Actions').'</th>'.PHP_EOL;
+		echo '</tr>'.PHP_EOL;
+		foreach ($appointment->urls as $url){
+			print '<tr class="link">'.PHP_EOL;
+			print '  <td class="description"><a href="'.$url->address.'">'.$url->description.'</a></td>'.PHP_EOL;
+			print '  <td class="address"><a href="'.$url->address.'">'.$url->address.'</a></td>'.PHP_EOL;
+			print '  <td class="dellink"><a href="?show='.$appointment->id.'&deletelink='.$url->id.'">'.loc('delete').'</a></td>'.PHP_EOL;
+			print '</tr>'.PHP_EOL;
+		}
+		echo '</table>';
+		echo '</div>'.PHP_EOL;
+	}
+	
 	?>
-</div>
 <div id="coordinates">
 	<h3><?php echo loc('Map'); ?></h3>
 	<?php

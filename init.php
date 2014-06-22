@@ -278,7 +278,11 @@
   		warn('no url given');
   		return false;
   	}
-  	$url=url::create($data['aid'],$data['url'],$data['description']);
+  	$url=$data['url'];
+  	if (!strpos($url,':')){
+  		$url='http://'.$url;
+  	}
+  	$url=url::create($data['aid'],$url,$data['description']);
   	return $url;
   }
 

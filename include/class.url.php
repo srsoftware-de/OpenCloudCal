@@ -16,7 +16,7 @@ class url {
 		$instance->address=$address;
 		return $instance;
 	}
-	
+
 	function save(){
 		global $db;
 		$stm=$db->prepare("SELECT * FROM urls WHERE url=?");
@@ -28,19 +28,23 @@ class url {
 			$stm=$db->prepare("INSERT INTO urls (url) VALUES (?)");
 			$stm->execute(array($this->address));
 			$this->id=$db->lastInsertId();
-		}		
+		}
 	}
 
 	public static function load($id){
 		global $db;
-		$instance=new self();
-		foreach ($db->query("SELECT url FROM urls WHERE uid=$id") as $row){
+		$stm=$db->prepare("SELECT url FROM urls WHERE uid=?");
+		$stm->execute(array($id));
+		$results=$stm->fetchAll();
+		if ($results){
+			$instance=new self();
+			$row=$results[0];
 			$instance->id=$id;
-			$instance->url=$row['url'];
+			$instance->address=$row['url'];
 			$instance->description=null;
-			break;
+			return $instance;
 		}
-		return $instance;
+		return false;		
 	}
 }
 

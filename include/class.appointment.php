@@ -149,9 +149,10 @@
       $sql="SELECT uid,description FROM appointment_urls WHERE aid=$this->id";
       foreach ($db->query($sql) as $row){
         $url=url::load($row['uid']);
-        $url->description=$row['description'];
-
-        $urls[$url->id]=$url;
+        if ($url){
+        	$url->description=$row['description'];
+        	$urls[$url->id]=$url;
+        }
       }
       return $urls;
     }
