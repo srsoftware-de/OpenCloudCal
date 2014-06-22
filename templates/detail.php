@@ -1,11 +1,9 @@
 <h2>
 	<?php echo $appointment->title ?>
 </h2>
-<a href="."><?php echo loc('Back to overview'); ?></a>
-<?php
-echo '<a href="?edit='.$appointment->id.'">'.loc('edit').'</a>&nbsp;';
-echo '<a href="?delete='.$appointment->id.'">'.loc('delete').'</a>'.PHP_EOL;
-?>
+<a class="button" href="."><?php echo loc('Back to overview'); ?></a>
+<a class="button" href="?edit=<?php echo $appointment->id; ?>"><?php echo loc('edit'); ?></a>&nbsp;
+<a class="button" href="?delete=<?php echo $appointment->id; ?>"><?php echo loc('delete'); ?></a>
 <div id="detail_time">
 	<?php echo $appointment->start.' - '.$appointment->end; ?>
 </div>
@@ -13,7 +11,7 @@ echo '<a href="?delete='.$appointment->id.'">'.loc('delete').'</a>'.PHP_EOL;
 	<?php echo str_replace("\n", "<br/>\n", $appointment->description); ?>
 </div>
 <div id="location">
-	<?php echo $appointment->location; ?>
+	<?php echo loc('Location').': '.$appointment->location; ?>
 </div>
 <div id="tags">
 	<?php echo loc('tags').': '.$appointment->tagLinks(); ?>
@@ -35,7 +33,7 @@ echo '<a href="?delete='.$appointment->id.'">'.loc('delete').'</a>'.PHP_EOL;
 			print '  <td class="sessionstart">'.$session->start.'</td>'.PHP_EOL;
 			print '  <td class="sessionend">'.$session->end.'</td>'.PHP_EOL;
 			print '  <td class="description">'.$session->description.'</td>'.PHP_EOL;
-			print '  <td class="delsession"><a href="?show='.$appointment->id.'&deletesession='.$session->id.'">'.loc('delete').'</a></td>'.PHP_EOL;
+			print '  <td class="delsession"><a class="button" href="?show='.$appointment->id.'&deletesession='.$session->id.'">'.loc('delete').'</a></td>'.PHP_EOL;
 			print '</tr>'.PHP_EOL;
 		}
 		echo '</table>';
@@ -55,7 +53,7 @@ echo '<a href="?delete='.$appointment->id.'">'.loc('delete').'</a>'.PHP_EOL;
 			print '<tr class="link">'.PHP_EOL;
 			print '  <td class="description"><a href="'.$url->address.'">'.$url->description.'</a></td>'.PHP_EOL;
 			print '  <td class="address"><a href="'.$url->address.'">'.$url->address.'</a></td>'.PHP_EOL;
-			print '  <td class="dellink"><a href="?show='.$appointment->id.'&deletelink='.$url->id.'">'.loc('delete').'</a></td>'.PHP_EOL;
+			print '  <td class="dellink"><a class="button" href="?show='.$appointment->id.'&deletelink='.$url->id.'">'.loc('delete').'</a></td>'.PHP_EOL;
 			print '</tr>'.PHP_EOL;
 		}
 		echo '</table>';

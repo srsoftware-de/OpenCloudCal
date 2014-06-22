@@ -21,8 +21,8 @@ foreach ($appointments as $app){
 	print '  </td>'.PHP_EOL;
   print '  <td class="tags">'.$app->tagLinks().'</td>'.PHP_EOL;
   print '  <td class="edit">'.PHP_EOL;
-  print '<a href="?edit='.$app->id.'">'.loc('edit').'</a>'.PHP_EOL;
-  print '<a href="?delete='.$app->id.'">'.loc('delete').'</a>'.PHP_EOL;
+  print '<a class="button" href="?edit='.$app->id.'">'.loc('edit').'</a>'.PHP_EOL;
+  print '<a class="button" href="?delete='.$app->id.'">'.loc('delete').'</a>'.PHP_EOL;
   print '  </td>'.PHP_EOL;
   print '</tr>'.PHP_EOL;  
 }

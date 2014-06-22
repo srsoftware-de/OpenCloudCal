@@ -2,6 +2,35 @@
 	padding: 0;
 	margin: 0;
 }
+a{
+	text-decoration: none;
+}
+h2,h3{
+	margin: 5px;
+}
+
+#detail_time,#description,#location,#tags{
+	margin: 0 5px;
+}
+
+#detail_time,#location{
+	background-color: #ddddff;  
+}
+#mapdiv{
+  margin: 5px;
+  border: 1px solid gray;
+  border-radius: 5px;	
+}
+form{
+	background-color: #ddffdd;
+	margin: 5px;
+	border: 1px solid gray;
+	border-radius: 5px;
+	padding: 5px;
+}
+form #location{
+	background-color: #ddffdd;
+}
 .left,.right{
 	width: 50%;
 	float: left;
@@ -36,11 +65,12 @@ textarea{
   height: 320px;
 }
 table {
-  border-collapse: collapse;	
+  border-collapse: collapse;
+  margin: 5px;	
 }
-table *{
+table tr{
 	font-weight: normal;
-  border: 1px solid gray;
+	border: 1px solid gray;	
 }
 .warnings{
 	position: fixed;
@@ -65,4 +95,21 @@ table *{
 }
 #mapdiv{
 	height: 50%;
+}
+.bottomline{
+	position: fixed;
+	bottom: 0;
+}
+.button{
+	display: inline-block;
+	border-radius: 5px;
+	background-color: #ccc;
+	text-decoration: none;
+	color: black;
+	padding: 3px;
+	margin: 3px;
+	font-weight: bold;
+}
+tr.session td{
+	padding: 5px;
 }
