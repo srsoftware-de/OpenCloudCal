@@ -57,6 +57,13 @@ if (isset($_GET['deletesession'])){
 	session::delete($sid);
 }
 
+if (isset($_GET['deletelink'])){
+	$uid=$_GET['deletelink'];
+	$aid=$_GET['show'];
+	$appointment=appointment::load($aid);
+	$appointment->removeUrl((int)$uid);
+}
+
 if (isset($_POST['addsession'])){
 	include 'templates/addsession.php';
 	include 'templates/detail.php';	

@@ -5,8 +5,8 @@
 	<h2>
 		<?php echo loc('add link');?>
 	</h2>
-	<form class="addlink" method="POST">
-		<?php echo '<input type="hidden" name="newlink[aid]" value="'.$appointment->id.'" />'.PHP_EOL;?>	
+	<form class="addlink" method="POST" action="?show=<?php echo $appointment->id; ?>">
+		<input type="hidden" name="newlink[aid]" value="<?php echo $appointment->id; ?>" />	
 		<div id="description">
 			<?php echo loc('description'); ?>
 			<input type="text" name="newlink[description]" />
@@ -24,7 +24,7 @@
 			<label for="addlink">			
 				<?php echo loc('Add a link to this appointment in the next step.'); ?>
 			</label>
-			<?php echo '<input type="submit" value="'.loc('add link').'"/><br/>'.PHP_EOL; ?>
+			<input type="submit" value="<?php echo loc('add link'); ?>"/><br/> 
 		</div>
 	</form>
 </div>
