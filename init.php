@@ -288,6 +288,27 @@
   	$url=url::create($data['aid'],$url,$data['description']);
   	return $url;
   }
+  
+  function startsWith($haystack, $needle){
+  	return $needle === "" || strpos($haystack, $needle) === 0;
+  }
+  function endsWith($haystack, $needle){
+  	return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
+  }
+  
+  function importIcal($url){
+  	$data=file($url);
+  	$len=count($data);
+  	if ($len<1){
+  		warn('This file contains no data!');
+  		return false;
+  	}
+  	if ($data[0]!='BEGIN:VCALENDAR'){
+  		warn('This file does not look like an iCal file!');
+  		return false;
+  	}
+  	// TODO: code here?
+  }
 
   $warnings = "";
   $db_time_format='Y-m-d H:i:0';

@@ -51,6 +51,7 @@ foreach ($appointments as $app){
 ?>
 </table>
 <div class="bottomline right">
-<a class="button" href="?<?php if (isset($_GET['tag'])) echo 'tag='.$_GET['tag'].'&'; ?>format=ical">iCal</a>
+<a class="button" href="?import=ical"><?php echo loc('import iCal');?></a>
+<a class="button" href="?<?php if (isset($_GET['tag'])) echo 'tag='.$_GET['tag'].'&'; ?>format=ical"><?php echo loc('export iCal');?></a>
 </div>
 <?php } ?>

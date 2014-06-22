@@ -57,6 +57,10 @@ if (isset($_POST['editappointment'])){
 	$appointment->loadRelated();
 }
 
+if (isset($_POST['icalimporturl'])){
+	importIcal($_POST['icalimporturl']);
+}
+
 /* if a tag is provided: use it */
 if (isset($_GET['tag'])){
 	$selected_tags[]=$_GET['tag'];
@@ -111,6 +115,14 @@ if (isset($_POST['addsession'])){
 	$appointments = appointment::loadCurrent($selected_tags);
 	$appointment=$appointments[$app_id];
 	include 'templates/editdateform.php';
+	include 'templates/overview.php';
+	
+} else if (isset($_GET['import'])) {
+	$import=$_GET['import'];
+	if ($import=='ical'){
+		include 'templates/icalimport.php';
+	}
+	$appointments = appointment::loadCurrent($selected_tags);
 	include 'templates/overview.php';
 	
 } else if (isset($_GET['delete'])){
