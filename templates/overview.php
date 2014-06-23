@@ -49,24 +49,26 @@ END:VEVENT
 	</tr>
 
 	<?php
-	foreach ($appointments as $app){
-  print '<tr class="appointment">'.PHP_EOL;
-  print '  <td class="datestart">'.$app->start.'</th>'.PHP_EOL;
-  print '  <td class="title"><a href=".?show='.$app->id.'">'.$app->title.'</a></th>'.PHP_EOL;
-  print '  <td class="location">'.$app->location;
-
-  if ($app->coords){
-		print '<br/><a href="'.$app->mapLink().'">'.implode(', ',$app->coords).'</a>';
-	}
-	print '  </td>'.PHP_EOL;
-	print '  <td class="tags">'.$app->tagLinks().'</td>'.PHP_EOL;
-	print '  <td class="edit">'.PHP_EOL;
-	print '<a class="button" href="?clone='.$app->id.'">'.loc('clone').'</a>'.PHP_EOL;
-	print '<a class="button" href="?edit='.$app->id.'">'.loc('edit').'</a>'.PHP_EOL;
-	print '<a class="button" href="?delete='.$app->id.'">'.loc('delete').'</a>'.PHP_EOL;
-	print '  </td>'.PHP_EOL;
-	print '</tr>'.PHP_EOL;
-}
+	foreach ($appointments as $app){ ?>
+  <tr class="appointment">
+    <td class="datestart"><?php echo $app->start; ?></th>
+    <td class="title"><a href="?show=<?php echo $app->id; ?>"><?php echo $app->title; ?></a></td>
+    <td class="location"><?php echo $app->location;
+    if ($app->coords){ ?>
+      <br/><a href="<?php echo $app->mapLink() ?>"><?php echo implode(', ',$app->coords); ?></a> <?php
+  	} // if
+    ?> 
+	  </td>
+    <td class="tags"><?php echo $app->tagLinks(); ?></td>
+	  <td class="edit">
+      <form action="." method="GET">
+        <button name="clone" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('clone'); ?></button>
+        <button name="edit" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('edit'); ?></button>
+        <button name="delete" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('delete'); ?></button>
+      </form>
+    </td>
+	</tr>
+<?php } // foreach
 ?>
 </table>
 <div class="bottomline right">

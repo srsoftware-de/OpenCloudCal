@@ -2,10 +2,12 @@
 <h2>
 	<?php echo $appointment->title ?>
 </h2>
-<a class="button" href="."><?php echo loc('Back to overview'); ?></a>
-<a class="button" href="?edit=<?php echo $appointment->id; ?>"><?php echo loc('edit'); ?></a>&nbsp;
-<a class="button" href="?clone=<?php echo $appointment->id; ?>"><?php echo loc('clone'); ?></a>&nbsp;
-<a class="button" href="?delete=<?php echo $appointment->id; ?>"><?php echo loc('delete'); ?></a>
+<form class="detailactions" action="." method="GET">
+  <button type="submit"><?php echo loc('Back to overview'); ?></button>
+  <button type="submit" name="edit" value="<?php echo $appointment->id; ?>"><?php echo loc('edit'); ?></button>
+  <button type="submit" name="clone" value="<?php echo $appointment->id; ?>"><?php echo loc('clone'); ?></button>
+  <button type="submit" name="delete" value="<?php echo $appointment->id; ?>"><?php echo loc('delete'); ?></button>
+</form>
 <div id="detail_time">
 	<?php echo $appointment->start.' - '.$appointment->end; ?>
 </div>
