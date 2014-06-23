@@ -17,6 +17,7 @@ PRODID:<?php echo "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]".PHP_EOL; ?>
 <html>
   <head>
     <meta charset="utf-8"/>
+    <meta name="robots" content="nofollow" />
     <title>OpenCloudCal</title>
     <link type="text/css" rel="stylesheet" media="all" href="templates/css/style.css" />
    </head>
