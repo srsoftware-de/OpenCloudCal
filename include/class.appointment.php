@@ -209,7 +209,7 @@
     			$sql.=' LIMIT :limit';
     		}
     		$stm=$db->prepare($sql);
-    		$stm->bindValue(':tags', $tags);
+    		$stm->bindValue(':tags', reset($tags));
 				
       } else {
       	$sql="SELECT * FROM appointments ORDER BY start";
@@ -247,7 +247,7 @@
     			$sql.=' LIMIT :limit';
     		}
     		$stm=$db->prepare($sql);
-    		$stm->bindValue(':tags', $tags);
+    		$stm->bindValue(':tags', reset($tags));
     	} else {
     		$sql="SELECT * FROM appointments WHERE start>'$now' ORDER BY start";
     		if ($limit){
