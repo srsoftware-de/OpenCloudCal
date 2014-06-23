@@ -35,6 +35,9 @@ form #location{
 	width: 50%;
 	float: left;
 }
+h2.overview{
+	float: left;
+}
 #description textarea{
 	width: 400px;
 	height: 300px;
@@ -66,7 +69,8 @@ textarea{
 }
 table {
   border-collapse: collapse;
-  margin: 5px;	
+  margin: 5px;
+  clear: both;	
 }
 table tr{
 	font-weight: normal;
@@ -110,6 +114,9 @@ table tr{
 	padding: 3px;
 	margin: 3px;
 	font-weight: bold;
+	border-right: 2px solid black;
+	border-bottom: 2px solid black;
+	color: black;
 }
 tr.session td{
 	padding: 5px;
@@ -117,4 +124,7 @@ tr.session td{
 .right{
 	text-align: right;
 	right: 0;
+}
+.options{
+	float: right;
 }

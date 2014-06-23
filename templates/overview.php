@@ -27,9 +27,18 @@ END:VEVENT
 
 
 } else if ($format=='html') { ?>
-<h2>
+<h2 class="overview">
 	<a href='.'><?php echo loc('appointment overview');?> </a>
 </h2>
+<div class="options">
+	<?php echo loc('Number of entries shown'); ?>:
+	<a class="button" href="?limit=1000">1000</a>
+	<a class="button" href="?limit=100">100</a>
+	<a class="button" href="?limit=50">50</a>	
+	<a class="button" href="?limit=20">20</a>	
+	<a class="button" href="?limit=10">10</a> |	
+	<a class="button" href="?past=true"><?php echo loc('show previous events')?></a>
+</div>
 <table class="appointments">
 	<tr class="appointment">
 		<th class="datestart"><?php echo loc('Start date'); ?></th>
@@ -62,9 +71,17 @@ END:VEVENT
 </table>
 <div class="bottomline right">
 	<a class="button"
-		href="?<?php if (isset($_GET['tag'])) echo 'tag='.$_GET['tag'].'&'; ?>format=webdav">webDAV</a>
+		href="?<?php
+		 if (isset($_GET['tag'])) echo 'tag='.$_GET['tag'].'&';
+		 if (isset($_GET['limit'])) echo 'limit='.$_GET['limit'].'&';		 	
+		 if (isset($_GET['past'])) echo 'past='.$_GET['past'].'&';		 	
+		 ?>format=webdav">webDAV</a>
 	<a class="button"
-		href="?<?php if (isset($_GET['tag'])) echo 'tag='.$_GET['tag'].'&'; ?>format=ical">iCal</a>
+		href="?<?php
+		 if (isset($_GET['tag'])) echo 'tag='.$_GET['tag'].'&';
+		 if (isset($_GET['limit'])) echo 'limit='.$_GET['limit'].'&';		 	
+		 if (isset($_GET['past'])) echo 'past='.$_GET['past'].'&';		 	
+		 ?>format=ical">iCal</a>
 </div>
 <?php
 

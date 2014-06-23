@@ -45,7 +45,12 @@ if (isset($_POST['editappointment'])){
 	$appointment=parseAppointmentData($_POST['editappointment']);
 	if ($appointment){
 		$appointment->save();
-	}
+		$appointment->removeAllTags();		
+		$tags=explode(' ',$_POST['editappointment']['tags']);
+		foreach ($tags as $tag){						
+			$appointment->addTag($tag); // add tags
+		}		
+	}	
 	$appointment->loadRelated();
 }
 
@@ -129,7 +134,7 @@ if (isset($_POST['addsession'])){
 	include 'templates/overview.php';
 }
 
-if (isset($_GET['debug']) && $_GET['debug']=='true'){
+if (isset($_SESSION['debug']) && $_SESSION['debug']=='true'){
 	echo "<textarea>";
 	print_r($_POST);
 	echo "</textarea>";

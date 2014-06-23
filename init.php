@@ -3,6 +3,8 @@
   define("OCC_ROOT", realpath(dirname(__FILE__)));
   
   require  (OCC_ROOT.'/config/db.php');
+  
+  session_start();
 
   /* this was written using http://code.tutsplus.com/tutorials/why-you-should-be-using-phps-pdo-for-database-access--net-12059 */
   function connectToDb($host,$database,$user,$pass){
@@ -301,6 +303,7 @@
   require OCC_ROOT."/locale/de.php";
   
   $format='html';
+  $limit=null;
   
   if (isset($_GET['format'])){
   	if ($_GET['format']=='ical'){
@@ -311,6 +314,14 @@
   	if ($_GET['format']=='webdav'){
   		$format='webdav';
   	}
+  }
+  
+  if (isset($_GET['limit'])){
+  	$limit=(int)$_GET['limit'];
+  }
+  
+  if (isset($_GET['debug'])){
+  	$_SESSION['debug']=$_GET['debug'];
   }
   
 ?>

@@ -119,6 +119,9 @@
         $db->query($sql);
         $this->tags[$tag->id]=$tag;
       } else {
+      	if (empty($tag)){
+      		return;
+      	}
         $this->addTag(tag::create($tag));
       }
     }
@@ -137,6 +140,12 @@
           $this->removeTag(tag::create($tag));
         }
       }
+    }
+    
+    function removeAllTags(){
+    	global $db;
+    	$sql="DELETE FROM appointment_tags WHERE aid=$this->id";
+    	$db->query($sql);
     }
     
     /****** TAGS **************/
@@ -188,7 +197,7 @@
     /********* URLs ***********/
     /* loading all appointments */
     public static function loadAll($tags=null){
-      global $db;
+      global $db,$limit;
       $appointments=array();
       
       if ($tags!=null){
@@ -196,13 +205,24 @@
 					$tags=array($tags);
 				}
 				$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE keyword IN (?) ORDER BY start";
-				$stm=$db->prepare($sql);
-				$stm->execute($tags);
-				$results=$stm->fetchAll();
+    		if ($limit){
+    			$sql.=' LIMIT :limit';
+    		}
+    		$stm=$db->prepare($sql);
+    		$stm->bindValue(':tags', $tags);
+				
       } else {
       	$sql="SELECT * FROM appointments ORDER BY start";
-      	$results=$db->query($sql);
+    		if ($limit){
+    			$sql.=' LIMIT :limit';
+    		}    		
+    		$stm=$db->prepare($sql);
       }
+      if ($limit){
+      	$stm->bindValue(':limit', $limit,PDO::PARAM_INT);
+      }
+      $stm->execute();
+      $results=$stm->fetchAll();
       foreach ($results as $row){
       	$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
       	$appointment->id=$row['aid'];
@@ -213,7 +233,7 @@
     }
     
     public static function loadCurrent($tags=null){
-    	global $db,$db_time_format;
+    	global $db,$db_time_format,$limit;
     	$appointments=array();
     	
     	$now=date($db_time_format);
@@ -222,14 +242,24 @@
     		if (!is_array($tags)){
     			$tags=array($tags);
     		}
-    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE start>'$now' AND keyword IN (?) ORDER BY start";
+    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE start>'$now' AND keyword IN (:tags) ORDER BY start";
+    		if ($limit){
+    			$sql.=' LIMIT :limit';
+    		}
     		$stm=$db->prepare($sql);
-    		$stm->execute($tags);
-    		$results=$stm->fetchAll();
+    		$stm->bindValue(':tags', $tags);
     	} else {
     		$sql="SELECT * FROM appointments WHERE start>'$now' ORDER BY start";
-    		$results=$db->query($sql);
+    		if ($limit){
+    			$sql.=' LIMIT :limit';
+    		}    		
+    		$stm=$db->prepare($sql);
     	}
+    	if ($limit){
+    		$stm->bindValue(':limit', $limit,PDO::PARAM_INT);    			
+    	}
+    	$stm->execute();    		    		
+    	$results=$stm->fetchAll();
     	foreach ($results as $row){
     		$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
     		$appointment->id=$row['aid'];
