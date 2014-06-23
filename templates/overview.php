@@ -71,20 +71,15 @@ END:VEVENT
 <?php } // foreach
 ?>
 </table>
-<div class="bottomline right">
-	<a class="button"
-		href="?<?php
-		 if (isset($_GET['tag'])) echo 'tag='.$_GET['tag'].'&';
-		 if (isset($_GET['limit'])) echo 'limit='.$_GET['limit'].'&';		 	
-		 if (isset($_GET['past'])) echo 'past='.$_GET['past'].'&';		 	
-		 ?>format=webdav">webDAV</a>
-	<a class="button"
-		href="?<?php
-		 if (isset($_GET['tag'])) echo 'tag='.$_GET['tag'].'&';
-		 if (isset($_GET['limit'])) echo 'limit='.$_GET['limit'].'&';		 	
-		 if (isset($_GET['past'])) echo 'past='.$_GET['past'].'&';		 	
-		 ?>format=ical">iCal</a>
-</div>
+<form class="bottomline right">
+  <?php
+    if (isset($_GET['tag'])) echo '<input type="hidden" name="tag" value="'.$_GET['tag'].'">';
+    if (isset($_GET['limit'])) echo '<input type="hidden" name="limit" value="'.$_GET['limit'].'">';
+    if (isset($_GET['past'])) echo '<input type="hidden" name="past" value="'.$_GET['past'].'">';
+  ?>
+  <button type="submit" name="format" value="webdav">WebDAV</button>
+  <button type="submit" name="format" value="ical">iCal</button>
+</form>
 <?php
 
 

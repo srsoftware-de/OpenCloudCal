@@ -92,6 +92,10 @@
 <div class="bottomline right">
 <a class="button" href="?show=<?php echo $appointment->id; ?>&format=ical">iCal</a>
 </div>
+<form class="bottomline right">
+  <input type="hidden" name="show" value="<?php echo $appointment->id; ?>" />
+  <button type="submit" name="format" value="ical">iCal</button>
+</form>
 <?php 
 
 
