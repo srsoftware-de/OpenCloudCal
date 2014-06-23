@@ -30,15 +30,15 @@ END:VEVENT
 <h2 class="overview">
 	<a href='.'><?php echo loc('appointment overview');?> </a>
 </h2>
-<div class="options">
+<form class="options" action="." method="GET">
 	<?php echo loc('Number of entries shown'); ?>:
-	<a class="button" href="?limit=1000">1000</a>
-	<a class="button" href="?limit=100">100</a>
-	<a class="button" href="?limit=50">50</a>	
-	<a class="button" href="?limit=20">20</a>	
-	<a class="button" href="?limit=10">10</a> |	
-	<a class="button" href="?past=true"><?php echo loc('show previous events')?></a>
-</div>
+	<button name="limit" value="1000">1000</button>
+	<button name="limit" value="100">100</button>
+	<button name="limit" value="50">50</button>	
+	<button name="limit" value="20">20</button>	
+	<button name="limit" value="10">10</button> |	
+	<button name="past" value="true"><?php echo loc('show previous events')?></button>
+</form>
 <table class="appointments">
 	<tr class="appointment">
 		<th class="datestart"><?php echo loc('Start date'); ?></th>
