@@ -118,8 +118,7 @@ if (isset($_POST['addsession'])){
 		include 'templates/adddateform.php';
 		include 'templates/overview.php';
 	} else {
-		$appointments = appointment::loadCurrent($selected_tags);
-		$appointment=$appointments[$app_id];
+		$appointment=appointment::load($app_id);
 		include 'templates/confirmdelete.php';
 		include 'templates/detail.php';
 	}
