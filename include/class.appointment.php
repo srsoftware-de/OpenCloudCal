@@ -73,6 +73,14 @@
     	$sql = "DELETE FROM sessions WHERE aid=:id";
     	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
     	$stm->execute(array(':id'=>$id));
+
+      $sql = "DELETE FROM appointment_tags WHERE aid=:id";
+      $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+      $stm->execute(array(':id'=>$id));
+
+      $sql = "DELETE FROM appointment_urls WHERE aid=:id";
+      $stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+      $stm->execute(array(':id'=>$id));
     	 
     	$sql = "DELETE FROM appointments WHERE aid=:id";
     	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
