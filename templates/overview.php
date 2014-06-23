@@ -92,8 +92,7 @@ END:VEVENT
 
  } else if ($format=='webdav') {?>
 <h1>
-	Index for calendar
-	<?php if (isset($_GET['tag'])) echo '/'.$_GET['tag']?>
+	Index for calendar<?php if (isset($_GET['tag'])) echo '/'.$_GET['tag']?>
 </h1>
 <table>
 	<tr>
