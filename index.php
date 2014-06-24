@@ -4,7 +4,7 @@ require 'init.php';
 
 $selected_tags = array();
 
-include 'templates/htmlhead.php';
+include 'templates/head.php';
 
 /* if data for a new appointment is recieved, handle it */
 if (isset($_POST['newappointment'])){
