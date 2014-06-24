@@ -46,7 +46,7 @@
       $day+=1;
     }
     print '  </select>'.PHP_EOL;
-    if (isset($_GET['clone'])||isset($_GET['edit'])){ ?>
+    if (isset($_POST['clone'])||isset($_POST['edit'])){ ?>
     	+<select name="<?php print $name.'[addtime]';?>">
     	<option>0</option>
     	<option value="<?php echo (7*86400); ?>">1</option>

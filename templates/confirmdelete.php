@@ -1,7 +1,8 @@
 <?php if ($format=='html') { ?>
-<div class="confirmation">
-<?php echo str_replace('%apptitle', $appointment->title, loc('Seriously, delete "%apptitle"?'));?><br/>
-<a class="button red" href="?delete=<?php echo $appointment->id; ?>&confirm=yes"><?php echo loc('Yes'); ?></a>&nbsp;&nbsp;&nbsp;
-<a class="button green" href="."><?php echo loc('No')?></a>
-</div>
+<form class="confirmation" action="." method="POST">
+	<?php echo str_replace('%apptitle', $appointment->title, loc('Seriously, delete "%apptitle"?'));?><br/>
+  <input type="hidden" name="delete" value="<?php echo $appointment->id; ?>" />
+  <button type="submit" class="delete" name="confirm" value="yes"><?php echo loc('Yes'); ?></button>&nbsp;&nbsp;&nbsp;
+  <button type="submit" name="confirm" value="no"><?php echo loc('No'); ?></button>
+</form>
 <?php } ?>

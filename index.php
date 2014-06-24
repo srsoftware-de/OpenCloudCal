@@ -86,8 +86,8 @@ if (isset($_POST['addsession'])){
 	$appointment=appointment::load($app_id);
 	include 'templates/detail.php';
 	
-} else if (isset($_GET['clone'])) {
-	$app_id=$_GET['clone'];
+} else if (isset($_POST['clone'])) {
+	$app_id=$_POST['clone'];
 	$appointment=appointment::load($app_id);
 	unset($appointment->id);
 	$appointment->save();
@@ -103,17 +103,19 @@ if (isset($_POST['addsession'])){
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';
 
-} else if (isset($_GET['edit'])) {
-	$app_id=$_GET['edit'];
+} else if (isset($_POST['edit'])) {
+	$app_id=$_POST['edit'];
 	$appointments = appointment::loadAll($selected_tags);
 	$appointment=$appointments[$app_id];
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';
 	
-} else if (isset($_GET['delete'])){
-	$app_id=$_GET['delete'];
-	if (isset($_GET['confirm']) && $_GET['confirm']=='yes'){
-		$appointment=appointment::delete($app_id);	
+} else if (isset($_POST['delete'])){
+	$app_id=$_POST['delete'];
+	if (isset($_POST['confirm'])){
+		if ($_POST['confirm']=='yes'){
+			$appointment=appointment::delete($app_id);	
+		}
 		$appointments = appointment::loadCurrent($selected_tags);
 		include 'templates/adddateform.php';
 		include 'templates/overview.php';

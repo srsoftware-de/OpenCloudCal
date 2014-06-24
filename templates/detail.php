@@ -2,7 +2,7 @@
 <h2>
 	<?php echo $appointment->title ?>
 </h2>
-<form class="detailactions" action="." method="GET">
+<form class="detailactions" action="." method="POST">
   <button type="submit"><?php echo loc('Back to overview'); ?></button>
   <button type="submit" name="edit" value="<?php echo $appointment->id; ?>"><?php echo loc('edit'); ?></button>
   <button type="submit" name="clone" value="<?php echo $appointment->id; ?>"><?php echo loc('clone'); ?></button>

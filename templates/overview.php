@@ -61,7 +61,7 @@ END:VEVENT
 	  </td>
     <td class="tags"><?php echo $app->tagLinks(); ?></td>
 	  <td class="edit">
-      <form action="." method="GET">
+      <form action="." method="POST">
         <button name="clone" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('clone'); ?></button>
         <button name="edit" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('edit'); ?></button>
         <button name="delete" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('delete'); ?></button>
