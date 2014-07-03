@@ -14,7 +14,10 @@ if (isset($_POST['newappointment'])){
 		$tags=explode(' ',$_POST['newappointment']['tags']);
 		foreach ($tags as $tag){
 			$appointment->addTag($tag); // add tags
-		}		
+		}
+		if (isset($_POST['gricalpost'])){
+			$appointment->sendToGrical();
+		}
 	} else { // if appointment data is invalid
 		unset($_POST['addsession']); // do not add sessions
 		unset($_POST['addlink']); // do not add links

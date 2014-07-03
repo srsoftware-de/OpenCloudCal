@@ -292,7 +292,10 @@
   }
 
   $warnings = "";
-  $db_time_format='Y-m-d H:i:0';
+  
+  /* default time format used in:
+   *  appointment->sendToGrical */
+  $db_time_format='Y-m-d H:i:s';
   
   spl_autoload_register('occ_autoload');
   

@@ -43,7 +43,11 @@ include 'forms.php';
 			<label for="addlink">			
 				<?php echo loc('Add a link to this appointment in the next step.'); ?>
 			</label>
-		<?php echo '<input type="submit" value="'.loc('create new appointment').'"/><br/>'.PHP_EOL; ?>
+			<input type="checkbox" id="gricalpost" name="gricalpost" />
+			<label for="gricalpost">			
+				<?php echo loc('Send this appointment to grical, too.'); ?>
+			</label>
+			<?php echo '<input type="submit" value="'.loc('create new appointment').'"/><br/>'.PHP_EOL; ?>
 	</div>
 </form>
 <?php } ?>

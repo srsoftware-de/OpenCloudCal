@@ -105,6 +105,38 @@
       	$this->id=$db->lastInsertId();
       }
     }
+    
+    function sendToGrical(){
+    	$data ='title: '.$this->title.PHP_EOL;
+    	$data.='start: '.substr($this->start, 0,10).PHP_EOL; // depends on db_time_format set in init.php
+    	$data.='starttime: '.substr($this->start, 11).PHP_EOL; // depends on db_time_format set in init.php
+    	$data.='end: '.substr($this->end, 0,10).PHP_EOL; // depends on db_time_format set in init.php
+    	$data.='endtime: '.substr($this->end, 11).PHP_EOL; // depends on db_time_format set in init.php
+    	$data.='tags: opencloudcal';
+    	if (isset($this->tags) && !empty($this->tags)){
+    		foreach ($this->tags as $tag){
+    			$data.=' '.$tag->text;
+    		}
+    	}
+			$data.=PHP_EOL;
+    	if (!empty($this->description)){
+    		$data.='description: '.$this->description.PHP_EOL;
+    	}
+    	$target='https://grical.org/e/new/raw/';
+    	$data=array('event_astext'=>$data);
+    	$options=array(
+    		'http' => array(
+        	'header'  => "Content-type: application/x-www-form-urlencoded",
+        	'method'  => 'POST',
+        	'content' => http_build_query($data)));
+			$context  = stream_context_create($options);
+			print "<pre>";
+			print_r($options);
+			print "</pre>";
+			$result = file_get_contents($target, false, $context);
+			var_dump($result);
+			die();
+    }
 
     /******* TAGS ****************/
     
