@@ -107,6 +107,7 @@
     }
     
     function sendToGrical(){
+    	error_reporting(E_ALL);
     	$data ='title: '.$this->title.PHP_EOL;
     	$data.='start: '.substr($this->start, 0,10).PHP_EOL; // depends on db_time_format set in init.php
     	$data.='starttime: '.substr($this->start, 11).PHP_EOL; // depends on db_time_format set in init.php
@@ -122,44 +123,65 @@
     	if (!empty($this->description)){
     		$data.='description: '.$this->description.PHP_EOL;
     	}
-    	$target='https://grical.org/e/new/raw/';
+    	$target='http://grical.org/e/new/raw/';
     	/* end of data assembly */
     	/* start to send */ 
     	
-    	$data=array('event_astext'=>$data);
-    	
-    	$cookiejar=tempnam(null, 'Grical');
+   	
+    	$cookiejar='/tmp/gricalcookie';
+    	print "Jar: ".$cookiejar.PHP_EOL;
     	$userAgent  = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:11.0) Gecko/20100101 Firefox/11.0';
     	 
-    	$cu=curl_init();
-    	curl_setopt($cu, CURLOPT_COOKIEFILE, $cookiejar);    	 
-    	curl_setopt($cu, CURLOPT_COOKIEJAR,  $cookiejar);  
-    	curl_setopt($cu, CURLOPT_USERAGENT,  $userAgent);
-    	curl_setopt($cu, CURLOPT_URL, $target);
-    	curl_setopt($cu, CURLOPT_RETURNTRANSFER, 1);
-    	curl_setopt($cu, CURLOPT_FOLLOWLOCATION, 1);
-    	curl_setopt($cu, CURLOPT_AUTOREFERER,    1);
-    	$output = curl_exec($cu);
-    	print "output:";
-    	print_r($output);
-    	$info = curl_getinfo($cu);
+    	$ch=curl_init();
+    	curl_setopt($ch, CURLOPT_URL, $target);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);// return into a variable
+    	curl_setopt($ch, CURLOPT_COOKIEFILE, $cookiejar); // origin of cookies  	 
+    	curl_setopt($ch, CURLOPT_COOKIEJAR,  $cookiejar); // destination for cookies
+    	curl_setopt($ch, CURLOPT_USERAGENT,  $userAgent);
+    	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);// allow redirects
+    	curl_setopt($ch, CURLOPT_AUTOREFERER,    1);
+    	curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0); // disable ssl verification // TODO implement and enable
+    	curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+    	$output=explode("input", curl_exec($ch));
+    	foreach ($output as $line){
+    		if (strpos($line, "csrfmiddlewaretoken")){
+    			$tokens=explode(" ", $line);
+    			foreach ($tokens as $token){
+    				if (strpos($token, "alue=")){
+    					$token=substr($token, 7,-1);
+    					break;    						
+    				}    				
+    			}
+    			break;
+    		}
+    	}
+    	print $token;
+    	 
+    	curl_close($ch);
+    	 
+			sleep(2);
+			
+			$data=http_build_query(array('event_astext'=>$data,'csrfmiddlewaretoken'=>$token));
+				
+    	$ch=curl_init();
+    	curl_setopt($ch, CURLOPT_URL, $target);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);// return into a variable
+    	curl_setopt($ch, CURLOPT_COOKIEFILE, $cookiejar); // origin of cookies  	 
+    	curl_setopt($ch, CURLOPT_COOKIEJAR,  $cookiejar); // destination for cookies
+    	curl_setopt($ch, CURLOPT_USERAGENT,  $userAgent);
+    	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);// allow redirects
+    	curl_setopt($ch, CURLOPT_AUTOREFERER,    1);
+    	curl_setopt($ch, CURLOPT_POSTFIELDS, $data);  
+    	print_r($data);  	 
+    	curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0); // disable ssl verification // TODO implement and enable
+    	curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    	    	 
+    	print_r(curl_exec($ch));
     	print PHP_EOL."info: ";
-    	print_r($info);
+    	print_r(curl_getinfo($ch));
     	 
-    	sleep(5);
-    	curl_setopt($cu, CURLOPT_POST, true);
-    	curl_setopt($cu, CURLOPT_POSTFIELDS, http_build_query($data));
-    	 
-    	$output = curl_exec($cu);
-    	 
-    	print_r($output);
-    	print "output:";
-    	print_r($output);
-    	$info = curl_getinfo($cu);
-    	print PHP_EOL."info: ";
-    	print_r($info);
-    	 
-    	curl_close($cu);
+    	curl_close($ch);
     	die();
     }
 
