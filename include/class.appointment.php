@@ -123,19 +123,44 @@
     		$data.='description: '.$this->description.PHP_EOL;
     	}
     	$target='https://grical.org/e/new/raw/';
+    	/* end of data assembly */
+    	/* start to send */ 
+    	
     	$data=array('event_astext'=>$data);
-    	$options=array(
-    		'http' => array(
-        	'header'  => "Content-type: application/x-www-form-urlencoded",
-        	'method'  => 'POST',
-        	'content' => http_build_query($data)));
-			$context  = stream_context_create($options);
-			print "<pre>";
-			print_r($options);
-			print "</pre>";
-			$result = file_get_contents($target, false, $context);
-			var_dump($result);
-			die();
+    	
+    	$cookiejar=tempnam(null, 'Grical');
+    	$userAgent  = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:11.0) Gecko/20100101 Firefox/11.0';
+    	 
+    	$cu=curl_init();
+    	curl_setopt($cu, CURLOPT_COOKIEFILE, $cookiejar);    	 
+    	curl_setopt($cu, CURLOPT_COOKIEJAR,  $cookiejar);  
+    	curl_setopt($cu, CURLOPT_USERAGENT,  $userAgent);
+    	curl_setopt($cu, CURLOPT_URL, $target);
+    	curl_setopt($cu, CURLOPT_RETURNTRANSFER, 1);
+    	curl_setopt($cu, CURLOPT_FOLLOWLOCATION, 1);
+    	curl_setopt($cu, CURLOPT_AUTOREFERER,    1);
+    	$output = curl_exec($cu);
+    	print "output:";
+    	print_r($output);
+    	$info = curl_getinfo($cu);
+    	print PHP_EOL."info: ";
+    	print_r($info);
+    	 
+    	sleep(5);
+    	curl_setopt($cu, CURLOPT_POST, true);
+    	curl_setopt($cu, CURLOPT_POSTFIELDS, http_build_query($data));
+    	 
+    	$output = curl_exec($cu);
+    	 
+    	print_r($output);
+    	print "output:";
+    	print_r($output);
+    	$info = curl_getinfo($cu);
+    	print PHP_EOL."info: ";
+    	print_r($info);
+    	 
+    	curl_close($cu);
+    	die();
     }
 
     /******* TAGS ****************/
