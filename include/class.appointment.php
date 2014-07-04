@@ -107,82 +107,93 @@
     }
     
     function sendToGrical(){
-    	error_reporting(E_ALL);
-    	$data ='title: '.$this->title.PHP_EOL;
-    	$data.='start: '.substr($this->start, 0,10).PHP_EOL; // depends on db_time_format set in init.php
-    	$data.='starttime: '.substr($this->start, 11).PHP_EOL; // depends on db_time_format set in init.php
-    	$data.='end: '.substr($this->end, 0,10).PHP_EOL; // depends on db_time_format set in init.php
-    	$data.='endtime: '.substr($this->end, 11).PHP_EOL; // depends on db_time_format set in init.php
-    	$data.='tags: opencloudcal';
-    	if (isset($this->tags) && !empty($this->tags)){
-    		foreach ($this->tags as $tag){
-    			$data.=' '.$tag->text;
-    		}
-    	}
-			$data.=PHP_EOL;
-    	if (!empty($this->description)){
-    		$data.='description: '.$this->description.PHP_EOL;
-    	}
-    	$target='http://grical.org/e/new/raw/';
-    	/* end of data assembly */
-    	/* start to send */ 
-    	
-   	
-    	$cookiejar='/tmp/gricalcookie';
-    	print "Jar: ".$cookiejar.PHP_EOL;
-    	$userAgent  = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:11.0) Gecko/20100101 Firefox/11.0';
-    	 
-    	$ch=curl_init();
-    	curl_setopt($ch, CURLOPT_URL, $target);
-    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);// return into a variable
-    	curl_setopt($ch, CURLOPT_COOKIEFILE, $cookiejar); // origin of cookies  	 
-    	curl_setopt($ch, CURLOPT_COOKIEJAR,  $cookiejar); // destination for cookies
-    	curl_setopt($ch, CURLOPT_USERAGENT,  $userAgent);
-    	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);// allow redirects
-    	curl_setopt($ch, CURLOPT_AUTOREFERER,    1);
-    	curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0); // disable ssl verification // TODO implement and enable
-    	curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
-
-    	$output=explode("input", curl_exec($ch));
-    	foreach ($output as $line){
-    		if (strpos($line, "csrfmiddlewaretoken")){
-    			$tokens=explode(" ", $line);
-    			foreach ($tokens as $token){
-    				if (strpos($token, "alue=")){
-    					$token=substr($token, 7,-1);
-    					break;    						
-    				}    				
+    	if (is_callable('curl_init')){
+    		$text ='title: '.$this->title.PHP_EOL;
+    		$text.='start: '.substr($this->start, 0,10).PHP_EOL; // depends on db_time_format set in init.php
+    		$text.='starttime: '.substr($this->start, 11).PHP_EOL; // depends on db_time_format set in init.php
+    		$text.='end: '.substr($this->end, 0,10).PHP_EOL; // depends on db_time_format set in init.php
+    		$text.='endtime: '.substr($this->end, 11).PHP_EOL; // depends on db_time_format set in init.php
+    		$text.='tags: opencloudcal';
+    		if (isset($this->tags) && !empty($this->tags)){
+	    		foreach ($this->tags as $tag){
+  	  			$text.=' '.$tag->text;
     			}
-    			break;
     		}
+    		$text.=PHP_EOL;
+    		$text.='urls:'.PHP_EOL;
+    		if (isset($this->urls) && !empty($this->urls)){
+    			foreach ($this->urls as $url){
+    				$text.='    '.$url->descriptions.' '.$url->address.PHP_EOL;
+    			}
+    		}
+    		$text.='    posted from http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?show=$this->id".PHP_EOL;
+    		$text.='description:'.PHP_EOL;
+    		$text.=$this->description;
+    		
+    	
+    		$ckfile = "/tmp/gricalcookie";
+    		$target_host = "https://grical.org/";
+    		$target_request = "e/new/raw/";
+    	
+    		// 2. Visit homepage to set cookie
+    		$ch = curl_init ($target_host);
+    	
+    		curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0); // TODO: disabling host an peer check is rather bad.
+    		curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0); // this should be implemented in the future
+    	
+    		curl_setopt ($ch, CURLOPT_COOKIEJAR, $ckfile); // prepare to recieve cookie
+    		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true); // answer of request shall be returned
+    		$output = curl_exec ($ch); // perform request, answer goes to variable
+    	
+    		/* the next lines extract the csrf token */
+    		$output=explode("input", curl_exec($ch));
+    		foreach ($output as $line){
+    			if (strpos($line, "csrfmiddlewaretoken")){
+    				$tokens=explode(" ", $line);
+    				foreach ($tokens as $token){
+    					if (strpos($token, "alue=")){
+    						$token=substr($token, 7,-1);
+    						break;
+    					}
+    				}
+    				break;
+    			}
+    		}
+    	
+    		curl_close($ch);
+    	
+    		$form=array();
+    		$form['event_astext']=$text;    		
+    		$form['csrfmiddlewaretoken']=$token; // add the token to the input for the actual post request
+    		$post_data=http_build_query($form); // format query data
+    	
+    		// 3. Continue
+    		$login = curl_init ($target_host.$target_request);
+    	
+    		curl_setopt ($login, CURLOPT_SSL_VERIFYHOST, 0); // TODO: disabling host an peer check is rather bad.
+    		curl_setopt ($login, CURLOPT_SSL_VERIFYPEER, 0); // this should be implemented in the future
+    	
+    		curl_setopt($login, CURLOPT_COOKIESESSION, 1); // use cookies
+    		curl_setopt($login, CURLOPT_COOKIEJAR, $ckfile); // prepare to recieve cookies
+    		curl_setopt($login, CURLOPT_COOKIEFILE, $ckfile); // prepare to submit cookies
+    		curl_setopt($login, CURLOPT_TIMEOUT, 40);
+    		curl_setopt($login, CURLOPT_RETURNTRANSFER, 1); // answer of request shall be returned
+    		curl_setopt($login, CURLOPT_HEADER, 1); // send header
+    		curl_setopt($login, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']); // set user agent
+    		curl_setopt($login, CURLOPT_FOLLOWLOCATION, 1); // follow redirects
+    		curl_setopt($login, CURLOPT_POST, 1); // prepare for sending data
+    		curl_setopt($login, CURLOPT_POSTFIELDS, $post_data); // provide data
+    		$reply=curl_exec($login); // acutally send data
+    		curl_close($login);
+    		if (strpos($reply, "event saved")){
+    			return true;
+    		} else {
+    			warn(str_replace('%server', $target_host, loc('Sorry, I was not able to save event to %server.')));
+    		}
+    	} else {
+    		warn(str_replace('%server',$target_host,loc('Sorry, curl not callable. This means I am not allowed to send the event to %server.')));
     	}
-    	print $token;
-    	 
-    	curl_close($ch);
-    	 
-			sleep(2);
-			
-			$data=http_build_query(array('event_astext'=>$data,'csrfmiddlewaretoken'=>$token));
-				
-    	$ch=curl_init();
-    	curl_setopt($ch, CURLOPT_URL, $target);
-    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);// return into a variable
-    	curl_setopt($ch, CURLOPT_COOKIEFILE, $cookiejar); // origin of cookies  	 
-    	curl_setopt($ch, CURLOPT_COOKIEJAR,  $cookiejar); // destination for cookies
-    	curl_setopt($ch, CURLOPT_USERAGENT,  $userAgent);
-    	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);// allow redirects
-    	curl_setopt($ch, CURLOPT_AUTOREFERER,    1);
-    	curl_setopt($ch, CURLOPT_POSTFIELDS, $data);  
-    	print_r($data);  	 
-    	curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0); // disable ssl verification // TODO implement and enable
-    	curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    	    	 
-    	print_r(curl_exec($ch));
-    	print PHP_EOL."info: ";
-    	print_r(curl_getinfo($ch));
-    	 
-    	curl_close($ch);
-    	die();
+    	return false;
     }
 
     /******* TAGS ****************/
