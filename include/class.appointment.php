@@ -116,7 +116,9 @@
     		$text.='tags: opencloudcal';
     		if (isset($this->tags) && !empty($this->tags)){
 	    		foreach ($this->tags as $tag){
-  	  			$text.=' '.$tag->text;
+	    			if (!preg_match('/[^\-A-Za-z0-9]/', $tag)){ // only chars, numbers and dashes allowed in grical
+	    				$text.=' '.$tag->text;	    				 
+	    			}
     			}
     		}
     		$text.=PHP_EOL;
