@@ -184,6 +184,9 @@
     		curl_setopt($login, CURLOPT_POST, 1); // prepare for sending data
     		curl_setopt($login, CURLOPT_POSTFIELDS, $post_data); // provide data
     		$reply=curl_exec($login); // acutally send data
+    		$handle=fopen('reply.html', 'w');
+    		fwrite($handle, $reply);
+    		fclose($handle);
     		curl_close($login);
     		if (strpos($reply, "event saved")){
     			return true;
