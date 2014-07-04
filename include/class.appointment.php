@@ -126,7 +126,7 @@
     				$text.='    '.$url->descriptions.' '.$url->address.PHP_EOL;
     			}
     		}
-    		$text.='    posted from http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?show=$this->id".PHP_EOL;
+    		$text.='    posted from http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}?show=$this->id".PHP_EOL;
     		$text.='description:'.PHP_EOL;
     		$text.=$this->description;
     		
