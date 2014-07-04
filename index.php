@@ -15,12 +15,11 @@ if (isset($_POST['newappointment'])){
 		foreach ($tags as $tag){
 			$appointment->addTag($tag); // add tags
 		}
-		if (isset($_POST['gricalpost'])){
+		if (isset($_POST['nextaction']) && $_POST['nextaction']=='gricalpost'){
 			$appointment->sendToGrical();
 		}
 	} else { // if appointment data is invalid
-		unset($_POST['addsession']); // do not add sessions
-		unset($_POST['addlink']); // do not add links
+		unset($_POST['nextaction']); // do not add sessions or links
 	}	
 }
 
@@ -40,6 +39,9 @@ if (isset($_POST['newlink'])){
 		$link->save(); // save session
 		$appointment=appointment::load($link->aid);
 		$appointment->addUrl($link);
+		if (isset($_POST['nextaction']) && $_POST['nextaction']=='gricalpost'){
+			$appointment->sendToGrical();
+		}
 	}
 }
 
@@ -55,6 +57,9 @@ if (isset($_POST['editappointment'])){
 		}		
 	}	
 	$appointment->loadRelated();
+	if (isset($_POST['nextaction']) && $_POST['nextaction']=='gricalpost'){	
+		$appointment->sendToGrical();
+	}	
 }
 
 /* if a tag is provided: use it */
@@ -76,11 +81,11 @@ if (isset($_GET['deletelink'])){
 	$appointment->removeUrl((int)$uid);
 }
 
-if (isset($_POST['addsession'])){
+if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	include 'templates/addsession.php';
 	include 'templates/detail.php';	
 	
-} else if (isset($_POST['addlink'])){
+} else if (isset($_POST['nextaction']) && $_POST['nextaction']=='addlink'){
 	include 'templates/addlink.php';
 	include 'templates/detail.php';	
 	
