@@ -16,19 +16,25 @@
 			<?php echo loc('url'); ?>
 			<input type="text" name="newlink[url]" />
 		</div>
-			<div class="submit">
-		  <input type="radio" id="addsession" name="nextaction" value="addsession" />
-		  <label for="addsession">
-				<?php echo loc('Add a session to this appointment in the next step.'); ?>
-			</label>
-			<input type="radio" id="addlink" name="nextaction" value="addlink" />
-			<label for="addlink">			
-				<?php echo loc('Add a link to this appointment in the next step.'); ?>
-			</label>
-  		<input type="radio" id="gricalpost" name="nextaction" value="gricalpost" />
-			<label for="gricalpost">			
-				<?php echo loc('Send this appointment to grical, too.'); ?>
-			</label>
+		<div class="submit">
+			<div class="choice">
+		  	<input type="radio" id="addsession" name="nextaction" value="addsession" />
+		  	<label for="addsession">
+					<?php echo loc('Add a session to this appointment in the next step.'); ?>
+				</label>
+			</div>
+			<div class="choice">
+				<input type="radio" id="addlink" name="nextaction" value="addlink" />
+				<label for="addlink">			
+					<?php echo loc('Add a link to this appointment in the next step.'); ?>
+				</label>
+			</div>
+			<div class="choice">
+				<input type="radio" id="gricalpost" name="nextaction" value="gricalpost" />
+				<label for="gricalpost">			
+					<?php echo loc('Send this appointment to grical, too.'); ?>
+				</label>
+			</div>
 			
 			<input type="submit" value="<?php echo loc('add link'); ?>"/><br/> 
 		</div>
