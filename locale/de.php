@@ -27,7 +27,7 @@ $locale=array(
 		'Number of entries shown' => 'Anzahl der angezeigten Einträge',
 		'Proudly developed using PHP and JavaScript. Find the sources at <a href="%link">Github</a>.' => 'Entwickelt mit PHP und JavaScript. Hol dir den Quellcode auf <a href="%link">Github</a>.',
 		'save changes' => 'Änderungen speichern',
-		'Send this appointment to grical, too.','Dieses Ereignis auch bei grical eintragen.',
+		'Send this appointment to grical, too.'=>'Dieses Ereignis auch bei grical eintragen.',
 		'Seriously, delete "%apptitle"?'=>'Soll "%apptitle" wirklich gelöscht werden?',
 		'show previous events' => 'vergangene Ereignisse anzeigen',
 		'Sorry, curl not callable. This means I am not allowed to send the event to %server.','Tut mit leid, aber curl ist auf diesem System nicht verwendbar. Das bedeutet, dass ich dass Ereignis nicht an %server senden darf.',
