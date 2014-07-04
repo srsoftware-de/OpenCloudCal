@@ -123,7 +123,7 @@
     		$text.='urls:'.PHP_EOL;
     		if (isset($this->urls) && !empty($this->urls)){
     			foreach ($this->urls as $url){
-    				$text.='    '.$url->descriptions.' '.$url->address.PHP_EOL;
+    				$text.='    '.$url->description.' '.$url->address.PHP_EOL;
     			}
     		}
     		$text.='    posted from http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}?show=$this->id".PHP_EOL;
