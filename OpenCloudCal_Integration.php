@@ -44,15 +44,15 @@ if (! function_exists('replace_open_cloudcal_tags')){
 		
 		$occ_dates=occ_icsToArray($occ_url);
 		
-		$occ_output='<table class="cloudcal"><thead><tr><th>Datum</th><th>Ereignis</th><th>Beschreibung</th></tr></thead><tbody>';
+		$occ_output='<table class="cloudcal"><thead><tr><th class="appointment_date">Datum</th><th class="appointment_title">Ereignis</th><th class="appointment_description">Beschreibung</th></tr></thead><tbody>';
 		
 		foreach ($occ_dates as $occ_date){
 			if (trim($occ_date['BEGIN'])=="VCALENDAR") continue;
 			$occ_start=$occ_date['DTSTART'];
 			$occ_output.='<tr>';
-			$occ_output.='<td>'.substr($occ_start,0,4).'-'.substr($occ_start,4,2).'-'.substr($occ_start,6,2).'</td>';
-			$occ_output.='<td style="font-weight: bold;"><a href="'.$occ_date['URL'].'">'.$occ_date['SUMMARY'].'</a></td>';
-			$occ_output.='<td>'.str_replace('\n', "<br/>\n", $occ_date['DESCRIPTION']).'</td>';
+			$occ_output.='<td class="appointment_date">'.substr($occ_start,0,4).'-'.substr($occ_start,4,2).'-'.substr($occ_start,6,2).'</td>';
+			$occ_output.='<td class="appointment_title"><a href="'.$occ_date['URL'].'">'.$occ_date['SUMMARY'].'</a></td>';
+			$occ_output.='<td class="appointment_description">'.str_replace('\n', "<br/>\n", $occ_date['DESCRIPTION']).'</td>';
 			$occ_output.='</tr>';
 		}
 		
