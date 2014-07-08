@@ -52,7 +52,7 @@ if (! function_exists('replace_open_cloudcal_tags')){
 			$occ_output.='<tr>';
 			$occ_output.='<td>'.substr($occ_start,0,4).'-'.substr($occ_start,4,2).'-'.substr($occ_start,6,2).'</td>';
 			$occ_output.='<td style="font-weight: bold;"><a href="'.$occ_date['URL'].'">'.$occ_date['SUMMARY'].'</a></td>';
-			$occ_output.='<td>'.$occ_date['DESCRIPTION'].'</td>';
+			$occ_output.='<td>'.str_replace('\n', "<br/>\n", $occ_date['DESCRIPTION']).'</td>';
 			$occ_output.='</tr>';
 		}
 		
