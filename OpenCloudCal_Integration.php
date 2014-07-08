@@ -64,12 +64,25 @@ if (! function_exists('replace_open_cloudcal_tags')){
 		$opencloudcal_content = $content;
 		$occ_pos=strpos($opencloudcal_content, 'opencloudcal:');
 		while (false !== $occ_pos){
-			$occ_end=strpos($opencloudcal_content, ' ',$occ_pos);
-			if ( false === $occ_end){
-				break;
+			$occ_end_space=strpos($opencloudcal_content, ' ',$occ_pos);
+			$occ_end_tag=strpos($opencloudcal_content, '<',$occ_pos);
+			$occ_end_newline=strpos($opencloudcal_content, "\n",$occ_pos);
+			if (false === $occ_end_space){
+				$occ_end_space = PHP_INT_MAX;
 			}
+			if (false === $occ_end_tag){
+				$occ_end_tag = PHP_INT_MAX;
+			}
+			if (false === $occ_end_newline){
+				$occ_end_newline = PHP_INT_MAX;
+			}
+			$occ_end = min($occ_end_newline, $occ_end_tag, $occ_end_space);
+			if ($occ_end == PHP_INT_MAX){
+				break;
+			}				
 			$occ_key=substr($opencloudcal_content, $occ_pos,$occ_end-$occ_pos);
 			$opencloudcal_content=str_replace($occ_key, get_open_cloudcal_replacement($occ_key), $opencloudcal_content);
+				
 			$occ_pos=strpos($opencloudcal_content, 'opencloudcal:');
 		}
 
