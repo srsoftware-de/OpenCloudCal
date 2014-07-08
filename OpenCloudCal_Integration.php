@@ -56,7 +56,7 @@ if (! function_exists('replace_open_cloudcal_tags')){
 			$occ_output.='</tr>';
 		}
 		
-		$occ_output.='</tbody></table><br/><a href="http://cal.srsoftware.de">Neues Ereignis eintragen.</a> Benutze bei OpenCloudCal das Schlüsselwort <strong>'.$occ_key.'</strong>, damit der Termin hier erscheint.<br/>';
+		$occ_output.='</tbody></table><div class="addappointment"><a href="http://cal.srsoftware.de">Neues Ereignis eintragen.</a> Benutze bei OpenCloudCal das Schlüsselwort <strong>'.$occ_key.'</strong>, damit der Termin hier erscheint.</div>';
 		return $occ_output;
 	}
 
