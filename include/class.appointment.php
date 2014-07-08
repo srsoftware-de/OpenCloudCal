@@ -116,7 +116,10 @@
     		$text.='tags: opencloudcal';
     		if (isset($this->tags) && !empty($this->tags)){
 	    		foreach ($this->tags as $tag){
-	    			if (!preg_match('/[^\-A-Za-z0-9]/', $tag)){ // only chars, numbers and dashes allowed in grical
+	    			
+	    			// TODO: diese Regex funktioniert nicht. Keine Ahnung, warum
+	    			
+	    			if (!preg_match('/[^A-Za-z0-9-]/', $tag)){ // only chars, numbers and dashes allowed in grical
 	    				$text.=' '.$tag->text;	    				 
 	    			}
     			}
