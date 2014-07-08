@@ -15,6 +15,7 @@ foreach ($app->urls as $url){
 	print 'URL:'.$url->address.PHP_EOL;
 } 
 ?>
+URL:http://<?php echo $_SERVER['HTTP_HOST'].'/?show='.$app->id.PHP_EOL; ?>
 DTEND:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->end).'Z'.PHP_EOL; ?>
 END:VEVENT
 <?php } // foreach
