@@ -7,7 +7,7 @@ Description: The OpenCloudCal Integration plugin allows to integrate appointment
 Version: 1.0
 Author: Stephan Richter
 Author URI: http://srsoftware.de/
-Update Server: http://srsoftware.de/
+Update Server: https://github.com/SRSoftware/OpenCloudCal
 Min WP Version: 1.5
 Max WP Version: 2.0.4
 */
