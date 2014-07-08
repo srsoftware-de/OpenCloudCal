@@ -19,8 +19,12 @@ if (! function_exists('replace_open_cloudcal_tags')){
 		$occ_pos=strpos($opencloudcal_content, 'opencloudcal:');
 		while (false !== $occ_pos){
 			$occ_end=strpos($opencloudcal_content, ' ');
-			$occ_key=substr($opencloudcal_content, $occ_pos,$occ_end-$occ_pos);
-			$opencloudcal_content=str_replace($occ_key,strtoupper($occ_key) , $opencloudcal_content);			
+			if ( false === $occ_end){
+				break;
+			}
+			$occ_key=substr($opencloudcal_content, $occ_pos,$occ_end-$occ_pos-1);
+			$opencloudcal_content=str_replace($occ_key,'Mops' , $opencloudcal_content);
+			$occ_pos=strpos($opencloudcal_content, 'opencloudcal:');
 		}
 		
 		return $opencloudcal_content;
