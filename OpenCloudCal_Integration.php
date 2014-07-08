@@ -4,7 +4,7 @@
  Plugin Name: OpenCloudCal Integration
 Plugin URI: http://cal.srsoftware.de/
 Description: The OpenCloudCal Integration plugin allows to integrate appointments listed in the Open Cloud Calendar by a tag. Just use the text <strong>opencloudcal:keyword</strong> wherever you want.
-Version: 1.0
+Version: 1.1
 Author: Stephan Richter
 Author URI: http://srsoftware.de/
 Update Server: https://github.com/SRSoftware/OpenCloudCal
@@ -90,8 +90,4 @@ if (! function_exists('replace_open_cloudcal_tags')){
 	} # function replace_open_cloudcal_tags()
 
 	add_filter('the_content', 'replace_open_cloudcal_tags');
-}
-
-
-
-?>
+}?>
