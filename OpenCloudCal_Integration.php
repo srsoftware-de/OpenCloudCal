@@ -14,6 +14,11 @@ Max WP Version: 2.0.4
 
 if (! function_exists('replace_open_cloudcal_tags')){
 	
+	function get_open_cloudcal_replacement($occ_key){
+		$occ_key=str_replace('opencloudcal:', '', trim($occ_key));
+		return '<script type="text/javascript">alert('.$occ_key.');</script>';
+	}
+	
 	function replace_open_cloudcal_tags($content){
 		$opencloudcal_content = $content;
 		$occ_pos=strpos($opencloudcal_content, 'opencloudcal:');
@@ -23,7 +28,7 @@ if (! function_exists('replace_open_cloudcal_tags')){
 				break;
 			}
 			$occ_key=substr($opencloudcal_content, $occ_pos,$occ_end-$occ_pos-1);
-			$opencloudcal_content=str_replace($occ_key,'Mops' , $opencloudcal_content);
+			$opencloudcal_content=str_replace($occ_key, get_open_cloudcal_replacement($occ_key), $opencloudcal_content);
 			$occ_pos=strpos($opencloudcal_content, 'opencloudcal:');
 		}
 		
