@@ -350,14 +350,14 @@
     		if (!is_array($tags)){
     			$tags=array($tags);
     		}
-    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE start>'.$yesterday.' AND keyword IN (:tags) ORDER BY start";
+    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE end>'$yesterday' AND keyword IN (:tags) ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}
     		$stm=$db->prepare($sql);
     		$stm->bindValue(':tags', reset($tags));
     	} else {
-    		$sql="SELECT * FROM appointments WHERE start>'.$yesterday.' ORDER BY start";
+    		$sql="SELECT * FROM appointments WHERE end>'$yesterday' ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}    		
