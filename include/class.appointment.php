@@ -125,7 +125,7 @@
     		$text.='urls:'.PHP_EOL;
     		if (isset($this->urls) && !empty($this->urls)){
     			foreach ($this->urls as $url){
-    				$text.='    '.$url->descriptions.' '.$url->address.PHP_EOL;
+    				$text.='    '.$url->description.' '.$url->address.PHP_EOL;
     			}
     		}
     		$text.='    posted from http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}?show=$this->id".PHP_EOL;
@@ -189,6 +189,9 @@
     		curl_setopt($login, CURLOPT_POST, 1); // prepare for sending data
     		curl_setopt($login, CURLOPT_POSTFIELDS, $post_data); // provide data
     		$reply=curl_exec($login); // acutally send data
+    		$handle=fopen('reply.html', 'w');
+    		fwrite($handle, $reply);
+    		fclose($handle);
     		curl_close($login);
     		if (strpos($reply, "event saved")){
     			return true;
@@ -339,20 +342,21 @@
     	global $db,$db_time_format,$limit;
     	$appointments=array();
     	
-    	$now=date($db_time_format);
+    	$yesterday=time()-24*60*60; //
+    	$yesterday=date($db_time_format,$yesterday);
     
     	if ($tags!=null){
     		if (!is_array($tags)){
     			$tags=array($tags);
     		}
-    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE start>'$now' AND keyword IN (:tags) ORDER BY start";
+    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE start>'.$yesterday.' AND keyword IN (:tags) ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}
     		$stm=$db->prepare($sql);
     		$stm->bindValue(':tags', reset($tags));
     	} else {
-    		$sql="SELECT * FROM appointments WHERE start>'$now' ORDER BY start";
+    		$sql="SELECT * FROM appointments WHERE start>'.$yesterday.' ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}    		
