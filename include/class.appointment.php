@@ -129,6 +129,9 @@
     			}
     		}
     		$text.='    posted from http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}?show=$this->id".PHP_EOL;
+    		if ($this->coords){
+    			$text.='coordinates: '.$this->coords['lat'].', '.$this->coords['lon'].PHP_EOL;
+    		}
     		$text.='description:'.PHP_EOL;
     		$text.=$this->description;
     		
