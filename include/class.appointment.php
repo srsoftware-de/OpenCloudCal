@@ -339,20 +339,21 @@
     	global $db,$db_time_format,$limit;
     	$appointments=array();
     	
-    	$now=date($db_time_format);
+    	$yesterday=time()-24*60*60; //
+    	$yesterday=date($db_time_format,$yesterday);
     
     	if ($tags!=null){
     		if (!is_array($tags)){
     			$tags=array($tags);
     		}
-    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE start>'$now' AND keyword IN (:tags) ORDER BY start";
+    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE start>'.$yesterday.' AND keyword IN (:tags) ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}
     		$stm=$db->prepare($sql);
     		$stm->bindValue(':tags', reset($tags));
     	} else {
-    		$sql="SELECT * FROM appointments WHERE start>'$now' ORDER BY start";
+    		$sql="SELECT * FROM appointments WHERE start>'.$yesterday.' ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}    		
