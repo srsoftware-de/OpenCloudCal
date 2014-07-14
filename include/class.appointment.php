@@ -110,9 +110,9 @@
     	if (is_callable('curl_init')){
     		$text ='title: '.$this->title.PHP_EOL;
     		$text.='start: '.substr($this->start, 0,10).PHP_EOL; // depends on db_time_format set in init.php
-    		$text.='starttime: '.substr($this->start, 11).PHP_EOL; // depends on db_time_format set in init.php
+    		$text.='starttime: '.substr($this->start, 11,5).PHP_EOL; // depends on db_time_format set in init.php
     		$text.='end: '.substr($this->end, 0,10).PHP_EOL; // depends on db_time_format set in init.php
-    		$text.='endtime: '.substr($this->end, 11).PHP_EOL; // depends on db_time_format set in init.php
+    		$text.='endtime: '.substr($this->end, 11,5).PHP_EOL; // depends on db_time_format set in init.php
     		$text.='tags: opencloudcal';
     		if (isset($this->tags) && !empty($this->tags)){
 	    		foreach ($this->tags as $tag){
@@ -131,11 +131,12 @@
     		$text.='    posted from http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}?show=$this->id".PHP_EOL;
     		if ($this->coords){
     			$text.='coordinates: '.$this->coords['lat'].', '.$this->coords['lon'].PHP_EOL;
+    			$text.='exact: True'.PHP_EOL;
     		}
+				$text.='address: '.$this->location.PHP_EOL;
     		$text.='description:'.PHP_EOL;
     		$text.=$this->description;
-    		
-    	
+
     		$ckfile = "/tmp/gricalcookie";
     		$target_host = "https://grical.org/";
     		$target_request = "e/new/raw/";
