@@ -21,7 +21,16 @@ include 'forms.php';
 		</div>
 		<div id="tags">
 			<?php echo loc('tags'); ?>
-			<input type="text" name="newappointment[tags]" />
+			<?php echo '<input type="text" name="newappointment[tags]" ';
+			if (count($selected_tags)>0){
+        echo 'value="';
+        $val='';
+        foreach ($selected_tags as $tag){
+          $val.=$tag.' ';
+        }        
+        echo trim($val).'" ';
+			}
+			echo '/>'; ?>
 		</div>
 
 	</div>

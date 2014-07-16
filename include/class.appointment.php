@@ -110,13 +110,13 @@
     	if (is_callable('curl_init')){
     		$text ='title: '.$this->title.PHP_EOL;
     		$text.='start: '.substr($this->start, 0,10).PHP_EOL; // depends on db_time_format set in init.php
-    		$text.='starttime: '.substr($this->start, 11).PHP_EOL; // depends on db_time_format set in init.php
+    		$text.='starttime: '.substr($this->start, 11,5).PHP_EOL; // depends on db_time_format set in init.php
     		$text.='end: '.substr($this->end, 0,10).PHP_EOL; // depends on db_time_format set in init.php
-    		$text.='endtime: '.substr($this->end, 11).PHP_EOL; // depends on db_time_format set in init.php
+    		$text.='endtime: '.substr($this->end, 11,5).PHP_EOL; // depends on db_time_format set in init.php
     		$text.='tags: opencloudcal';
     		if (isset($this->tags) && !empty($this->tags)){
 	    		foreach ($this->tags as $tag){
-	    			if (!preg_match('/^[\-A-Za-z0-9]/', $tag)){ // only chars, numbers and dashes allowed in grical
+	    			if (!preg_match('/[^A-Za-z0-9-]/', $tag->text)){ // only chars, numbers and dashes allowed in grical
 	    				$text.=' '.$tag->text;	    				 
 	    			}
     			}
@@ -129,10 +129,14 @@
     			}
     		}
     		$text.='    posted from http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}?show=$this->id".PHP_EOL;
+    		if ($this->coords){
+    			$text.='coordinates: '.$this->coords['lat'].', '.$this->coords['lon'].PHP_EOL;
+    			$text.='exact: True'.PHP_EOL;
+    		}
+				$text.='address: '.$this->location.PHP_EOL;
     		$text.='description:'.PHP_EOL;
     		$text.=$this->description;
-    		
-    	
+
     		$ckfile = "/tmp/gricalcookie";
     		$target_host = "https://grical.org/";
     		$target_request = "e/new/raw/";
@@ -339,20 +343,21 @@
     	global $db,$db_time_format,$limit;
     	$appointments=array();
     	
-    	$now=date($db_time_format);
+    	$yesterday=time()-24*60*60; //
+    	$yesterday=date($db_time_format,$yesterday);
     
     	if ($tags!=null){
     		if (!is_array($tags)){
     			$tags=array($tags);
     		}
-    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE start>'$now' AND keyword IN (:tags) ORDER BY start";
+    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE end>'$yesterday' AND keyword IN (:tags) ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}
     		$stm=$db->prepare($sql);
     		$stm->bindValue(':tags', reset($tags));
     	} else {
-    		$sql="SELECT * FROM appointments WHERE start>'$now' ORDER BY start";
+    		$sql="SELECT * FROM appointments WHERE end>'$yesterday' ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}    		
