@@ -22,49 +22,55 @@
 </div>
 
 	<?php
-	if (isset($appointment->sessions) && count($appointment->sessions)>0){
-		echo '<div id="sessions">'.PHP_EOL;
-		echo '<h3>'.loc('Sessions').'</h3>'.PHP_EOL;
-		echo '<table class="sessions">'.PHP_EOL;
-		echo '<tr class="session">'.PHP_EOL;
-		echo '  <th class="sessionstart">'.loc('Start').'</th>'.PHP_EOL;
-		echo '  <th class="sessionend">'.loc('End').'</th>'.PHP_EOL;
-		echo '  <th class="description">'.loc('Description').'</th>'.PHP_EOL;
-		echo '  <th class="actions">'.loc('Actions').'</th>'.PHP_EOL;
-		echo '</tr>'.PHP_EOL;
-		foreach ($appointment->sessions as $session){
-			print '<tr class="session">'.PHP_EOL;
-			print '  <td class="sessionstart">'.$session->start.'</td>'.PHP_EOL;
-			print '  <td class="sessionend">'.$session->end.'</td>'.PHP_EOL;
-			print '  <td class="description">'.$session->description.'</td>'.PHP_EOL;
-			print '  <td class="delsession"><a class="button" href="?show='.$appointment->id.'&deletesession='.$session->id.'">'.loc('delete').'</a></td>'.PHP_EOL;
-			print '</tr>'.PHP_EOL;
-		}
-		echo '</table>';
-		echo '</div>'.PHP_EOL;
-	}
+	if (isset($appointment->sessions) && count($appointment->sessions)>0){ ?>
+		<div id="sessions">
+			<h3><?php echo loc('Sessions'); ?></h3>
+				<table class="sessions">
+					<tr class="session">
+						<th class="sessionstart"><?php echo loc('Start'); ?></th>
+						<th class="sessionend"><?php echo loc('End'); ?></th>
+		        <th class="description"><?php echo loc('Description'); ?></th>
+		        <th class="actions"><?php echo loc('Actions'); ?></th>
+		      </tr>
+<?php foreach ($appointment->sessions as $session){ ?>
+					<tr class="session">
+					  <td class="sessionstart"><?php echo $session->start; ?></td>
+					  <td class="sessionend"><?php echo $session->end; ?></td>
+					  <td class="description"><?php echo $session->description; ?></td>
+					  <td class="delsession">
+					    <form class="deletesession" action="?show=<?php echo $appointment->id; ?>" method="POST">
+					      <button type="submit" name="deletesession" value="<?php echo $session->id; ?>"><?php echo loc('delete');?></button>
+					    </form>
+					  </td>
+					</tr>
+<?php } ?>
+				</table>
+			</div>
+<?php 	}
 
-	if (isset($appointment->urls) && count($appointment->urls)>0){
-		echo '<div id="links">'.PHP_EOL;
-		echo '<h3>'.loc('Links').'</h3>'.PHP_EOL;
-		echo '<table class="links">'.PHP_EOL;
-		echo '<tr class="link">'.PHP_EOL;
-		echo '  <th class="description">'.loc('Description').'</th>'.PHP_EOL;
-		echo '  <th class="address">'.loc('Address').'</th>'.PHP_EOL;
-		echo '  <th class="actions">'.loc('Actions').'</th>'.PHP_EOL;
-		echo '</tr>'.PHP_EOL;
-		foreach ($appointment->urls as $url){
-			print '<tr class="link">'.PHP_EOL;
-			print '  <td class="description"><a href="'.$url->address.'">'.$url->description.'</a></td>'.PHP_EOL;
-			print '  <td class="address"><a href="'.$url->address.'">'.$url->address.'</a></td>'.PHP_EOL;
-			print '  <td class="dellink"><a class="button" href="?show='.$appointment->id.'&deletelink='.$url->id.'">'.loc('delete').'</a></td>'.PHP_EOL;
-			print '</tr>'.PHP_EOL;
-		}
-		echo '</table>';
-		echo '</div>'.PHP_EOL;
-	}
-	
-	?>
+	if (isset($appointment->urls) && count($appointment->urls)>0){ ?>
+		<div id="links">
+		<h3><?php echo loc('Links'); ?></h3>
+		<table class="links">
+		<tr class="link">
+		  <th class="description"><?php echo loc('Description'); ?></th>
+		  <th class="address"><?php echo loc('Address'); ?></th>
+		  <th class="actions"><?php echo loc('Actions'); ?></th>
+		</tr>
+<?php foreach ($appointment->urls as $url){ ?>
+			<tr class="link">
+			  <td class="description"><a href="<?php echo $url->address; ?>"><?php echo $url->description; ?></a></td>
+			  <td class="address"><a href="<?php echo $url->address; ?>"><?php echo $url->address; ?></a></td>
+			  <td class="dellink">
+					<form class="dellink" action="?show=<?php echo $appointment->id; ?>" method="POST">
+						<button type="submit" name="deletelink" value="<?php echo $url->id; ?>"><?php echo loc('delete');?></button>
+					</form>
+			   </td>
+			</tr>
+<?php } // foreach ?>
+		</table>';
+		</div>
+<?php } // if	?>
 <div id="coordinates">
 	<h3><?php echo loc('Map'); ?></h3>
 	<?php
