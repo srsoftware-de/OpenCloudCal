@@ -68,14 +68,14 @@ if (isset($_GET['tag'])){
 }
 
 /* session shall be deleted. */
-if (isset($_GET['deletesession'])){
-	$sid=$_GET['deletesession'];
+if (isset($_POST['deletesession'])){
+	$sid=$_POST['deletesession'];
 	session::delete($sid);
 }
 
 /* link shall be removed from appointment */
-if (isset($_GET['deletelink'])){
-	$uid=$_GET['deletelink'];
+if (isset($_POST['deletelink'])){
+	$uid=$_POST['deletelink'];
 	$aid=$_GET['show'];
 	$appointment=appointment::load($aid);
 	$appointment->removeUrl((int)$uid);
