@@ -205,6 +205,16 @@
     	}
     	return false;
     } // sendToGrical
+    
+    function sendToCalcifer(){
+    	die('sendToCalcifer called!');
+    	if (is_callable('curl_init')){
+				// VODOO here    	
+    	} else {
+    		warn(str_replace('%server',$target_host,loc('Sorry, curl not callable. This means I am not allowed to send the event to %server.')));
+    	}
+    	return false;
+    }
 
     /******* TAGS ****************/
     
