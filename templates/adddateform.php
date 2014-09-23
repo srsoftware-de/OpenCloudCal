@@ -57,12 +57,20 @@ include 'forms.php';
 				</label>
 			</div>
 			<div class="choice">
-				<input type="radio" id="gricalpost" name="nextaction" value="gricalpost" />
+				<input type="checkbox" id="gricalpost" name="gricalpost" />
 				<label for="gricalpost">			
-					<?php echo loc('Send this appointment to grical, too.'); ?>
+					<?php echo loc('Send this appointment to grical, too.').'*'; ?>
 				</label>
 			</div>
-			<?php echo '<input type="submit" value="'.loc('create new appointment').'"/><br/>'.PHP_EOL; ?>
+			<div class="choice">
+				<input type="checkbox" id="calciferpost" name="calciferpost" />
+				<label for="calciferpost">			
+					<?php echo loc('Send this appointment to calcifer, too.').'*'; ?>
+				</label>
+			</div>
+  		<?php echo '<input type="submit" value="'.loc('create new appointment').'"/>&nbsp;';
+  		echo '<span class="note">'.loc('* You should complete your appointment with all sessions and links, before submitting to calcifer or grical!').'</span><br/>'.PHP_EOL; ?> 
+		
 	</div>
 </form>
 <?php } ?>

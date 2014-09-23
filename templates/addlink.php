@@ -30,11 +30,18 @@
 				</label>
 			</div>
 			<div class="choice">
-				<input type="radio" id="gricalpost" name="nextaction" value="gricalpost" />
+				<input type="checkbox" id="gricalpost" name="gricalpost" />
 				<label for="gricalpost">			
-					<?php echo loc('Send this appointment to grical, too.'); ?>
+					<?php echo loc('Send this appointment to grical, too.').'*'; ?>
 				</label>
 			</div>
+			<div class="choice">
+				<input type="checkbox" id="calciferpost" name="calciferpost" />
+				<label for="calciferpost">			
+					<?php echo loc('Send this appointment to calcifer, too.').'*'; ?>
+				</label>
+			</div>
+			
 			
 			<input type="submit" value="<?php echo loc('add link'); ?>"/><br/> 
 		</div>

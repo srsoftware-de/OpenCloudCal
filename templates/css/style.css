@@ -120,3 +120,8 @@ tr.session td{
 .options{
 	float: right;
 }
+.note{
+	color: red;
+	font-weight: bold;
+}
+}
