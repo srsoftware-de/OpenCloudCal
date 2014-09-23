@@ -107,7 +107,6 @@
     }
     
     function sendToGrical(){
-    	die('sendToGrical called!');
     	if (is_callable('curl_init')){
     		$text ='title: '.$this->title.PHP_EOL;
     		$text.='start: '.substr($this->start, 0,10).PHP_EOL; // depends on db_time_format set in init.php
@@ -223,10 +222,15 @@
 				if (isset($this->tags) && !empty($this->tags)){
 					$formfields['tags'].=','.$this->tags(',');
 				}
-				if (isset($this->urls) && !empty($this->urls)){
-					$urls=$this->urls;
-					$date_url=reset($urls);
-					$formfields['url']=$date_url->address;
+				if (isset($this->urls)){
+					if (count($this->urls)==1){ // if we only have one url: post the url directly
+				  	$urls=$this->urls;
+					  $date_url=reset($urls);
+					  $formfields['url']=$date_url->address;
+					}
+					if (count($this->urls)>1){ // if we only several urls: link to the appointment in OpenCloudCal
+						$formfields['url']='http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}?show=$this->id";
+					}
 				}
 				$postData = http_build_query($formfields);
 				

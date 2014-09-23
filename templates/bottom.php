@@ -2,7 +2,10 @@
 X-WR-CALNAME:OpenCloudCal
 END:VCALENDAR
 <?php } else if ($format=='html') {	
-    if (strlen($warnings)>3){
+    if (strlen($notifications)>3){
+      echo '<div class="notifications">'.$notifications.'</div>'.PHP_EOL;
+    }
+	  if (strlen($warnings)>3){
       echo '<div class="warnings">'.$warnings.'</div>'.PHP_EOL;
     }
     ?>

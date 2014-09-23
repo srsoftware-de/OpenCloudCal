@@ -202,6 +202,11 @@
     }
     return $secs;
   }
+  
+  function notify($message){
+  	global $notifications;
+  	$notifications.='<p>'.loc($message).'</p>'.PHP_EOL;
+  }
 
   function warn($message){
   	global $warnings;
@@ -292,6 +297,7 @@
   }
 
   $warnings = "";
+  $notifications = "";
   
   /* default time format used in:
    *  appointment->sendToGrical */

@@ -17,7 +17,6 @@ function calciferValue(){
 $selected_tags = array();
 
 include 'templates/head.php';
-$_SESSION['debug']=true;
 
 /* if data for a new appointment is recieved, handle it */
 if (isset($_POST['newappointment'])){
@@ -149,10 +148,14 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 
 if (!isset($_POST['nextaction'])){
 	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on' && isset($appointment)){
-		$appointment->sendToGrical();
+		if ($appointment->sendToGrical()){
+			notify(loc('Appointment sent to grical.'));
+		}
 	}
 	if (isset($_POST['calciferpost']) && $_POST['calciferpost']=='on' && isset($appointment)){
-		$appointment->sendToCalcifer();
+		if ($appointment->sendToCalcifer()){
+			notify(loc('Appointment sent to calcifer.'));
+		}				
 	}
 }
 

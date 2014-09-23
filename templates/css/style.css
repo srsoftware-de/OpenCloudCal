@@ -94,6 +94,19 @@ table tr{
 	color: white;
 	font-weight: bold;
 }
+.notifications{
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  right: 0;
+  padding: 20px;
+  width: 50%;
+  margin: auto;
+  background-color: lime;
+  text-align: center;
+  color: black;
+  font-weight: bold;
+}
 .confirmation{
 	width: 100%;
 	padding: 5px;
