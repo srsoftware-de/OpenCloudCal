@@ -207,7 +207,7 @@
     
     function sendToCalcifer(){
     	if (is_callable('curl_init')){
-				$url='https://calcifer-test.datenknoten.me/termine/';
+				$url='https://calcifer.datenknoten.me/termine/';
 				$formfields=array();
 				$formfields['startdate']=substr($this->start, 0,16);
 				$formfields['enddate']=substr($this->end, 0,16);
