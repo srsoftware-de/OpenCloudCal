@@ -30,13 +30,13 @@
 				</label>
 			</div>
 			<div class="choice">
-				<input type="checkbox" id="gricalpost" name="gricalpost" />
+				<input type="checkbox" id="gricalpost" name="gricalpost" <?php echo gricalValue(); ?>/>
 				<label for="gricalpost">			
 					<?php echo loc('Send this appointment to grical, too.').'*'; ?>
 				</label>
 			</div>
 			<div class="choice">
-				<input type="checkbox" id="calciferpost" name="calciferpost" />
+				<input type="checkbox" id="calciferpost" name="calciferpost"  <?php echo calciferValue(); ?>/>
 				<label for="calciferpost">			
 					<?php echo loc('Send this appointment to calcifer, too.').'*'; ?>
 				</label>
