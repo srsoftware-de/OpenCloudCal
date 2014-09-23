@@ -209,28 +209,29 @@
     function sendToCalcifer(){
     	if (is_callable('curl_init')){
 				$url='https://calcifer-test.datenknoten.me/termine/';
-				
 				$formfields=array();
-				$formfields['event_startdate']=substr($this->start, 0,16);
-				$formfields['event_enddate']=substr($this->end, 0,16);
-				$formfields['event_summary']=$this->title;
+				$formfields['startdate']=substr($this->start, 0,16);
+				$formfields['enddate']=substr($this->end, 0,16);
+				$formfields['summary']=$this->title;
 				$formfields['description']=$this->description;
-				$formfields['event_location']=$this->location;
+				$formfields['location']=$this->location;
 				if ($this->coords){
 					$formfields['location_lat']=$this->coords['lat'];
 					$formfields['location_lon']=$this->coords['lon'];
 				}
+				$formfields['tags']='OpenCloudCal';
 				if (isset($this->tags) && !empty($this->tags)){
-					$formfields['event_tags']=$this->tags(',');
-				}				
+					$formfields['tags'].=','.$this->tags(',');
+				}
 				$postData = http_build_query($formfields);
+				print_r($postData);
 				
 				$ch = curl_init();
 				curl_setopt($ch, CURLOPT_URL, $url);
 				curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; rv:11.0) Gecko/20100101 Firefox/11.0');
-//				 curl_setopt($ch, CURLOPT_HEADER ,1);
+    		 curl_setopt($ch, CURLOPT_HEADER ,1);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER ,1);
-				curl_setopt($ch, CURLOPT_FOLLOWLOCATION ,1);
+//				curl_setopt($ch, CURLOPT_FOLLOWLOCATION ,1);
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 //				curl_setopt($ch, CURLOPT_USERPWD, $auth['user'] . ":" . $auth['password']);
 //				curl_setopt($ch, CURLOPT_COOKIEJAR, $auth['cookies']);
@@ -238,8 +239,11 @@
 				curl_setopt($ch, CURLOPT_POST,1);
 				curl_setopt($ch, CURLOPT_POSTFIELDS,$postData);
 				$result=curl_exec($ch);
-				print_r($result);
-				die();
+				if (strpos($result, '302 Found') !== false){
+					return true;
+				} else {
+    			warn(str_replace('%server', $url, loc('Sorry, I was not able to save event to %server.')));
+				}
 				
     	} else {
     		warn(str_replace('%server',$target_host,loc('Sorry, curl not callable. This means I am not allowed to send the event to %server.')));
