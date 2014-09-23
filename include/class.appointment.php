@@ -223,19 +223,20 @@
 				if (isset($this->tags) && !empty($this->tags)){
 					$formfields['tags'].=','.$this->tags(',');
 				}
+				if (isset($this->urls) && !empty($this->urls)){
+					$urls=$this->urls;
+					$date_url=reset($urls);
+					$formfields['url']=$date_url->address;
+				}
 				$postData = http_build_query($formfields);
-				print_r($postData);
 				
 				$ch = curl_init();
 				curl_setopt($ch, CURLOPT_URL, $url);
 				curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; rv:11.0) Gecko/20100101 Firefox/11.0');
-    		 curl_setopt($ch, CURLOPT_HEADER ,1);
+        curl_setopt($ch, CURLOPT_HEADER ,1);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER ,1);
-//				curl_setopt($ch, CURLOPT_FOLLOWLOCATION ,1);
+				curl_setopt($ch, CURLOPT_FOLLOWLOCATION ,1);
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-//				curl_setopt($ch, CURLOPT_USERPWD, $auth['user'] . ":" . $auth['password']);
-//				curl_setopt($ch, CURLOPT_COOKIEJAR, $auth['cookies']);
-//				curl_setopt($ch, CURLOPT_COOKIEFILE, $auth['cookies']);
 				curl_setopt($ch, CURLOPT_POST,1);
 				curl_setopt($ch, CURLOPT_POSTFIELDS,$postData);
 				$result=curl_exec($ch);
