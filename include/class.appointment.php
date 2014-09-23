@@ -107,6 +107,7 @@
     }
     
     function sendToGrical(){
+    	die('sendToGrical called!');
     	if (is_callable('curl_init')){
     		$text ='title: '.$this->title.PHP_EOL;
     		$text.='start: '.substr($this->start, 0,10).PHP_EOL; // depends on db_time_format set in init.php
@@ -203,7 +204,7 @@
     		warn(str_replace('%server',$target_host,loc('Sorry, curl not callable. This means I am not allowed to send the event to %server.')));
     	}
     	return false;
-    }
+    } // sendToGrical
 
     /******* TAGS ****************/
     

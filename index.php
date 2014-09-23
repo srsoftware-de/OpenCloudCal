@@ -2,9 +2,22 @@
 
 require 'init.php';
 
+function gricalValue(){
+	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on'){
+		return 'checked';
+	}
+}
+
+function calciferValue(){
+	if (isset($_POST['calciferpost']) && $_POST['calciferpost']=='on'){
+		return 'checked';
+	}
+}
+
 $selected_tags = array();
 
 include 'templates/head.php';
+$_SESSION['debug']=true;
 
 /* if data for a new appointment is recieved, handle it */
 if (isset($_POST['newappointment'])){
@@ -14,9 +27,6 @@ if (isset($_POST['newappointment'])){
 		$tags=explode(' ',$_POST['newappointment']['tags']);
 		foreach ($tags as $tag){
 			$appointment->addTag($tag); // add tags
-		}
-		if (isset($_POST['nextaction']) && $_POST['nextaction']=='gricalpost'){
-			$appointment->sendToGrical();
 		}
 	} else { // if appointment data is invalid
 		unset($_POST['nextaction']); // do not add sessions or links
@@ -39,9 +49,6 @@ if (isset($_POST['newlink'])){
 		$link->save(); // save session
 		$appointment=appointment::load($link->aid);
 		$appointment->addUrl($link);
-		if (isset($_POST['nextaction']) && $_POST['nextaction']=='gricalpost'){
-			$appointment->sendToGrical();
-		}
 	}
 }
 
@@ -57,9 +64,6 @@ if (isset($_POST['editappointment'])){
 		}		
 	}	
 	$appointment->loadRelated();
-	if (isset($_POST['nextaction']) && $_POST['nextaction']=='gricalpost'){	
-		$appointment->sendToGrical();
-	}	
 }
 
 /* if a tag is provided: use it */
@@ -142,6 +146,16 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	include 'templates/adddateform.php';
 	include 'templates/overview.php';
 }
+
+if (!isset($_POST['nextaction'])){
+	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on' && isset($appointment)){
+		$appointment->sendToGrical();
+	}
+	if (isset($_POST['calciferpost']) && $_POST['calciferpost']=='on' && isset($appointment)){
+		$appointment->sendToCalcifer();
+	}
+}
+
 
 if (isset($_SESSION['debug']) && $_SESSION['debug']=='true'){
 	echo "<textarea>";
