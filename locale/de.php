@@ -36,6 +36,7 @@ $locale=array(
 		'Sorry, curl not callable. This means I am not allowed to send the event to %server.','Tut mit leid, aber curl ist auf diesem System nicht verwendbar. Das bedeutet, dass ich dass Ereignis nicht an %server senden darf.',
 		'Sorry, I was not able to save event to %server.'=>'Tut mir leid, aber ich konnte das Ereignis nicht an %server senden!',
 		'start'=>'Beginn',
+		'Start'=>'Beginn',
 		'start date' => 'Startdatum',
 		'Start date' => 'Startdatum',
 		'start time' => 'Startzeit',
