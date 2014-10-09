@@ -149,12 +149,16 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 if (!isset($_POST['nextaction'])){
 	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on' && isset($appointment)){
 		if ($appointment->sendToGrical()){
-			notify(loc('Appointment sent to grical.'));
-		}
+			$notification=loc('Appointment sent to #service.');
+			$notification=str_Replace('#service','grical',$notification);
+			notify($notification);
+					}
 	}
 	if (isset($_POST['calciferpost']) && $_POST['calciferpost']=='on' && isset($appointment)){
 		if ($appointment->sendToCalcifer()){
-			notify(loc('Appointment sent to calcifer.'));
+			$notification=loc('Appointment sent to #service.');
+			$notification=str_Replace('#service','calcifer',$notification);
+			notify($notification);
 		}				
 	}
 }
