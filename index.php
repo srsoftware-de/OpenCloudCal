@@ -158,7 +158,7 @@ if (!isset($_POST['nextaction'])){
 	if (isset($_POST['calciferpost']) && $_POST['calciferpost']=='on' && isset($appointment)){
 		if ($appointment->sendToCalcifer()){
 			$notification=loc('Appointment sent to #service.');
-			$notification=str_Replace('#service','calcifer',$notification);
+			$notification=str_Replace('#service','<a href="https://calcifer.datenknoten.me/tags/opencloudcal">calcifer</a>',$notification);
 			notify($notification);
 		}				
 	}
