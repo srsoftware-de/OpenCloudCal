@@ -149,12 +149,17 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 if (!isset($_POST['nextaction'])){
 	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on' && isset($appointment)){
 		if ($appointment->sendToGrical()){
-			notify(loc('Appointment sent to grical.'));
+			$notification=loc('Appointment sent to #service.');
+			$tags='%23'.$appointment->tags('+%23');
+			$notification=str_replace('#service','<a href="https://grical.org/s/?query='.$tags.'">grical</a>',$notification);
+			notify($notification);
 		}
 	}
 	if (isset($_POST['calciferpost']) && $_POST['calciferpost']=='on' && isset($appointment)){
 		if ($appointment->sendToCalcifer()){
-			notify(loc('Appointment sent to calcifer.'));
+			$notification=loc('Appointment sent to #service.');
+			$notification=str_Replace('#service','<a href="https://calcifer.datenknoten.me/tags/opencloudcal">calcifer</a>',$notification);
+			notify($notification);
 		}				
 	}
 }
