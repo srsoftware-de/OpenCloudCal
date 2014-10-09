@@ -152,7 +152,7 @@ if (!isset($_POST['nextaction'])){
 			$notification=loc('Appointment sent to #service.');
 			$notification=str_Replace('#service','grical',$notification);
 			notify($notification);
-					}
+		}
 	}
 	if (isset($_POST['calciferpost']) && $_POST['calciferpost']=='on' && isset($appointment)){
 		if ($appointment->sendToCalcifer()){
