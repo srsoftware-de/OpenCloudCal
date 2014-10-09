@@ -150,7 +150,8 @@ if (!isset($_POST['nextaction'])){
 	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on' && isset($appointment)){
 		if ($appointment->sendToGrical()){
 			$notification=loc('Appointment sent to #service.');
-			$notification=str_Replace('#service','grical',$notification);
+			$tags='%23'.$appointment->tags('+%23');
+			$notification=str_replace('#service','<a href="https://grical.org/s/?query='.$tags.'">grical</a>',$notification);
 			notify($notification);
 		}
 	}
