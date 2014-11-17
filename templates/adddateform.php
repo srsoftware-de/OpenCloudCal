@@ -21,7 +21,16 @@ include 'forms.php';
 		</div>
 		<div id="tags">
 			<?php echo loc('tags'); ?>
-			<input type="text" name="newappointment[tags]" />
+			<?php echo '<input type="text" name="newappointment[tags]" ';
+			if (count($selected_tags)>0){
+        echo 'value="';
+        $val='';
+        foreach ($selected_tags as $tag){
+          $val.=$tag.' ';
+        }        
+        echo trim($val).'" ';
+			}
+			echo '/>'; ?>
 		</div>
 
 	</div>
@@ -35,15 +44,33 @@ include 'forms.php';
 		</div>
 	</div>
 	<div class="submit">
-		  <input type="checkbox" id="addsession" name="addsession" />
-		  <label for="addsession">
-				<?php echo loc('Add a session to this appointment in the next step.'); ?>
-			</label>
-			<input type="checkbox" id="addlink" name="addlink" />
-			<label for="addlink">			
-				<?php echo loc('Add a link to this appointment in the next step.'); ?>
-			</label>
-		<?php echo '<input type="submit" value="'.loc('create new appointment').'"/><br/>'.PHP_EOL; ?>
+			<div class="choice">
+		  	<input type="radio" id="addsession" name="nextaction" value="addsession" />
+		  	<label for="addsession">
+					<?php echo loc('Add a session to this appointment in the next step.'); ?>
+				</label>
+			</div>
+			<div class="choice">
+				<input type="radio" id="addlink" name="nextaction" value="addlink" />
+				<label for="addlink">			
+					<?php echo loc('Add a link to this appointment in the next step.'); ?>
+				</label>
+			</div>
+			<div class="choice">
+				<input type="checkbox" id="gricalpost" name="gricalpost" />
+				<label for="gricalpost">			
+					<?php echo loc('Send this appointment to grical, too.').'*'; ?>
+				</label>
+			</div>
+			<div class="choice">
+				<input type="checkbox" id="calciferpost" name="calciferpost" />
+				<label for="calciferpost">			
+					<?php echo loc('Send this appointment to calcifer, too.').'*'; ?>
+				</label>
+			</div>
+  		<?php echo '<input type="submit" value="'.loc('create new appointment').'"/>&nbsp;';
+  		echo '<span class="note">'.loc('* You should complete your appointment with all sessions and links, before submitting to calcifer or grical!').'</span><br/>'.PHP_EOL; ?> 
+		
 	</div>
 </form>
 <?php } ?>

@@ -3,6 +3,8 @@
   define("OCC_ROOT", realpath(dirname(__FILE__)));
   
   require  (OCC_ROOT.'/config/db.php');
+  
+  session_start();
 
   /* this was written using http://code.tutsplus.com/tutorials/why-you-should-be-using-phps-pdo-for-database-access--net-12059 */
   function connectToDb($host,$database,$user,$pass){
@@ -200,6 +202,11 @@
     }
     return $secs;
   }
+  
+  function notify($message){
+  	global $notifications;
+  	$notifications.='<p>'.loc($message).'</p>'.PHP_EOL;
+  }
 
   function warn($message){
   	global $warnings;
@@ -311,7 +318,11 @@
   }
 
   $warnings = "";
-  $db_time_format='Y-m-d H:i:0';
+  $notifications = "";
+  
+  /* default time format used in:
+   *  appointment->sendToGrical */
+  $db_time_format='Y-m-d H:i:s';
   
   spl_autoload_register('occ_autoload');
   
@@ -322,4 +333,25 @@
   require OCC_ROOT."/locale/de.php";
   
   $format='html';
+  $limit=null;
+  
+  if (isset($_GET['format'])){
+  	if ($_GET['format']=='ical'){
+  		header('Content-type: text/calendar; charset=utf-8');
+  		header('Content-Disposition: inline; filename=calendar.ics');
+  		$format='ical';
+  	}
+  	if ($_GET['format']=='webdav'){
+  		$format='webdav';
+  	}
+  }
+  
+  if (isset($_GET['limit'])){
+  	$limit=(int)$_GET['limit'];
+  }
+  
+  if (isset($_GET['debug'])){
+  	$_SESSION['debug']=$_GET['debug'];
+  }
+  
 ?>

@@ -2,17 +2,21 @@
 
 require 'init.php';
 
-$selected_tags = array();
-
-if (isset($_GET['format'])){
-	if ($_GET['format']=='ical'){
-		header('Content-type: text/calendar; charset=utf-8');
-		header('Content-Disposition: inline; filename=calendar.ics');		
-		$format='ical';
+function gricalValue(){
+	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on'){
+		return 'checked';
 	}
 }
 
-include 'templates/htmlhead.php';
+function calciferValue(){
+	if (isset($_POST['calciferpost']) && $_POST['calciferpost']=='on'){
+		return 'checked';
+	}
+}
+
+$selected_tags = array();
+
+include 'templates/head.php';
 
 /* if data for a new appointment is recieved, handle it */
 if (isset($_POST['newappointment'])){
@@ -22,10 +26,9 @@ if (isset($_POST['newappointment'])){
 		$tags=explode(' ',$_POST['newappointment']['tags']);
 		foreach ($tags as $tag){
 			$appointment->addTag($tag); // add tags
-		}		
+		}
 	} else { // if appointment data is invalid
-		unset($_POST['addsession']); // do not add sessions
-		unset($_POST['addlink']); // do not add links
+		unset($_POST['nextaction']); // do not add sessions or links
 	}	
 }
 
@@ -53,7 +56,12 @@ if (isset($_POST['editappointment'])){
 	$appointment=parseAppointmentData($_POST['editappointment']);
 	if ($appointment){
 		$appointment->save();
-	}
+		$appointment->removeAllTags();		
+		$tags=explode(' ',$_POST['editappointment']['tags']);
+		foreach ($tags as $tag){						
+			$appointment->addTag($tag); // add tags
+		}		
+	}	
 	$appointment->loadRelated();
 }
 
@@ -67,24 +75,24 @@ if (isset($_GET['tag'])){
 }
 
 /* session shall be deleted. */
-if (isset($_GET['deletesession'])){
-	$sid=$_GET['deletesession'];
+if (isset($_POST['deletesession'])){
+	$sid=$_POST['deletesession'];
 	session::delete($sid);
 }
 
 /* link shall be removed from appointment */
-if (isset($_GET['deletelink'])){
-	$uid=$_GET['deletelink'];
+if (isset($_POST['deletelink'])){
+	$uid=$_POST['deletelink'];
 	$aid=$_GET['show'];
 	$appointment=appointment::load($aid);
 	$appointment->removeUrl((int)$uid);
 }
 
-if (isset($_POST['addsession'])){
+if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	include 'templates/addsession.php';
 	include 'templates/detail.php';	
 	
-} else if (isset($_POST['addlink'])){
+} else if (isset($_POST['nextaction']) && $_POST['nextaction']=='addlink'){
 	include 'templates/addlink.php';
 	include 'templates/detail.php';	
 	
@@ -93,8 +101,8 @@ if (isset($_POST['addsession'])){
 	$appointment=appointment::load($app_id);
 	include 'templates/detail.php';
 	
-} else if (isset($_GET['clone'])) {
-	$app_id=$_GET['clone'];
+} else if (isset($_POST['clone'])) {
+	$app_id=$_POST['clone'];
 	$appointment=appointment::load($app_id);
 	unset($appointment->id);
 	$appointment->save();
@@ -110,9 +118,9 @@ if (isset($_POST['addsession'])){
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';
 
-} else if (isset($_GET['edit'])) {
-	$app_id=$_GET['edit'];
-	$appointments = appointment::loadCurrent($selected_tags);
+} else if (isset($_POST['edit'])) {
+	$app_id=$_POST['edit'];
+	$appointments = appointment::loadAll($selected_tags);
 	$appointment=$appointments[$app_id];
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';
@@ -125,16 +133,17 @@ if (isset($_POST['addsession'])){
 	$appointments = appointment::loadCurrent($selected_tags);
 	include 'templates/overview.php';
 	
-} else if (isset($_GET['delete'])){
-	$app_id=$_GET['delete'];
-	if (isset($_GET['confirm']) && $_GET['confirm']=='yes'){
-		$appointment=appointment::delete($app_id);	
+} else if (isset($_POST['delete'])){
+	$app_id=$_POST['delete'];
+	if (isset($_POST['confirm'])){
+		if ($_POST['confirm']=='yes'){
+			$appointment=appointment::delete($app_id);	
+		}
 		$appointments = appointment::loadCurrent($selected_tags);
 		include 'templates/adddateform.php';
 		include 'templates/overview.php';
 	} else {
-		$appointments = appointment::loadCurrent($selected_tags);
-		$appointment=$appointments[$app_id];
+		$appointment=appointment::load($app_id);
 		include 'templates/confirmdelete.php';
 		include 'templates/detail.php';
 	}
@@ -149,7 +158,26 @@ if (isset($_POST['addsession'])){
 	include 'templates/overview.php';
 }
 
-//if (isset($_GET['debug']) && $_GET['debug']=='true'){
+if (!isset($_POST['nextaction'])){
+	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on' && isset($appointment)){
+		if ($appointment->sendToGrical()){
+			$notification=loc('Appointment sent to #service.');
+			$tags='%23'.$appointment->tags('+%23');
+			$notification=str_replace('#service','<a href="https://grical.org/s/?query='.$tags.'">grical</a>',$notification);
+			notify($notification);
+		}
+	}
+	if (isset($_POST['calciferpost']) && $_POST['calciferpost']=='on' && isset($appointment)){
+		if ($appointment->sendToCalcifer()){
+			$notification=loc('Appointment sent to #service.');
+			$notification=str_Replace('#service','<a href="https://calcifer.datenknoten.me/tags/opencloudcal">calcifer</a>',$notification);
+			notify($notification);
+		}				
+	}
+}
+
+
+if (isset($_SESSION['debug']) && $_SESSION['debug']=='true'){
 	echo "<textarea>";
 	print_r($_POST);
 	echo "</textarea>";
@@ -163,7 +191,7 @@ if (isset($_POST['addsession'])){
 		print_r($appointment);
 		echo "</textarea>";
 	}
-//} 
+} 
 
 include 'templates/bottom.php';
 

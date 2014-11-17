@@ -9,11 +9,15 @@ h2,h3{
 	margin: 5px;
 }
 
-#detail_time,#description,#location,#tags{
+#detail_time_start,#detail_time_end,#description,#location,#tags{
 	margin: 0 5px;
 }
 
-#detail_time,#location{
+#detail_time_start{
+	font-weight: bold;
+}
+
+#detail_time_end,#location{
 	background-color: #ddddff;  
 }
 #mapdiv{
@@ -21,7 +25,9 @@ h2,h3{
   border: 1px solid gray;
   border-radius: 5px;	
 }
-form{
+form.adddate,
+form.addsession,
+form.addlink{
 	background-color: #ddffdd;
 	margin: 5px;
 	border: 1px solid gray;
@@ -33,6 +39,9 @@ form #location{
 }
 .left,.right{
 	width: 50%;
+	float: left;
+}
+h2.overview{
 	float: left;
 }
 #description textarea{
@@ -56,6 +65,9 @@ td.description{
 .submit{
 	clear: both;
 }
+.submit .choice{
+	display: block;
+}
 textarea{
   width: 100px;
   height: 100px;
@@ -66,7 +78,8 @@ textarea{
 }
 table {
   border-collapse: collapse;
-  margin: 5px;	
+  margin: 5px;
+  clear: both;	
 }
 table tr{
 	font-weight: normal;
@@ -85,6 +98,19 @@ table tr{
 	color: white;
 	font-weight: bold;
 }
+.notifications{
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  right: 0;
+  padding: 20px;
+  width: 50%;
+  margin: auto;
+  background-color: lime;
+  text-align: center;
+  color: black;
+  font-weight: bold;
+}
 .confirmation{
 	width: 100%;
 	padding: 5px;
@@ -101,20 +127,18 @@ table tr{
 	position: fixed;
 	bottom: 0;
 }
-.button{
-	display: inline-block;
-	border-radius: 5px;
-	background-color: #ccc;
-	text-decoration: none;
-	color: black;
-	padding: 3px;
-	margin: 3px;
-	font-weight: bold;
-}
 tr.session td{
 	padding: 5px;
 }
 .right{
 	text-align: right;
 	right: 0;
+}
+.options{
+	float: right;
+}
+.note{
+	color: red;
+	font-weight: bold;
+}
 }

@@ -15,43 +15,111 @@ foreach ($app->urls as $url){
 	print 'URL:'.$url->address.PHP_EOL;
 } 
 ?>
+URL:http://<?php echo $_SERVER['HTTP_HOST'].'/?show='.$app->id.PHP_EOL; ?>
 DTEND:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->end).'Z'.PHP_EOL; ?>
-END:VEVENT	
-<?php } // foreach ?>
-<?php } else {?>
-<h2><a href='.'><?php echo loc('appointment overview');?></a></h2>
-<table class="appointments">
-  <tr class="appointment">
-    <th class="datestart"><?php echo loc('Start date'); ?></th>
-    <th class="title"><?php echo loc('Title'); ?></th>
-    <th class="coords"><?php echo loc('Location');?></th>
-    <th class="tags"><?php echo loc('Tags'); ?></th>
-    <th class="edit"><?php echo loc('Actions'); ?></th>
-    </tr>
+END:VEVENT
+<?php } // foreach
 
-<?php
-foreach ($appointments as $app){
-  print '<tr class="appointment">'.PHP_EOL;
-  print '  <td class="datestart">'.$app->start.'</th>'.PHP_EOL;
-  print '  <td class="title"><a href=".?show='.$app->id.'">'.$app->title.'</a></th>'.PHP_EOL;  
-  print '  <td class="location">'.$app->location;
-  
-  if ($app->coords){
-		print '<br/><a href="'.$app->mapLink().'">'.implode(', ',$app->coords).'</a>';
-	}
-	print '  </td>'.PHP_EOL;
-  print '  <td class="tags">'.$app->tagLinks().'</td>'.PHP_EOL;
-  print '  <td class="edit">'.PHP_EOL;
-  print '<a class="button" href="?clone='.$app->id.'">'.loc('clone').'</a>'.PHP_EOL;
-  print '<a class="button" href="?edit='.$app->id.'">'.loc('edit').'</a>'.PHP_EOL;
-  print '<a class="button" href="?delete='.$app->id.'">'.loc('delete').'</a>'.PHP_EOL;
-  print '  </td>'.PHP_EOL;
-  print '</tr>'.PHP_EOL;  
-}
+
+
+
+
+
+
+
+} else if ($format=='html') { ?>
+<h2 class="overview">
+	<a href='.'><?php echo loc('appointment overview');?> </a>
+</h2>
+<form class="options" action="." method="GET">
+	<?php echo loc('Number of entries shown'); ?>:
+	<button name="limit" value="1000">1000</button>
+	<button name="limit" value="100">100</button>
+	<button name="limit" value="50">50</button>	
+	<button name="limit" value="20">20</button>	
+	<button name="limit" value="10">10</button> |	
+	<button name="past" value="true"><?php echo loc('show previous events')?></button>
+</form>
+<table class="appointments">
+	<tr class="appointment">
+		<th class="datestart"><?php echo loc('Start date'); ?></th>
+		<th class="title"><?php echo loc('Title'); ?></th>
+		<th class="coords"><?php echo loc('Location');?></th>
+		<th class="tags"><?php echo loc('Tags'); ?></th>
+		<th class="edit"><?php echo loc('Actions'); ?></th>
+	</tr>
+
+	<?php
+	foreach ($appointments as $app){ ?>
+  <tr class="appointment">
+    <td class="datestart"><?php echo $app->start; ?></th>
+    <td class="title"><a href="?show=<?php echo $app->id; ?>"><?php echo $app->title; ?></a></td>
+    <td class="location"><?php echo $app->location;
+    if ($app->coords){ ?>
+      <br/><a href="<?php echo $app->mapLink() ?>"><?php echo implode(', ',$app->coords); ?></a> <?php
+  	} // if
+    ?> 
+	  </td>
+    <td class="tags"><?php echo $app->tagLinks(); ?></td>
+	  <td class="edit">
+      <form action="." method="POST">
+        <button name="clone" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('clone'); ?></button>
+        <button name="edit" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('edit'); ?></button>
+        <button name="delete" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('delete'); ?></button>
+      </form>
+    </td>
+	</tr>
+<?php } // foreach
 ?>
 </table>
-<div class="bottomline right">
-<a class="button" href="?import=ical"><?php echo loc('import iCal');?></a>
-<a class="button" href="?<?php if (isset($_GET['tag'])) echo 'tag='.$_GET['tag'].'&'; ?>format=ical"><?php echo loc('export iCal');?></a>
-</div>
+<form class="bottomline right">
+  <?php
+    if (isset($_GET['tag'])) echo '<input type="hidden" name="tag" value="'.$_GET['tag'].'">';
+    if (isset($_GET['limit'])) echo '<input type="hidden" name="limit" value="'.$_GET['limit'].'">';
+    if (isset($_GET['past'])) echo '<input type="hidden" name="past" value="'.$_GET['past'].'">';
+  ?>
+  <button type="submit" name="import" value="ical"><?php print t('import iCal'); ?></button>
+  <button type="submit" name="format" value="webdav"><?php print t('WebDAV'); ?></button>
+  <button type="submit" name="format" value="ical"><?php print t('iCal'); ?></button>
+</form>
+<?php
+ } else if ($format=='webdav') {?>
+<h1>
+	Index for calendar<?php if (isset($_GET['tag'])) echo '/'.$_GET['tag']?>
+</h1>
+<table>
+	<tr>
+		<th width="24"></th>
+		<th>Name</th>
+		<th>Type</th>
+		<th>Size</th>
+		<th>Last modified</th>
+	</tr>
+	<tr>
+		<td colspan="5"><hr /></td>
+	</tr>
+	<tr>
+		<td>
+			<a href="?format=webdav">
+				<img src="templates/img/folder.png" width="24" alt="Parent" />
+			</a>
+		</td>
+		<td>
+			<a href="?format=webdav">..</a>
+		</td>
+		<td>[parent]</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<?php
+	foreach ($appointments as $app){ ?>
+<tr>
+<td><a href="?format=ical&show=<?php echo $app->id; ?>"><img src="templates/img/file.png" alt="" width="24" /></a></td>
+<td><a href="?format=ical&show=<?php echo $app->id; ?>">appointment<?php echo $app->id; ?>.ics</a></td>
+<td>text/calendar; charset=utf-8</td>
+<td>1024</td>
+<td><?php echo str_replace(' ', 'T', $app->start); ?>+00:00</td>
+</tr>
+<?php } ?>
+</table>
 <?php } ?>
