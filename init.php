@@ -303,6 +303,10 @@
   	return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
   }
   
+  function readTimezone($stack){
+  	
+  }
+  
   function importIcal($url){
   	$data=file($url);
   	$len=count($data);
@@ -325,6 +329,7 @@
   		} else if (strpos($line,'PRODID:') === 0) {
   		} else if (strpos($line,'CALSCALE:') === 0){
   		} else if (strpos($line,'METHOD:') === 0){
+  			$timezone=readTimezone($stack);
   		} else {
   			warn('unknown tag: '. $line);
   			return false;
