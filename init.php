@@ -314,8 +314,10 @@
   		warn('This file does not look like an iCal file!');
   		return false;
   	}
-  	foreach ($data as $line){
-  		$line=trim($line);
+  	$stack=array_reverse($data);  	
+  	while (!empty($stack)){
+  		$line=trim(array_pop($stack));
+  		print $line.PHP_EOL;
   		if        (strpos($line,'BEGIN:VCALENDAR') === 0) {
   		} else if (strpos($line,'VERSION:') === 0) { 
   			$version=substr($line, 8);
