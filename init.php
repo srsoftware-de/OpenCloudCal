@@ -310,9 +310,23 @@
   		warn('This file contains no data!');
   		return false;
   	}
-  	if ($data[0]!='BEGIN:VCALENDAR'){
+  	if (trim($data[0]) != 'BEGIN:VCALENDAR'){
   		warn('This file does not look like an iCal file!');
   		return false;
+  	}
+  	foreach ($data as $line){
+  		$line=trim($line);
+  		if        (strpos($line,'BEGIN:VCALENDAR') === 0) {
+  		} else if (strpos($line,'VERSION:') === 0) { 
+  			$version=substr($line, 8);
+  			print $version; 
+  		} else if (strpos($line,'PRODID:') === 0) {
+  		} else if (strpos($line,'CALSCALE:') === 0){
+  		} else if (strpos($line,'METHOD:') === 0){
+  		} else {
+  			warn('unknown tag: '. $line);
+  			return false;
+  		}
   	}
   	// TODO: code here?
   }

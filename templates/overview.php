@@ -78,9 +78,9 @@ END:VEVENT
     if (isset($_GET['limit'])) echo '<input type="hidden" name="limit" value="'.$_GET['limit'].'">';
     if (isset($_GET['past'])) echo '<input type="hidden" name="past" value="'.$_GET['past'].'">';
   ?>
-  <button type="submit" name="import" value="ical"><?php print t('import iCal'); ?></button>
-  <button type="submit" name="format" value="webdav"><?php print t('WebDAV'); ?></button>
-  <button type="submit" name="format" value="ical"><?php print t('iCal'); ?></button>
+  <button type="submit" name="import" value="ical"><?php print loc('import iCal'); ?></button>
+  <button type="submit" name="format" value="webdav"><?php print loc('WebDAV'); ?></button>
+  <button type="submit" name="format" value="ical"><?php print loc('iCal'); ?></button>
 </form>
 <?php
  } else if ($format=='webdav') {?>
