@@ -101,6 +101,23 @@
   		}
   	}
   	
+  	public function safeIfNotAlreadyImported(){
+  		global $db;
+  		$md5=md5($this->toVEvent(),TRUE);
+  		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
+    	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    	$stm->execute(array(':hash'=>$md5));
+    	$results=$stm->fetchAll();
+    	if (count($results) < 1){
+    		$this->save();
+    		print "saved<br/>\n";
+    		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
+    		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    		$stm->execute(array(':aid'=>$this->id,':hash'=>$md5));
+    	} else {    		
+    		print "already present (aid: ".$results[0][0].")<br/>\n";
+    	}    		 
+		}
     
     public static function load($id){
     	global $db;
@@ -496,17 +513,23 @@
     function toVEvent(){  	
     	$nl="\r\n";
       $result ='BEGIN:VEVENT'.$nl;
-    	$result.='UID:'.$this->id.'@'.$_SERVER['HTTP_HOST'].$nl;
+      if (isset($this->id) && $this->id != null) {
+    		$result.='UID:'.$this->id.'@'.$_SERVER['HTTP_HOST'].$nl;
+      }
     	$result.='DTSTART:'.str_replace(array('-',' ',':'),array('','T',''),$this->start).'Z'.$nl;
-    	$result.='CATEGORIES:'.$this->tags(',').$nl;
+    	if (isset($this->tags) && $this->tags != null){
+    		$result.='CATEGORIES:'.$this->tags(',').$nl;
+    	}
     	$result.='CLASS:PUBLIC'.$nl;
     	$result.=wordwrap('DESCRIPTION:'.str_replace("\r\n","\\n",$this->description),75,"\r\n ").$nl;
     	$result.='DTSTAMP:'.str_replace(array('-',' ',':'),array('','T',''),$this->start).'Z'.$nl;
     	$result.='GEO:'.$this->coords['lat'].';'.$this->coords['lon'].$nl;
     	$result.='LOCATION:'.$this->location.$nl;
     	$result.='SUMMARY:'.$this->title.$nl;
-    	foreach ($this->urls as $url){
-    		$result.='URL:'.$url->address.$nl;
+    	if (isset($this->urls) && $this->urls != null){
+    		foreach ($this->urls as $url){
+    			$result.='URL:'.$url->address.$nl;
+    		}
     	}
     	if (isset($this->id) && $this->id != null){ 
     		$result.='URL:http://'.$_SERVER['HTTP_HOST'].'/?show='.$this->id.$nl;

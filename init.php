@@ -390,12 +390,9 @@
   			$objects['timezone']=readTimezone($stack);
   		} else if ($line=='BEGIN:VEVENT') {
   			$app=appointment::readFromIcal($stack);
-  			$hash=md5($app->toVEvent());
-  			$objects['events'][]=$app;
-  			print '<pre>';
-  			print_r($app);
-  			print '</pre>';
+  			$app->safeIfNotAlreadyImported();
   			//die();
+  		} else if ($line=='END:VCALENDAR') {
   		} else {
   			warn('unknown tag: '. $line);
   			return false;
