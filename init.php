@@ -303,7 +303,7 @@
   	return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
   }
   
-  function readTimezoneStandard($stack){
+  function readTimezoneStandard(&$stack){
   	$standard=array();
   	while (!empty($stack)){
   		$line=trim(array_pop($stack));  
@@ -313,6 +313,8 @@
   			$standard['offset_to']=substr($line, 11);
   		} else if (strpos($line,'TZOFFSETFROM:') === 0){
   			$standard['offset_from']=substr($line, 13);
+  		} else if ($line=='END:STANDARD'){
+  			return $standard;
   		} else {
   			warn('tag unknown to readTimezoneStandard: '.$line);
   			return false;
@@ -320,7 +322,7 @@
   	}
   }
   
-  function readTimezone($stack){
+  function readTimezone(&$stack){
   	$timezone=array();
   	while (!empty($stack)){
   		$line=trim(array_pop($stack));
@@ -331,7 +333,14 @@
   			if (!isset($timezone['standards'])){
   				$timezone['standards']=array();
   			}
-  			$timezone['standards'][]=readTimezoneStandard($stack);
+  			$tmp=readTimezoneStandard($stack);
+  			if ($tmp){
+  				$timezone['standards'][]=$tmp;
+  			} else {
+  				return false;
+  			}
+  		} elseif ($line=='END:VTIMEZONE') {
+  			return $timezone;
   		} else {
   			warn('tag unknown to readTimezone: '.$line);
   			return false;
@@ -350,7 +359,9 @@
   		warn('This file does not look like an iCal file!');
   		return false;
   	}
-  	$stack=array_reverse($data);  	
+  	$stack=array_reverse($data);
+  	$objects=array();
+  	$objects['events']=array();
   	while (!empty($stack)){
   		$line=trim(array_pop($stack));
   		print $line."<br/>".PHP_EOL;
@@ -362,7 +373,9 @@
   		} else if (strpos($line,'CALSCALE:') === 0){
   		} else if (strpos($line,'METHOD:') === 0){
   		} else if ($line=='BEGIN:VTIMEZONE') {
-  			return $timezone=readTimezone($stack);
+  			$objects['timezone']=readTimezone($stack);
+  		} else if ($line=='BEGIN:VEVENT') {
+  			$objects['event']=appointment::readFromIcal($stack);
   		} else {
   			warn('unknown tag: '. $line);
   			return false;

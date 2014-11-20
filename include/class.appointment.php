@@ -45,6 +45,42 @@
     	return false;
     }
     
+    private static function readMultilineFromIcal(&$stack){
+    	$text='';
+    	while (!empty($stack)){
+    		$line=rtrim(array_pop($stack));
+
+    		if (substr($line, 0,1)!=' '){
+    			array_push($stack, $line);
+    			return $text;
+    		}
+    		$text.=substr($line,1);
+    	}
+    }
+    
+    public static function readFromIcal(&$stack){
+    	$start=null;
+    	$end=null;
+  		while (!empty($stack)){
+  			$line=trim(array_pop($stack));
+  		
+  			if (strpos($line,'UID:') === 0){
+  				// no use for foreign UID at this point of time
+	  		} elseif (strpos($line,'DTSTART:') === 0){
+  				$start=substr($line, 8);
+	  		} elseif (strpos($line,'DTEND:') === 0){
+  				$end=substr($line, 6);
+	  		} elseif (strpos($line,'SUMMARY:') === 0){
+	  			$summary=$line . appointment::readMultilineFromIcal($stack);
+	  		} elseif (strpos($line,'DESCRIPTION:') === 0){
+	  			$description=$line . appointment::readMultilineFromIcal($stack);
+	  		} else {
+  				warn('tag unknown to appointment::readFromIcal: '.$line);
+  				return false;
+  			}
+  		}
+  	}
+    
     public static function load($id){
     	global $db;
     	$instance=new self();    	 
