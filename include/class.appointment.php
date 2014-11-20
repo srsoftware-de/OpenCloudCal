@@ -45,24 +45,7 @@
     	return false;
     }
     
-    private static function readMultilineFromIcal(&$stack){
-    	$text='';
-    	while (!empty($stack)){
-    		$line=rtrim(array_pop($stack));
-
-    		if (substr($line, 0,1)!=' '){
-    			array_push($stack, $line);
-    			return $text;
-    		}
-    		$text.=substr($line,1);
-    	}
-    }
-    
-    private function setId($id){
-    	$this->id=$id;
-    }
-    
-    public static function readFromIcal(&$stack,$timezone=null){
+    public static function readFromIcal(&$stack,$tag=null,$timezone=null){
     	$start=null;
     	$end=null;
     	$geo=null;
@@ -71,7 +54,10 @@
     	$summary=null;
     	$description=null;
     	$foreignId=null;
-    	$tags=null;
+    	$tags=array();
+    	if ($tag!=null){
+    		$tags[]=$tag;
+    	}
   		while (!empty($stack)){
   			$line=trim(array_pop($stack));
   		
@@ -79,21 +65,25 @@
   				$foreignId=substr($line,4);
 	  		} elseif (strpos($line,'DTSTART:') === 0){
   				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
+	  		} elseif (strpos($line,'DTSTART;VALUE=DATE:') === 0){
+  				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 19).'T000000',$timezone);
 	  		} elseif (strpos($line,'DTEND:') === 0){
   				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 6), $timezone);
+	  		} elseif (strpos($line,'DTEND;VALUE=DATE:') === 0){
+  				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 17).'T235959',$timezone);
 	  		} elseif (strpos($line,'GEO:') === 0){
-	  			$geo=substr($line,4);
+	  			$geo=str_replace('\;', ';',substr($line,4));
 	  		} elseif (strpos($line,'URL:') === 0){
-	  			$url=substr($line,4) . appointment::readMultilineFromIcal($stack);
+	  			$url=substr($line,4) . readMultilineFromIcal($stack);
 	  		} elseif (strpos($line,'LOCATION:') === 0){
-	  			$location=substr($line,9) . appointment::readMultilineFromIcal($stack);
+	  			$location=str_replace('\,', ',',substr($line,9) . readMultilineFromIcal($stack));
 	  		} elseif (strpos($line,'SUMMARY:') === 0){
-	  			$summary=substr($line,8) . appointment::readMultilineFromIcal($stack);
+	  			$summary=str_replace('\,', ',',substr($line,8) . readMultilineFromIcal($stack));
 	  		} elseif (strpos($line,'CATEGORIES:') === 0){
-	  			$tags=substr($line,11) . appointment::readMultilineFromIcal($stack);
+	  			$tags=str_replace('\,', ',',substr($line,11) . readMultilineFromIcal($stack));
 	  			$tags=explode(',',$tags);
 	  		} elseif (strpos($line,'DESCRIPTION:') === 0){
-	  			$description=substr($line,12) . appointment::readMultilineFromIcal($stack);
+	  			$description=$line=str_replace('\,', ',', substr($line,12) . readMultilineFromIcal($stack));
 	  		} elseif (strpos($line,'CLASS:') === 0){
 	  			// no use for class at the moment
 	  		} elseif (strpos($line,'DTSTAMP:') === 0){
@@ -102,6 +92,9 @@
 	  			// no use for ststamp at the moment
 	  		} elseif ($line=='END:VEVENT'){
 	  			// create appointment, do not save it, return it.
+	  			if ($end==null){
+	  				$end=$start;
+	  			}
 	  			$app=appointment::create($summary, $description, $start, $end, $location, $geo,false);
 	  			$app->safeIfNotAlreadyImported($tags);
 	  			
@@ -121,8 +114,10 @@
   	
   	public function safeIfNotAlreadyImported($tags=null){
   		global $db;
-  		if (in_array('OpenCloudCal', $tags)) return;
-  		if (in_array('opencloudcal', $tags)) return;
+  		if ($tags!=null && !empty($tags)){
+  			if (in_array('OpenCloudCal', $tags)) return;
+  			if (in_array('opencloudcal', $tags)) return;
+  		}
   		$md5=md5($this->toVEvent(),TRUE);
   		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
     	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));

@@ -368,7 +368,20 @@
   	}
   }
   
-  function importIcal($url){
+  function readMultilineFromIcal(&$stack){
+  	$text='';
+  	while (!empty($stack)){
+  		$line=rtrim(array_pop($stack));
+  
+  		if (substr($line, 0,1)!=' '){
+  			array_push($stack, $line);
+  			return $text;
+  		}  		
+  		$text.=substr($line,1);
+  	}
+  }
+  
+  function importIcal($url,$tag=null){
   	$data=file($url);
   	$len=count($data);
   	if ($len<1){
@@ -391,13 +404,14 @@
   		} else if (strpos($line,'VERSION:') === 0) { 
   			$version=substr($line, 8);
   		} else if (strpos($line,'PRODID:') === 0) {
+  			readMultilineFromIcal($stack);
   		} else if (strpos($line,'CALSCALE:') === 0){
   		} else if (strpos($line,'METHOD:') === 0){
   		} else if (strpos($line,'X-') === 0){
   		} else if ($line=='BEGIN:VTIMEZONE') {
   			$timezone=readTimezone($stack);
   		} else if ($line=='BEGIN:VEVENT') {
-  			$app=appointment::readFromIcal($stack,$timezone);
+  			$app=appointment::readFromIcal($stack,$tag,$timezone);
   			//die();
   		} else if ($line=='END:VCALENDAR') {
   		} else {
