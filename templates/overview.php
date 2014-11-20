@@ -1,4 +1,6 @@
-<?php if ($format=='ical') {
+<?php
+
+if ($format=='ical') {
 	$nl="\r\n";
 foreach ($appointments as $app){?>
 BEGIN:VEVENT
@@ -6,7 +8,7 @@ UID:<?php echo $app->id.'@'.$_SERVER['HTTP_HOST'].$nl; ?>
 DTSTART:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->start).'Z'.$nl; ?>
 CATEGORIES:<?php echo $app->tags(',').$nl; ?>
 CLASS:PUBLIC
-DESCRIPTION:<?php echo str_replace("\r\n","\\n",$app->description).$nl; ?>
+<?php echo wordwrap('DESCRIPTION:'.str_replace("\r\n","\\n",$app->description),75,"\r\n ").$nl; ?>
 DTSTAMP:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->start).'Z'.$nl; ?>
 GEO:<?php echo $app->coords['lat'].';'.$app->coords['lon'].$nl;?>
 LOCATION:<?php echo $app->location.$nl; ?>
