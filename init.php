@@ -375,7 +375,11 @@
   		} else if ($line=='BEGIN:VTIMEZONE') {
   			$objects['timezone']=readTimezone($stack);
   		} else if ($line=='BEGIN:VEVENT') {
-  			$objects['event']=appointment::readFromIcal($stack);
+  			$objects['events'][]=appointment::readFromIcal($stack);
+  			print '<pre>';
+  			print_r($objects['events'][0]);
+  			print '</pre>';
+  			die();
   		} else {
   			warn('unknown tag: '. $line);
   			return false;

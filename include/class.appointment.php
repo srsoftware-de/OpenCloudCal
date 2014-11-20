@@ -17,7 +17,7 @@
     	$instance->end=$end;
       $instance->location=$location;
       
-      $c=explode(',',str_replace(' ', '', $coords));
+      $c=explode(',',str_replace(' ', '', str_replace(';', ',', $coords)));
       if (count($c)==2){
       	$instance->coords=array('lat'=>$c[0],'lon'=>$c[1]);
       } else {
@@ -61,6 +61,11 @@
     public static function readFromIcal(&$stack){
     	$start=null;
     	$end=null;
+    	$geo=null;
+    	$url=null;
+    	$location=null;
+    	$summary=null;
+    	$description=null;
   		while (!empty($stack)){
   			$line=trim(array_pop($stack));
   		
@@ -70,10 +75,19 @@
   				$start=substr($line, 8);
 	  		} elseif (strpos($line,'DTEND:') === 0){
   				$end=substr($line, 6);
+	  		} elseif (strpos($line,'GEO:') === 0){
+	  			$geo=substr($line,5);
+	  		} elseif (strpos($line,'URL:') === 0){
+	  			$url=substr($line,5) . appointment::readMultilineFromIcal($stack);
+	  		} elseif (strpos($line,'LOCATION:') === 0){
+	  			$location=substr($line,9) . appointment::readMultilineFromIcal($stack);
 	  		} elseif (strpos($line,'SUMMARY:') === 0){
-	  			$summary=$line . appointment::readMultilineFromIcal($stack);
+	  			$summary=substr($line,8) . appointment::readMultilineFromIcal($stack);
 	  		} elseif (strpos($line,'DESCRIPTION:') === 0){
-	  			$description=$line . appointment::readMultilineFromIcal($stack);
+	  			$description=substr($line,12) . appointment::readMultilineFromIcal($stack);
+	  		} elseif ($line=='END:VEVENT'){
+	  			// create appointment, do not save it, return it.
+	  			return appointment::create($summary, $description, $start, $end, $location, $geo,false);
 	  		} else {
   				warn('tag unknown to appointment::readFromIcal: '.$line);
   				return false;
