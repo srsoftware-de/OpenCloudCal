@@ -139,6 +139,21 @@
     }
   }
 
+  /* assures the existence of the appointment_tags table */
+  function checkImportedAppointmentsTable($db){
+  	$results=$db->query("SHOW TABLES LIKE 'imported_appointments'");
+  	if (!$results){
+  		die(print_r($dbh->errorInfo(), TRUE));
+  	}
+  	if ($results->rowCount()<1){
+  		//      echo "table doesn't exist\n";
+  		$sql = 'CREATE TABLE imported_appointments (md5hash BINARY(16) PRIMARY KEY, aid INT NOT NULL REFERENCES appointments(aid));';
+  		$db->exec($sql);
+  		//    } else {
+  		//      echo "table exists\n";
+  	}
+  }
+  
   /* assures the existence of all required database tables */
   function checkTables($db){
     try {
@@ -148,7 +163,8 @@
       checkAppointmentsTable($db);
       checkSessionsTable($db);
       checkAppointmentUrlsTable($db);      
-      checkAppointmentTagsTable($db);      
+      checkAppointmentTagsTable($db);
+      checkImportedAppointmentsTable($db);      
     } catch (PDOException $pdoex){
       echo $pdoex->getMessage();
     }
@@ -364,22 +380,22 @@
   	$objects['events']=array();
   	while (!empty($stack)){
   		$line=trim(array_pop($stack));
-  		print $line."<br/>".PHP_EOL;
   		if ($line=='BEGIN:VCALENDAR') {
   		} else if (strpos($line,'VERSION:') === 0) { 
   			$version=substr($line, 8);
-  			print $version; 
   		} else if (strpos($line,'PRODID:') === 0) {
   		} else if (strpos($line,'CALSCALE:') === 0){
   		} else if (strpos($line,'METHOD:') === 0){
   		} else if ($line=='BEGIN:VTIMEZONE') {
   			$objects['timezone']=readTimezone($stack);
   		} else if ($line=='BEGIN:VEVENT') {
-  			$objects['events'][]=appointment::readFromIcal($stack);
+  			$app=appointment::readFromIcal($stack);
+  			$hash=md5($app->toVEvent());
+  			$objects['events'][]=$app;
   			print '<pre>';
-  			print_r($objects['events'][0]);
+  			print_r($app);
   			print '</pre>';
-  			die();
+  			//die();
   		} else {
   			warn('unknown tag: '. $line);
   			return false;

@@ -58,6 +58,10 @@
     	}
     }
     
+    private function setId($id){
+    	$this->id=$id;
+    }
+    
     public static function readFromIcal(&$stack){
     	$start=null;
     	$end=null;
@@ -66,19 +70,20 @@
     	$location=null;
     	$summary=null;
     	$description=null;
+    	$foreignId=null;
   		while (!empty($stack)){
   			$line=trim(array_pop($stack));
   		
   			if (strpos($line,'UID:') === 0){
-  				// no use for foreign UID at this point of time
+  				$foreignId=substr($line,4);
 	  		} elseif (strpos($line,'DTSTART:') === 0){
   				$start=substr($line, 8);
 	  		} elseif (strpos($line,'DTEND:') === 0){
   				$end=substr($line, 6);
 	  		} elseif (strpos($line,'GEO:') === 0){
-	  			$geo=substr($line,5);
+	  			$geo=substr($line,4);
 	  		} elseif (strpos($line,'URL:') === 0){
-	  			$url=substr($line,5) . appointment::readMultilineFromIcal($stack);
+	  			$url=substr($line,4) . appointment::readMultilineFromIcal($stack);
 	  		} elseif (strpos($line,'LOCATION:') === 0){
 	  			$location=substr($line,9) . appointment::readMultilineFromIcal($stack);
 	  		} elseif (strpos($line,'SUMMARY:') === 0){
@@ -87,13 +92,15 @@
 	  			$description=substr($line,12) . appointment::readMultilineFromIcal($stack);
 	  		} elseif ($line=='END:VEVENT'){
 	  			// create appointment, do not save it, return it.
-	  			return appointment::create($summary, $description, $start, $end, $location, $geo,false);
+	  			$app=appointment::create($summary, $description, $start, $end, $location, $geo,false);
+	  			return $app;
 	  		} else {
   				warn('tag unknown to appointment::readFromIcal: '.$line);
   				return false;
   			}
   		}
   	}
+  	
     
     public static function load($id){
     	global $db;
@@ -484,6 +491,29 @@
     		$res[]=$tag->text;
     	}
     	return implode($separator, $res);
+    }
+    
+    function toVEvent(){  	
+    	$nl="\r\n";
+      $result ='BEGIN:VEVENT'.$nl;
+    	$result.='UID:'.$this->id.'@'.$_SERVER['HTTP_HOST'].$nl;
+    	$result.='DTSTART:'.str_replace(array('-',' ',':'),array('','T',''),$this->start).'Z'.$nl;
+    	$result.='CATEGORIES:'.$this->tags(',').$nl;
+    	$result.='CLASS:PUBLIC'.$nl;
+    	$result.=wordwrap('DESCRIPTION:'.str_replace("\r\n","\\n",$this->description),75,"\r\n ").$nl;
+    	$result.='DTSTAMP:'.str_replace(array('-',' ',':'),array('','T',''),$this->start).'Z'.$nl;
+    	$result.='GEO:'.$this->coords['lat'].';'.$this->coords['lon'].$nl;
+    	$result.='LOCATION:'.$this->location.$nl;
+    	$result.='SUMMARY:'.$this->title.$nl;
+    	foreach ($this->urls as $url){
+    		$result.='URL:'.$url->address.$nl;
+    	}
+    	if (isset($this->id) && $this->id != null){ 
+    		$result.='URL:http://'.$_SERVER['HTTP_HOST'].'/?show='.$this->id.$nl;
+    	}
+    	$result.='DTEND:'.str_replace(array('-',' ',':'),array('','T',''),$this->end).'Z'.$nl;
+    	$result.='END:VEVENT'.$nl;
+    	return $result;    	    	
     }
   }
 ?>

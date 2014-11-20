@@ -2,26 +2,9 @@
 
 if ($format=='ical') {
 	$nl="\r\n";
-foreach ($appointments as $app){?>
-BEGIN:VEVENT
-UID:<?php echo $app->id.'@'.$_SERVER['HTTP_HOST'].$nl; ?>
-DTSTART:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->start).'Z'.$nl; ?>
-CATEGORIES:<?php echo $app->tags(',').$nl; ?>
-CLASS:PUBLIC
-<?php echo wordwrap('DESCRIPTION:'.str_replace("\r\n","\\n",$app->description),75,"\r\n ").$nl; ?>
-DTSTAMP:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->start).'Z'.$nl; ?>
-GEO:<?php echo $app->coords['lat'].';'.$app->coords['lon'].$nl;?>
-LOCATION:<?php echo $app->location.$nl; ?>
-SUMMARY:<?php echo $app->title.$nl; ?>
-<?php
-foreach ($app->urls as $url){
-	print 'URL:'.$url->address.$nl;
-} 
-?>
-URL:http://<?php echo $_SERVER['HTTP_HOST'].'/?show='.$app->id.$nl; ?>
-DTEND:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->end).'Z'.$nl; ?>
-END:VEVENT
-<?php } // foreach
+foreach ($appointments as $app){
+  echo $app->toVEvent();	
+} // foreach
 
 
 
