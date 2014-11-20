@@ -1,22 +1,25 @@
-<?php if ($format=='ical') {
+<?php
+
+if ($format=='ical') {
+	$nl="\r\n";
 foreach ($appointments as $app){?>
 BEGIN:VEVENT
-UID:<?php echo $app->id.'@'.$_SERVER['HTTP_HOST'].PHP_EOL; ?>
-DTSTART:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->start).'Z'.PHP_EOL; ?>
-CATEGORIES:<?php echo $app->tags(',').PHP_EOL; ?>
+UID:<?php echo $app->id.'@'.$_SERVER['HTTP_HOST'].$nl; ?>
+DTSTART:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->start).'Z'.$nl; ?>
+CATEGORIES:<?php echo $app->tags(',').$nl; ?>
 CLASS:PUBLIC
-DESCRIPTION:<?php echo str_replace("\r\n","\\n",$app->description).PHP_EOL; ?>
-DTSTAMP:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->start).'Z'.PHP_EOL; ?>
-GEO:<?php echo $app->coords['lat'].'\;'.$app->coords['lon'].PHP_EOL;?>
-LOCATION:<?php echo $app->location.PHP_EOL; ?>
-SUMMARY:<?php echo $app->title.PHP_EOL; ?>
+<?php echo wordwrap('DESCRIPTION:'.str_replace("\r\n","\\n",$app->description),75,"\r\n ").$nl; ?>
+DTSTAMP:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->start).'Z'.$nl; ?>
+GEO:<?php echo $app->coords['lat'].';'.$app->coords['lon'].$nl;?>
+LOCATION:<?php echo $app->location.$nl; ?>
+SUMMARY:<?php echo $app->title.$nl; ?>
 <?php
 foreach ($app->urls as $url){
-	print 'URL:'.$url->address.PHP_EOL;
+	print 'URL:'.$url->address.$nl;
 } 
 ?>
-URL:http://<?php echo $_SERVER['HTTP_HOST'].'/?show='.$app->id.PHP_EOL; ?>
-DTEND:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->end).'Z'.PHP_EOL; ?>
+URL:http://<?php echo $_SERVER['HTTP_HOST'].'/?show='.$app->id.$nl; ?>
+DTEND:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->end).'Z'.$nl; ?>
 END:VEVENT
 <?php } // foreach
 
