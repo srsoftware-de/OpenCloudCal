@@ -319,20 +319,24 @@
   	return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
   }
   
-  function readTimezoneStandard(&$stack){
-  	$standard=array();
+  function readTimezoneMode(&$stack){
+  	$mode=array();
   	while (!empty($stack)){
   		$line=trim(array_pop($stack));  
   		if (strpos($line,'DTSTART:') === 0){
-  			$standard['start']=substr($line, 8);
+  			$mode['start']=substr($line, 8);
+  		} else if (strpos($line,'RRULE:') === 0){
+  			$mode['r_rule']=substr($line, 6);
   		} else if (strpos($line,'TZOFFSETTO:') === 0){
-  			$standard['offset_to']=substr($line, 11);
+  			$mode['offset_to']=substr($line, 11);
   		} else if (strpos($line,'TZOFFSETFROM:') === 0){
-  			$standard['offset_from']=substr($line, 13);
+  			$mode['offset_from']=substr($line, 13);
+  		} else if ($line=='END:DAYLIGHT'){
+  			return $mode;
   		} else if ($line=='END:STANDARD'){
-  			return $standard;
+  			return $mode;
   		} else {
-  			warn('tag unknown to readTimezoneStandard: '.$line);
+  			warn('tag unknown to readTimezoneMode: '.$line);
   			return false;
   		}
   	}
@@ -345,16 +349,16 @@
   		
   		if (strpos($line,'TZID:') === 0){
   			$timezone['id']=substr($line, 5);
+  		} elseif ($line=='BEGIN:DAYLIGHT'){
+  			if (!isset($timezone['modes'])){
+  				$timezone['modes']=array();
+  			}
+ 				$timezone['modes']['daylight']=readTimezoneMode($stack);
   		} elseif ($line=='BEGIN:STANDARD'){
-  			if (!isset($timezone['standards'])){
-  				$timezone['standards']=array();
+  			if (!isset($timezone['modes'])){
+  				$timezone['modes']=array();
   			}
-  			$tmp=readTimezoneStandard($stack);
-  			if ($tmp){
-  				$timezone['standards'][]=$tmp;
-  			} else {
-  				return false;
-  			}
+ 				$timezone['modes']['standard']=readTimezoneMode($stack);
   		} elseif ($line=='END:VTIMEZONE') {
   			return $timezone;
   		} else {
@@ -389,6 +393,7 @@
   		} else if (strpos($line,'PRODID:') === 0) {
   		} else if (strpos($line,'CALSCALE:') === 0){
   		} else if (strpos($line,'METHOD:') === 0){
+  		} else if (strpos($line,'X-') === 0){
   		} else if ($line=='BEGIN:VTIMEZONE') {
   			$timezone=readTimezone($stack);
   		} else if ($line=='BEGIN:VEVENT') {

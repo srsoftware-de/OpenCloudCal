@@ -22,6 +22,7 @@ $locale=array(
 		'description' => 'Beschreibung',
 		'Description' => 'Beschreibung',
 		'iCal address' => 'iCal-Adresse',
+		'imported' => 'importiert',
 		'location' => 'Ort',
 		'Location' => 'Ort',
 		'Map' => 'Karte',

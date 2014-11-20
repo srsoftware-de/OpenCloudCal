@@ -113,7 +113,7 @@
   		}
   	}
   	
-  	private static function convertRFC2445DateTimeToUTCtimestamp($datetime,$timezone){
+  	static function convertRFC2445DateTimeToUTCtimestamp($datetime,$timezone=null){
   		$dummy=substr($datetime, 0,4).'-'.substr($datetime, 4,2).'-'.substr($datetime, 6,2).' '.	substr($datetime, 9,2).':'.substr($datetime, 11,2).':'.substr($datetime, 13,2);
 //  		print $dummy."<br/>\n";
   		return $dummy;
@@ -121,6 +121,8 @@
   	
   	public function safeIfNotAlreadyImported($tags=null){
   		global $db;
+  		if (in_array('OpenCloudCal', $tags)) return;
+  		if (in_array('opencloudcal', $tags)) return;
   		$md5=md5($this->toVEvent(),TRUE);
   		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
     	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
@@ -128,7 +130,7 @@
     	$results=$stm->fetchAll();
     	if (count($results) < 1){
     		$this->save();    		
-    		$this->addTag('imported');
+    		$this->addTag(loc('imported'));
     		if ($tags!=null && !empty($tags)){
 	    		foreach ($tags as $tag){
   	  			$this->addTag(trim($tag));
