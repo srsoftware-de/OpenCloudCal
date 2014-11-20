@@ -46,6 +46,7 @@ $locale=array(
 		'Tags' => 'Schlüsselworte/Tags',
 		'title' => 'Titel',
 		'Title' => 'Titel',
+		'"%title" already present (<a href="?show=%id">link</a>)!' => '"%title" schon vorhanden (<a href="?show=%id">link</a>)!',
 		'url' => 'Adresse',
 		'weeks' => 'Wochen',
 		'Yes'	=> 'Ja',

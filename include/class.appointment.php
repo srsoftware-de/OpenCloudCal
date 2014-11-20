@@ -145,7 +145,7 @@
     	} else {
     		$keys=array('%title','%id');
     		$values=array($this->title,$results[0]['aid']);
-    		warn(str_replace($keys, $values, loc('%title already present (<a href="?show=%id">link</a>)')));    		
+    		warn(str_replace($keys, $values, loc('"%title" already present (<a href="?show=%id">link</a>)!')));    		
     	}    		 
 		}
     
