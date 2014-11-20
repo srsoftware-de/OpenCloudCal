@@ -142,8 +142,10 @@
     		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
     		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
     		$stm->execute(array(':aid'=>$this->id,':hash'=>$md5));
-    	} else {    		
-    		print "already present (aid: ".$results[0][0].")<br/>\n";
+    	} else {
+    		$keys=array('%title','%id');
+    		$values=array($this->title,$results[0]['aid']);
+    		warn(str_replace($keys, $values, loc('%title already present (<a href="?show=%id">link</a>)')));    		
     	}    		 
 		}
     
