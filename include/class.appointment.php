@@ -49,7 +49,7 @@
     	$start=null;
     	$end=null;
     	$geo=null;
-    	$url=null;
+    	$urls=null;
     	$location=null;
     	$summary=null;
     	$description=null;
@@ -74,7 +74,10 @@
 	  		} elseif (strpos($line,'GEO:') === 0){
 	  			$geo=str_replace('\;', ';',substr($line,4));
 	  		} elseif (strpos($line,'URL:') === 0){
-	  			$url=substr($line,4) . readMultilineFromIcal($stack);
+	  			if ($urls==null){
+	  				$urls=array();
+	  			}
+	  			$urls[]=substr($line,4) . readMultilineFromIcal($stack);
 	  		} elseif (strpos($line,'LOCATION:') === 0){
 	  			$location=str_replace('\,', ',',substr($line,9) . readMultilineFromIcal($stack));
 	  		} elseif (strpos($line,'SUMMARY:') === 0){
@@ -96,7 +99,7 @@
 	  				$end=$start;
 	  			}
 	  			$app=appointment::create($summary, $description, $start, $end, $location, $geo,false);
-	  			$app->safeIfNotAlreadyImported($tags);
+	  			$app->safeIfNotAlreadyImported($tags,$urls);
 	  			
 	  			return $app;
 	  		} else {
@@ -112,7 +115,7 @@
   		return $dummy;
   	}
   	
-  	public function safeIfNotAlreadyImported($tags=null){
+  	public function safeIfNotAlreadyImported($tags=null,$urls=null){
   		global $db;
   		if ($tags!=null && !empty($tags)){
   			if (in_array('OpenCloudCal', $tags)) return;
@@ -129,6 +132,11 @@
     		if ($tags!=null && !empty($tags)){
 	    		foreach ($tags as $tag){
   	  			$this->addTag(trim($tag));
+    			}
+    		}
+    		if ($urls!=null && !empty($urls)){
+    			foreach ($urls as $url){
+    				$this->addUrl($url);
     			}
     		}    		
     		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
@@ -422,10 +430,11 @@
       global $db;
       if ($url instanceof url){
         $stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-				$stm->execute(array(':uid'=>$url->id,':aid'=>$url->aid,':description'=>$url->description));
+				$stm->execute(array(':uid' => $url->id,':aid' => $url->aid,':description'=>$url->description));
         $this->urls[$url->id]=$url;
       } else {
-        $url=url::create($this->id,$url,$description);
+        $url=url::create($this->id, $url ,'Homepage');
+        $url->save();
         $this->addUrl($url);
       }
     }
