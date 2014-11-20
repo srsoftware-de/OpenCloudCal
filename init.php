@@ -303,8 +303,40 @@
   	return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
   }
   
+  function readTimezoneStandard($stack){
+  	$standard=array();
+  	while (!empty($stack)){
+  		$line=trim(array_pop($stack));  
+  		if (strpos($line,'DTSTART:') === 0){
+  			$standard['start']=substr($line, 8);
+  		} else if (strpos($line,'TZOFFSETTO:') === 0){
+  			$standard['offset_to']=substr($line, 11);
+  		} else if (strpos($line,'TZOFFSETFROM:') === 0){
+  			$standard['offset_from']=substr($line, 13);
+  		} else {
+  			warn('tag unknown to readTimezoneStandard: '.$line);
+  			return false;
+  		}
+  	}
+  }
+  
   function readTimezone($stack){
-  	
+  	$timezone=array();
+  	while (!empty($stack)){
+  		$line=trim(array_pop($stack));
+  		
+  		if (strpos($line,'TZID:') === 0){
+  			$timezone['id']=substr($line, 5);
+  		} elseif ($line=='BEGIN:STANDARD'){
+  			if (!isset($timezone['standards'])){
+  				$timezone['standards']=array();
+  			}
+  			$timezone['standards'][]=readTimezoneStandard($stack);
+  		} else {
+  			warn('tag unknown to readTimezone: '.$line);
+  			return false;
+  		}
+  	}
   }
   
   function importIcal($url){
@@ -321,15 +353,16 @@
   	$stack=array_reverse($data);  	
   	while (!empty($stack)){
   		$line=trim(array_pop($stack));
-  		print $line.PHP_EOL;
-  		if        (strpos($line,'BEGIN:VCALENDAR') === 0) {
+  		print $line."<br/>".PHP_EOL;
+  		if ($line=='BEGIN:VCALENDAR') {
   		} else if (strpos($line,'VERSION:') === 0) { 
   			$version=substr($line, 8);
   			print $version; 
   		} else if (strpos($line,'PRODID:') === 0) {
   		} else if (strpos($line,'CALSCALE:') === 0){
   		} else if (strpos($line,'METHOD:') === 0){
-  			$timezone=readTimezone($stack);
+  		} else if ($line=='BEGIN:VTIMEZONE') {
+  			return $timezone=readTimezone($stack);
   		} else {
   			warn('unknown tag: '. $line);
   			return false;
