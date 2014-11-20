@@ -62,7 +62,7 @@
     	$this->id=$id;
     }
     
-    public static function readFromIcal(&$stack){
+    public static function readFromIcal(&$stack,$timezone=null){
     	$start=null;
     	$end=null;
     	$geo=null;
@@ -71,15 +71,16 @@
     	$summary=null;
     	$description=null;
     	$foreignId=null;
+    	$tags=null;
   		while (!empty($stack)){
   			$line=trim(array_pop($stack));
   		
   			if (strpos($line,'UID:') === 0){
   				$foreignId=substr($line,4);
 	  		} elseif (strpos($line,'DTSTART:') === 0){
-  				$start=substr($line, 8);
+  				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
 	  		} elseif (strpos($line,'DTEND:') === 0){
-  				$end=substr($line, 6);
+  				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 6), $timezone);
 	  		} elseif (strpos($line,'GEO:') === 0){
 	  			$geo=substr($line,4);
 	  		} elseif (strpos($line,'URL:') === 0){
@@ -88,11 +89,22 @@
 	  			$location=substr($line,9) . appointment::readMultilineFromIcal($stack);
 	  		} elseif (strpos($line,'SUMMARY:') === 0){
 	  			$summary=substr($line,8) . appointment::readMultilineFromIcal($stack);
+	  		} elseif (strpos($line,'CATEGORIES:') === 0){
+	  			$tags=substr($line,11) . appointment::readMultilineFromIcal($stack);
+	  			$tags=explode(',',$tags);
 	  		} elseif (strpos($line,'DESCRIPTION:') === 0){
 	  			$description=substr($line,12) . appointment::readMultilineFromIcal($stack);
+	  		} elseif (strpos($line,'CLASS:') === 0){
+	  			// no use for class at the moment
+	  		} elseif (strpos($line,'DTSTAMP:') === 0){
+	  			// no use for ststamp at the moment
+	  		} elseif (strpos($line,'X-') === 0){
+	  			// no use for ststamp at the moment
 	  		} elseif ($line=='END:VEVENT'){
 	  			// create appointment, do not save it, return it.
 	  			$app=appointment::create($summary, $description, $start, $end, $location, $geo,false);
+	  			$app->safeIfNotAlreadyImported($tags);
+	  			
 	  			return $app;
 	  		} else {
   				warn('tag unknown to appointment::readFromIcal: '.$line);
@@ -101,7 +113,13 @@
   		}
   	}
   	
-  	public function safeIfNotAlreadyImported(){
+  	private static function convertRFC2445DateTimeToUTCtimestamp($datetime,$timezone){
+  		$dummy=substr($datetime, 0,4).'-'.substr($datetime, 4,2).'-'.substr($datetime, 6,2).' '.	substr($datetime, 9,2).':'.substr($datetime, 11,2).':'.substr($datetime, 13,2);
+//  		print $dummy."<br/>\n";
+  		return $dummy;
+  	}
+  	
+  	public function safeIfNotAlreadyImported($tags=null){
   		global $db;
   		$md5=md5($this->toVEvent(),TRUE);
   		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
@@ -109,8 +127,13 @@
     	$stm->execute(array(':hash'=>$md5));
     	$results=$stm->fetchAll();
     	if (count($results) < 1){
-    		$this->save();
-    		print "saved<br/>\n";
+    		$this->save();    		
+    		$this->addTag('imported');
+    		if ($tags!=null && !empty($tags)){
+	    		foreach ($tags as $tag){
+  	  			$this->addTag(trim($tag));
+    			}
+    		}    		
     		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
     		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
     		$stm->execute(array(':aid'=>$this->id,':hash'=>$md5));

@@ -376,8 +376,11 @@
   		return false;
   	}
   	$stack=array_reverse($data);
-  	$objects=array();
-  	$objects['events']=array();
+  	$timezone=null; // here the problems start:
+  	// we don't know the client's timezone
+  	// probably we should save all appointments in UTC,
+  	// and handle the web interface always in CET/CEST
+  	// TODO: this needs to be implemented soon
   	while (!empty($stack)){
   		$line=trim(array_pop($stack));
   		if ($line=='BEGIN:VCALENDAR') {
@@ -387,10 +390,9 @@
   		} else if (strpos($line,'CALSCALE:') === 0){
   		} else if (strpos($line,'METHOD:') === 0){
   		} else if ($line=='BEGIN:VTIMEZONE') {
-  			$objects['timezone']=readTimezone($stack);
+  			$timezone=readTimezone($stack);
   		} else if ($line=='BEGIN:VEVENT') {
-  			$app=appointment::readFromIcal($stack);
-  			$app->safeIfNotAlreadyImported();
+  			$app=appointment::readFromIcal($stack,$timezone);
   			//die();
   		} else if ($line=='END:VCALENDAR') {
   		} else {
