@@ -1,24 +1,10 @@
-<?php if ($format=='ical') {
-foreach ($appointments as $app){?>
-BEGIN:VEVENT
-UID:<?php echo $app->id.'@'.$_SERVER['HTTP_HOST'].PHP_EOL; ?>
-DTSTART:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->start).'Z'.PHP_EOL; ?>
-CATEGORIES:<?php echo $app->tags(',').PHP_EOL; ?>
-CLASS:PUBLIC
-DESCRIPTION:<?php echo str_replace("\r\n","\\n",$app->description).PHP_EOL; ?>
-DTSTAMP:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->start).'Z'.PHP_EOL; ?>
-GEO:<?php echo $app->coords['lat'].'\;'.$app->coords['lon'].PHP_EOL;?>
-LOCATION:<?php echo $app->location.PHP_EOL; ?>
-SUMMARY:<?php echo $app->title.PHP_EOL; ?>
 <?php
-foreach ($app->urls as $url){
-	print 'URL:'.$url->address.PHP_EOL;
-} 
-?>
-URL:http://<?php echo $_SERVER['HTTP_HOST'].'/?show='.$app->id.PHP_EOL; ?>
-DTEND:<?php echo str_replace(array('-',' ',':'),array('','T',''),$app->end).'Z'.PHP_EOL; ?>
-END:VEVENT
-<?php } // foreach
+
+if ($format=='ical') {
+	$nl="\r\n";
+foreach ($appointments as $app){
+  echo $app->toVEvent();	
+} // foreach
 
 
 
@@ -52,7 +38,7 @@ END:VEVENT
 	<?php
 	foreach ($appointments as $app){ ?>
   <tr class="appointment">
-    <td class="datestart"><?php echo $app->start; ?></th>
+    <td class="datestart"><?php echo clientTime($app->start); ?></th>
     <td class="title"><a href="?show=<?php echo $app->id; ?>"><?php echo $app->title; ?></a></td>
     <td class="location"><?php echo $app->location;
     if ($app->coords){ ?>
@@ -78,16 +64,11 @@ END:VEVENT
     if (isset($_GET['limit'])) echo '<input type="hidden" name="limit" value="'.$_GET['limit'].'">';
     if (isset($_GET['past'])) echo '<input type="hidden" name="past" value="'.$_GET['past'].'">';
   ?>
-  <button type="submit" name="format" value="webdav">WebDAV</button>
-  <button type="submit" name="format" value="ical">iCal</button>
+  <button type="submit" name="import" value="ical"><?php print loc('import iCal'); ?></button>
+  <button type="submit" name="format" value="webdav"><?php print loc('WebDAV'); ?></button>
+  <button type="submit" name="format" value="ical"><?php print loc('iCal'); ?></button>
 </form>
 <?php
-
-
-
-
-
-
  } else if ($format=='webdav') {?>
 <h1>
 	Index for calendar<?php if (isset($_GET['tag'])) echo '/'.$_GET['tag']?>

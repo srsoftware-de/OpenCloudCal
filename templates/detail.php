@@ -2,14 +2,11 @@
 <h2>
 	<?php echo $appointment->title ?>
 </h2>
-<form class="detailactions" action="." method="POST">
-  <button type="submit"><?php echo loc('Back to overview'); ?></button>
-  <button type="submit" name="edit" value="<?php echo $appointment->id; ?>"><?php echo loc('edit'); ?></button>
-  <button type="submit" name="clone" value="<?php echo $appointment->id; ?>"><?php echo loc('clone'); ?></button>
-  <button type="submit" name="delete" value="<?php echo $appointment->id; ?>"><?php echo loc('delete'); ?></button>
-</form>
-<div id="detail_time">
-	<?php echo $appointment->start.' - '.$appointment->end; ?>
+<div id="detail_time_start">
+	<?php echo loc('Start').': '.clientTime($appointment->start); ?>
+</div>
+<div id="detail_time_end">
+  <?php echo loc('End').': '.clientTime($appointment->end); ?>
 </div>
 <div id="description">
 	<?php echo str_replace("\n", "<br/>\n", $appointment->description); ?>
@@ -34,8 +31,8 @@
 		      </tr>
 <?php foreach ($appointment->sessions as $session){ ?>
 					<tr class="session">
-					  <td class="sessionstart"><?php echo $session->start; ?></td>
-					  <td class="sessionend"><?php echo $session->end; ?></td>
+					  <td class="sessionstart"><?php echo clientTime($session->start); ?></td>
+					  <td class="sessionend"><?php echo clientTime($session->end); ?></td>
 					  <td class="description"><?php echo $session->description; ?></td>
 					  <td class="delsession">
 					    <form class="deletesession" action="?show=<?php echo $appointment->id; ?>" method="POST">
@@ -68,9 +65,16 @@
 			   </td>
 			</tr>
 <?php } // foreach ?>
-		</table>';
+		</table>
 		</div>
 <?php } // if	?>
+<form class="detailactions" action="." method="POST">
+  <h3><?php echo loc('Actions');?></h3>
+  <button type="submit"><?php echo loc('Back to overview'); ?></button>
+  <button type="submit" name="edit" value="<?php echo $appointment->id; ?>"><?php echo loc('edit'); ?></button>
+  <button type="submit" name="clone" value="<?php echo $appointment->id; ?>"><?php echo loc('clone'); ?></button>
+  <button type="submit" name="delete" value="<?php echo $appointment->id; ?>"><?php echo loc('delete'); ?></button>
+</form>
 <div id="coordinates">
 	<h3><?php echo loc('Map'); ?></h3>
 	<?php

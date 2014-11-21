@@ -17,7 +17,7 @@
     	$instance->end=$end;
       $instance->location=$location;
       
-      $c=explode(',',str_replace(' ', '', $coords));
+      $c=explode(',',str_replace(' ', '', str_replace(';', ',', $coords)));
       if (count($c)==2){
       	$instance->coords=array('lat'=>$c[0],'lon'=>$c[1]);
       } else {
@@ -31,11 +31,12 @@
     
     function tagLinks(){
     	$result="";
-    	foreach ($this->tags as $tag){
-    		$result.='<a href="?tag='.$tag->text.'">'.$tag->text.'</a> '.PHP_EOL;
+    	if (isset($this->tags)){
+      	foreach ($this->tags as $tag){
+    		  $result.='<a href="?tag='.$tag->text.'">'.$tag->text.'</a> '.PHP_EOL;
+    	  }
     	}
-    	return $result;
-    	 
+    	return $result;    	 
     }
     
     function mapLink(){
@@ -44,6 +45,115 @@
     	}
     	return false;
     }
+    
+    public static function readFromIcal(&$stack,$tag=null,$timezone=null){
+    	$start=null;
+    	$end=null;
+    	$geo=null;
+    	$urls=null;
+    	$location=null;
+    	$summary=null;
+    	$description=null;
+    	$foreignId=null;
+    	$tags=array();
+    	if ($tag!=null){
+    		$tags[]=$tag;
+    	}
+  		while (!empty($stack)){
+  			$line=trim(array_pop($stack));
+  		
+  			if (startsWith($line,'UID:')){
+  				$foreignId=substr($line,4);
+	  		} elseif (startsWith($line,'DTSTART:')){
+  				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
+	  		} elseif (startsWith($line,'DTSTART;VALUE=DATE:')){
+  				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 19).'T000000',$timezone);
+	  		} elseif (startsWith($line,'DTEND:')){
+  				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 6), $timezone);
+	  		} elseif (startsWith($line,'DTEND;VALUE=DATE:')){
+  				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 17).'T235959',$timezone);
+	  		} elseif (startsWith($line,'GEO:')){
+	  			$geo=str_replace('\;', ';',substr($line,4));
+	  		} elseif (startsWith($line,'URL:')){
+	  			if ($urls==null){
+	  				$urls=array();
+	  			}
+	  			$urls[]=substr($line,4) . readMultilineFromIcal($stack);
+	  		} elseif (startsWith($line,'LOCATION:')){
+	  			$location=str_replace(array('\,','\n'), array(',',"\n"),substr($line,9) . readMultilineFromIcal($stack));
+	  		} elseif (startsWith($line,'SUMMARY:')){
+	  			$summary=str_replace(array('\,','\n'), array(',',"\n"),substr($line,8) . readMultilineFromIcal($stack));
+	  		} elseif (startsWith($line,'CATEGORIES:')){
+	  			$tags=str_replace(array('\,','\n'), array(',',"\n"),substr($line,11) . readMultilineFromIcal($stack));
+	  			$tags=explode(',',$tags);
+	  		} elseif (startsWith($line,'DESCRIPTION:')){
+	  			$description=$line=str_replace(array('\,','\n'), array(',',"\n"), substr($line,12) . readMultilineFromIcal($stack));
+	  		} elseif (startsWith($line,'CLASS:')){
+	  			// no use for class at the moment
+	  		} elseif (startsWith($line,'DTSTAMP:')){
+	  			// no use for ststamp at the moment
+	  		} elseif (startsWith($line,'X-')){
+	  			// no use for ststamp at the moment
+	  		} elseif ($line=='END:VEVENT'){
+	  			// create appointment, do not save it, return it.
+	  			if ($end==null){
+	  				$end=$start;
+	  			}
+	  			$app=appointment::create($summary, $description, $start, $end, $location, $geo,false);
+	  			$app->safeIfNotAlreadyImported($tags,$urls);
+	  			
+	  			return $app;
+	  		} else {
+  				warn('tag unknown to appointment::readFromIcal: '.$line);
+  				return false;
+  			}
+  		}
+  	}
+  	
+  	static function convertRFC2445DateTimeToUTCtimestamp($datetime,$timezone=null){
+  		if (substr($datetime,-1)=='Z'){
+  			$timezone='UTC';
+  		}
+  		$dummy=substr($datetime, 0,4).'-'.substr($datetime, 4,2).'-'.substr($datetime, 6,2).' '.	substr($datetime, 9,2).':'.substr($datetime, 11,2).':'.substr($datetime, 13,2);
+			if ($timezone != null && $timezone != 'UTC'){
+				warn(str_replace('%tz', $timezone, loc('Handling of timezone "%tz" currently not implemented!')));
+			}
+  		return $dummy;
+  	}
+  	
+  	public function safeIfNotAlreadyImported($tags=null,$urls=null){
+  		global $db;
+  		if ($tags!=null && !empty($tags)){
+  			if (in_array('OpenCloudCal', $tags)) return;
+  			if (in_array('opencloudcal', $tags)) return;
+  		}
+  		$md5=md5($this->toVEvent(),TRUE);
+  		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
+    	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    	$stm->execute(array(':hash'=>$md5));
+    	$results=$stm->fetchAll();
+    	if (count($results) < 1){
+    		$this->save();    		
+    		$this->addTag(loc('imported'));
+    		if ($tags!=null && !empty($tags)){
+	    		foreach ($tags as $tag){
+  	  			$this->addTag(trim($tag));
+    			}
+    		}
+    		if ($urls!=null && !empty($urls)){
+    			foreach ($urls as $url){
+    				$this->addUrl($url);
+    			}
+    		}    		
+    		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
+    		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    		$stm->execute(array(':aid'=>$this->id,':hash'=>$md5));
+    	} else {
+    		$keys=array('%title','%id');
+    		$values=array($this->title,$results[0]['aid']);
+    		warn(str_replace($keys, $values, loc('"%title" already present (<a href="?show=%id">link</a>)!')));    		
+    	}    		 
+		}
     
     public static function load($id){
     	global $db;
@@ -85,6 +195,11 @@
     	$sql = "DELETE FROM appointments WHERE aid=:id";
     	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
     	$stm->execute(array(':id'=>$id));
+    	
+    	$sql = "DELETE FROM imported_appointments WHERE aid=:id";
+    	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    	$stm->execute(array(':id'=>$id));
+    	 
     }
   
     function save(){
@@ -203,6 +318,57 @@
     		warn(str_replace('%server',$target_host,loc('Sorry, curl not callable. This means I am not allowed to send the event to %server.')));
     	}
     	return false;
+    } // sendToGrical
+    
+    function sendToCalcifer(){
+    	if (is_callable('curl_init')){
+				$url='https://calcifer.datenknoten.me/termine/';
+				$formfields=array();
+				$formfields['startdate']=substr($this->start, 0,16);
+				$formfields['enddate']=substr($this->end, 0,16);
+				$formfields['summary']=$this->title;
+				$formfields['description']=$this->description;
+				$formfields['location']=$this->location;
+				if ($this->coords){
+					$formfields['location_lat']=$this->coords['lat'];
+					$formfields['location_lon']=$this->coords['lon'];
+				}
+				$formfields['tags']='OpenCloudCal';
+				if (isset($this->tags) && !empty($this->tags)){
+					$formfields['tags'].=','.$this->tags(',');
+				}
+				if (isset($this->urls)){
+					if (count($this->urls)==1){ // if we only have one url: post the url directly
+				  	$urls=$this->urls;
+					  $date_url=reset($urls);
+					  $formfields['url']=$date_url->address;
+					}
+					if (count($this->urls)>1){ // if we only several urls: link to the appointment in OpenCloudCal
+						$formfields['url']='http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}?show=$this->id";
+					}
+				}
+				$postData = http_build_query($formfields);
+				
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, $url);
+				curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; rv:11.0) Gecko/20100101 Firefox/11.0');
+        curl_setopt($ch, CURLOPT_HEADER ,1);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER ,1);
+				curl_setopt($ch, CURLOPT_FOLLOWLOCATION ,1);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+				curl_setopt($ch, CURLOPT_POST,1);
+				curl_setopt($ch, CURLOPT_POSTFIELDS,$postData);
+				$result=curl_exec($ch);
+				if (strpos($result, '302 Found') !== false){
+					return true;
+				} else {
+    			warn(str_replace('%server', $url, loc('Sorry, I was not able to save event to %server.')));
+				}
+				
+    	} else {
+    		warn(str_replace('%server',$target_host,loc('Sorry, curl not callable. This means I am not allowed to send the event to %server.')));
+    	}
+    	return false;
     }
 
     /******* TAGS ****************/
@@ -277,10 +443,11 @@
       global $db;
       if ($url instanceof url){
         $stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-				$stm->execute(array(':uid'=>$url->id,':aid'=>$url->aid,':description'=>$url->description));
+				$stm->execute(array(':uid' => $url->id,':aid' => $url->aid,':description'=>$url->description));
         $this->urls[$url->id]=$url;
       } else {
-        $url=url::create($this->id,$url,$description);
+        $url=url::create($this->id, $url ,'Homepage');
+        $url->save();
         $this->addUrl($url);
       }
     }
@@ -368,7 +535,7 @@
     	}
     	$stm->execute();    		    		
     	$results=$stm->fetchAll();
-    	foreach ($results as $row){
+    	foreach ($results as $row){ 		
     		$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
     		$appointment->id=$row['aid'];
     		$appointment->loadRelated();
@@ -383,6 +550,35 @@
     		$res[]=$tag->text;
     	}
     	return implode($separator, $res);
+    }
+    
+    function toVEvent(){  	
+    	$nl="\r\n";
+      $result ='BEGIN:VEVENT'.$nl;
+      if (isset($this->id) && $this->id != null) {
+    		$result.='UID:'.$this->id.'@'.$_SERVER['HTTP_HOST'].$nl;
+      }
+    	$result.='DTSTART:'.str_replace(array('-',' ',':'),array('','T',''),$this->start).'Z'.$nl;
+    	if (isset($this->tags) && $this->tags != null){
+    		$result.='CATEGORIES:'.$this->tags(',').$nl;
+    	}
+    	$result.='CLASS:PUBLIC'.$nl;
+    	$result.=wordwrap('DESCRIPTION:'.str_replace("\r\n","\\n",$this->description),75,"\r\n ").$nl;
+    	$result.='DTSTAMP:'.str_replace(array('-',' ',':'),array('','T',''),$this->start).'Z'.$nl;
+    	$result.='GEO:'.$this->coords['lat'].';'.$this->coords['lon'].$nl;
+    	$result.='LOCATION:'.$this->location.$nl;
+    	$result.='SUMMARY:'.$this->title.$nl;
+    	if (isset($this->urls) && $this->urls != null){
+    		foreach ($this->urls as $url){
+    			$result.='URL:'.$url->address.$nl;
+    		}
+    	}
+    	if (isset($this->id) && $this->id != null){ 
+    		$result.='URL:http://'.$_SERVER['HTTP_HOST'].'/?show='.$this->id.$nl;
+    	}
+    	$result.='DTEND:'.str_replace(array('-',' ',':'),array('','T',''),$this->end).'Z'.$nl;
+    	$result.='END:VEVENT'.$nl;
+    	return $result;    	    	
     }
   }
 ?>

@@ -6,6 +6,18 @@ $selected_tags = array();
 
 include 'templates/head.php';
 
+function gricalValue(){
+	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on'){
+		return 'checked';
+	}
+}
+
+function calciferValue(){
+	if (isset($_POST['calciferpost']) && $_POST['calciferpost']=='on'){
+		return 'checked';
+	}
+}
+
 /* if data for a new appointment is recieved, handle it */
 if (isset($_POST['newappointment'])){
 	$appointment=parseAppointmentData($_POST['newappointment']); // create new appointment
@@ -14,9 +26,6 @@ if (isset($_POST['newappointment'])){
 		$tags=explode(' ',$_POST['newappointment']['tags']);
 		foreach ($tags as $tag){
 			$appointment->addTag($tag); // add tags
-		}
-		if (isset($_POST['nextaction']) && $_POST['nextaction']=='gricalpost'){
-			$appointment->sendToGrical();
 		}
 	} else { // if appointment data is invalid
 		unset($_POST['nextaction']); // do not add sessions or links
@@ -39,9 +48,6 @@ if (isset($_POST['newlink'])){
 		$link->save(); // save session
 		$appointment=appointment::load($link->aid);
 		$appointment->addUrl($link);
-		if (isset($_POST['nextaction']) && $_POST['nextaction']=='gricalpost'){
-			$appointment->sendToGrical();
-		}
 	}
 }
 
@@ -57,9 +63,10 @@ if (isset($_POST['editappointment'])){
 		}		
 	}	
 	$appointment->loadRelated();
-	if (isset($_POST['nextaction']) && $_POST['nextaction']=='gricalpost'){	
-		$appointment->sendToGrical();
-	}	
+}
+
+if (isset($_POST['icalimporturl'])){
+	importIcal($_POST['icalimporturl']);
 }
 
 /* if a tag is provided: use it */
@@ -118,6 +125,14 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';
 	
+} else if (isset($_GET['import'])) {
+	$import=$_GET['import'];
+	if ($import=='ical'){
+		include 'templates/icalimport.php';
+	}
+	$appointments = appointment::loadCurrent($selected_tags);
+	include 'templates/overview.php';
+	
 } else if (isset($_POST['delete'])){
 	$app_id=$_POST['delete'];
 	if (isset($_POST['confirm'])){
@@ -142,6 +157,25 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	include 'templates/adddateform.php';
 	include 'templates/overview.php';
 }
+
+if (!isset($_POST['nextaction'])){
+	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on' && isset($appointment)){
+		if ($appointment->sendToGrical()){
+			$notification=loc('Appointment sent to #service.');
+			$tags='%23'.$appointment->tags('+%23');
+			$notification=str_replace('#service','<a href="https://grical.org/s/?query='.$tags.'">grical</a>',$notification);
+			notify($notification);
+		}
+	}
+	if (isset($_POST['calciferpost']) && $_POST['calciferpost']=='on' && isset($appointment)){
+		if ($appointment->sendToCalcifer()){
+			$notification=loc('Appointment sent to #service.');
+			$notification=str_Replace('#service','<a href="https://calcifer.datenknoten.me/tags/opencloudcal">calcifer</a>',$notification);
+			notify($notification);
+		}				
+	}
+}
+
 
 if (isset($_SESSION['debug']) && $_SESSION['debug']=='true'){
 	echo "<textarea>";
