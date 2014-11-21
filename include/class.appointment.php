@@ -495,7 +495,7 @@
       return $appointments;
     }
     
-    public static function loadCurrent($tags=null){
+    public static function loadCurrent($tags=null,$countrycode=null){
     	global $db,$db_time_format,$limit;
     	$appointments=array();
     	
@@ -524,8 +524,8 @@
     	}
     	$stm->execute();    		    		
     	$results=$stm->fetchAll();
-    	foreach ($results as $row){
-    		$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
+    	foreach ($results as $row){ 		
+    		$appointment=self::create($row['title'], $row['description'], clientTime($row['start']), clientTime($row['end']), $row['location'],$row['coords'],false	);
     		$appointment->id=$row['aid'];
     		$appointment->loadRelated();
     		$appointments[$appointment->id]=$appointment;

@@ -114,13 +114,13 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 		$tag->aid=$appointment->id;
 		$appointment->addTag($tag);
 	}	
-	$appointments = appointment::loadCurrent($selected_tags);
+	$appointments = appointment::loadCurrent($selected_tags,$user_country);
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';
 
 } else if (isset($_POST['edit'])) {
 	$app_id=$_POST['edit'];
-	$appointments = appointment::loadAll($selected_tags);
+	$appointments = appointment::loadAll($selected_tags,$user_country);
 	$appointment=$appointments[$app_id];
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';
@@ -130,7 +130,7 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	if ($import=='ical'){
 		include 'templates/icalimport.php';
 	}
-	$appointments = appointment::loadCurrent($selected_tags);
+	$appointments = appointment::loadCurrent($selected_tags,$user_country);
 	include 'templates/overview.php';
 	
 } else if (isset($_POST['delete'])){
@@ -139,7 +139,7 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 		if ($_POST['confirm']=='yes'){
 			$appointment=appointment::delete($app_id);	
 		}
-		$appointments = appointment::loadCurrent($selected_tags);
+		$appointments = appointment::loadCurrent($selected_tags,$user_country);
 		include 'templates/adddateform.php';
 		include 'templates/overview.php';
 	} else {
@@ -149,11 +149,11 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	}
 	
 } else if (isset($_GET['past'])){
-	$appointments = appointment::loadAll($selected_tags);
+	$appointments = appointment::loadAll($selected_tags,$user_country);
 	include 'templates/adddateform.php';
 	include 'templates/overview.php';	
 } else {
-	$appointments = appointment::loadCurrent($selected_tags);
+	$appointments = appointment::loadCurrent($selected_tags,$user_country);
 	include 'templates/adddateform.php';
 	include 'templates/overview.php';
 }

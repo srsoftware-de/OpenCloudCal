@@ -188,11 +188,26 @@
     return $text;
   }
   
-  functin getTimezoneOffzet($datestamp,$timezone){
-  	return 0;
+  function getTimezoneOffzet($timestamp,$countrycode){
+  	if ($countrycode=='UTC'){
+  		return 0;
+  	}
+  	$summertimeOffset=3600*date('I',$timestamp);
+  	if ($countrycode=='DE'){
+  		return $summertimeOffset+3600;
+  	}
+  	warn(str_replace('%tz',$timezone,loc('Unknown timezone: %tz')));
+  	return null;
   }
+  
 
-  function parseDateTime($array){
+  /* this converts a datetime array to a timestamp (seconds since 1960 or somethin like that).
+   * if a timezone (country code) is given, it is checked whether the referenced date is in summertime and
+   * the timestamp is adjusted apropriately to reflect the date in UTC.
+   * format of array:
+   * timstamp = arrray(year => YYYY, month => MM, day => dd, hour => hh, minute => mm, timezone => 'DE') // or UTC
+   */
+  function parseDateTime($array,$timezone=null){
     if (!isset($array['year'])){
       return false;
     }
@@ -206,10 +221,6 @@
     $d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];
     $secs=strtotime($d_string);
     
-    if (isset($array['timezone'])){
-    	$secs+=getTimezoneOffzet($secs,$array['timezone']);
-    }    
-
     if (isset($array['hour'])){
       $hour=(int) $array['hour'];
       $secs+=3600 * $hour;
@@ -220,10 +231,24 @@
     }
     if (isset($array['addtime'])){
     	$secs+=(int)$array['addtime'];
+    }    
+    if (isset($timezone)){
+    	$offset=getTimezoneOffzet($secs,$timezone);
+    	if ($offset == null){
+    		return false;
+    	}
+    	$secs-=$offset;
     }
     
     return $secs;
   }
+  
+  function clientTime($timestamp){
+  	global $db_time_format,$user_country;
+  	$secs=strtotime($timestamp);
+  	return date($db_time_format,$secs+getTimezoneOffzet($secs, $user_country));  	
+  }
+  
   
   function notify($message){
   	global $notifications;
@@ -240,19 +265,22 @@
   	if (empty($data['title'])){
   		warn('no title given');
   		return false;
+  	}  	
+  	if (isset($data['timezone'])){
+  		$timezone=$data['timezone'];
+  	} else {
+  		$timezone=null;
   	}
-  	$start=parseDate($data['start']);
+  	$start=parseDateTime($data['start'],$timezone);
   	if (!$start){
   		warn('invalid start date');
   		return false;
   	}
-  	$end=parseDate($data['end']);
+  	$end=parseDateTime($data['end'],$timezone);
   	if (!$end){
   		warn('invalid end date');
   		return false;
   	}
-  	$start+=parseTime($data['start']);
-  	$end+=parseTime($data['end']);
   	if ($end<$start){
   		$end=$start;
   	}
@@ -440,6 +468,10 @@
   $db = connectToDb($host,$database,$user,$pass);
 
   checkTables($db);
+  
+ 	$user_country='DE';
+ 	$countries=array(	'DE'  => loc('Germany'),
+ 										'UTC' => 'UTC');
 
   require OCC_ROOT."/locale/de.php";
   
@@ -463,6 +495,10 @@
   
   if (isset($_GET['debug'])){
   	$_SESSION['debug']=$_GET['debug'];
+  }
+  
+  if (isset($_GET['country']) && array_key_exists($_GET['country'],$countries)){
+  	$user_country=$_GET['country'];
   }
   
 ?>

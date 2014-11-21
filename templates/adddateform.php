@@ -38,8 +38,13 @@ include 'forms.php';
 	  <div class="timezone">
 	    <?php echo loc('timezone')?>:
 	    <select name="newappointment[timezone]">
-	      <option value="DE" selected><?php echo loc('Germany'); ?></option>
-	      <option value="UTC">UTC</option>
+	      <?php foreach ($countries as $code=>$country){
+	      	if ($country == $usercountry){
+						echo '<option value="'.$code.'" selected>'.$country.'</option>'.PHP_EOL;
+					} else {
+						echo '<option value="'.$code.'">'.$country.'</option>'.PHP_EOL;
+					}
+				}	?>
 	    </select>
 	  </div>
 		<?php include 'openlayers.php'; ?>
