@@ -3,10 +3,10 @@
 	<?php echo $appointment->title ?>
 </h2>
 <div id="detail_time_start">
-	<?php echo loc('Start').': '.$appointment->start; ?>
+	<?php echo loc('Start').': '.clientTime($appointment->start); ?>
 </div>
 <div id="detail_time_end">
-  <?php echo loc('End').': '.$appointment->end; ?>
+  <?php echo loc('End').': '.clientTime($appointment->end); ?>
 </div>
 <div id="description">
 	<?php echo str_replace("\n", "<br/>\n", $appointment->description); ?>
@@ -31,8 +31,8 @@
 		      </tr>
 <?php foreach ($appointment->sessions as $session){ ?>
 					<tr class="session">
-					  <td class="sessionstart"><?php echo $session->start; ?></td>
-					  <td class="sessionend"><?php echo $session->end; ?></td>
+					  <td class="sessionstart"><?php echo clientTime($session->start); ?></td>
+					  <td class="sessionend"><?php echo clientTime($session->end); ?></td>
 					  <td class="description"><?php echo $session->description; ?></td>
 					  <td class="delsession">
 					    <form class="deletesession" action="?show=<?php echo $appointment->id; ?>" method="POST">

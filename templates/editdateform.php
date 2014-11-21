@@ -57,13 +57,13 @@
       <?php
       echo loc('start date');
       if ($appointment){
-				datepicker('editappointment[start]',$appointment->start);
+				datepicker('editappointment[start]',clienttime($appointment->start));
 			} else {
       	datepicker('editappointment[start]');
       }
       echo loc('start time'); 
       if ($appointment){
-				timepicker('editappointment[start]',$appointment->start);
+				timepicker('editappointment[start]',clienttime($appointment->start));
 			} else {
 				timepicker('editappointment[start]');
 			}?>
@@ -71,13 +71,13 @@
   	<div class="end">
     	<?php echo loc('end date (optional)');
       if ($appointment){
-				datepicker('editappointment[end]',$appointment->end);
+				datepicker('editappointment[end]',clienttime($appointment->end));
 			} else {
       	datepicker('editappointment[end]');
       }
       echo loc('end time');
       if ($appointment){
-      	timepicker('editappointment[end]',$appointment->end);
+      	timepicker('editappointment[end]',clienttime($appointment->end));
       } else {
       	timepicker('editappointment[end]');
       } ?>

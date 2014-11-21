@@ -2,6 +2,10 @@
 
 require 'init.php';
 
+$selected_tags = array();
+
+include 'templates/head.php';
+
 function gricalValue(){
 	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on'){
 		return 'checked';
@@ -13,10 +17,6 @@ function calciferValue(){
 		return 'checked';
 	}
 }
-
-$selected_tags = array();
-
-include 'templates/head.php';
 
 /* if data for a new appointment is recieved, handle it */
 if (isset($_POST['newappointment'])){
@@ -63,6 +63,10 @@ if (isset($_POST['editappointment'])){
 		}		
 	}	
 	$appointment->loadRelated();
+}
+
+if (isset($_POST['icalimporturl'])){
+	importIcal($_POST['icalimporturl']);
 }
 
 /* if a tag is provided: use it */
@@ -119,6 +123,14 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	$appointments = appointment::loadAll($selected_tags);
 	$appointment=$appointments[$app_id];
 	include 'templates/editdateform.php';
+	include 'templates/overview.php';
+	
+} else if (isset($_GET['import'])) {
+	$import=$_GET['import'];
+	if ($import=='ical'){
+		include 'templates/icalimport.php';
+	}
+	$appointments = appointment::loadCurrent($selected_tags);
 	include 'templates/overview.php';
 	
 } else if (isset($_POST['delete'])){

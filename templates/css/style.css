@@ -27,7 +27,8 @@ h2,h3{
 }
 form.adddate,
 form.addsession,
-form.addlink{
+form.addlink,
+form.timezone{
 	background-color: #ddffdd;
 	margin: 5px;
 	border: 1px solid gray;
@@ -92,7 +93,6 @@ table tr{
 	right: 0;
 	padding: 20px;
 	width: 50%;
-	margin: auto;
 	background-color: red;
 	text-align: center;
 	color: white;
