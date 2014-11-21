@@ -187,8 +187,12 @@
     }
     return $text;
   }
+  
+  functin getTimezoneOffzet($datestamp,$timezone){
+  	return 0;
+  }
 
-  function parseDate($array){
+  function parseDateTime($array){
     if (!isset($array['year'])){
       return false;
     }
@@ -197,13 +201,14 @@
     }
     if (!isset($array['day'])){
       return false;
-    }
-    $d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];
-    return strtotime($d_string);
-  }
+    }    
   
-  function parseTime($array){
-    $secs=0;
+    $d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];
+    $secs=strtotime($d_string);
+    
+    if (isset($array['timezone'])){
+    	$secs+=getTimezoneOffzet($secs,$array['timezone']);
+    }    
 
     if (isset($array['hour'])){
       $hour=(int) $array['hour'];
@@ -216,6 +221,7 @@
     if (isset($array['addtime'])){
     	$secs+=(int)$array['addtime'];
     }
+    
     return $secs;
   }
   

@@ -35,6 +35,13 @@ include 'forms.php';
 
 	</div>
 	<div class="right">
+	  <div class="timezone">
+	    <?php echo loc('timezone')?>:
+	    <select name="newappointment[timezone]">
+	      <option value="DE" selected><?php echo loc('Germany'); ?></option>
+	      <option value="UTC">UTC</option>
+	    </select>
+	  </div>
 		<?php include 'openlayers.php'; ?>
 		<div class="start">
 			<?php echo loc('start date'); datepicker('newappointment[start]'); echo loc('start time'); timepicker('newappointment[start]',date($db_time_format)); ?>
