@@ -31,11 +31,12 @@
     
     function tagLinks(){
     	$result="";
-    	foreach ($this->tags as $tag){
-    		$result.='<a href="?tag='.$tag->text.'">'.$tag->text.'</a> '.PHP_EOL;
+    	if (isset($this->tags)){
+      	foreach ($this->tags as $tag){
+    		  $result.='<a href="?tag='.$tag->text.'">'.$tag->text.'</a> '.PHP_EOL;
+    	  }
     	}
-    	return $result;
-    	 
+    	return $result;    	 
     }
     
     function mapLink(){
