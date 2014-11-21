@@ -38,7 +38,7 @@ foreach ($appointments as $app){
 	<?php
 	foreach ($appointments as $app){ ?>
   <tr class="appointment">
-    <td class="datestart"><?php echo $app->start; ?></th>
+    <td class="datestart"><?php echo clientTime($app->start); ?></th>
     <td class="title"><a href="?show=<?php echo $app->id; ?>"><?php echo $app->title; ?></a></td>
     <td class="location"><?php echo $app->location;
     if ($app->coords){ ?>
