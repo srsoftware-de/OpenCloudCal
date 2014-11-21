@@ -5,7 +5,13 @@
   require  (OCC_ROOT.'/config/db.php');
   
   session_start();
-
+  
+  if (isset($_SESSION) && !isset($_SESSION['country'])){
+  	$_SESSION['country']='DE';
+  }
+  $countries=array(	'DE'  => loc('Germany'),
+  									'UTC' => 'UTC');
+  
   /* this was written using http://code.tutsplus.com/tutorials/why-you-should-be-using-phps-pdo-for-database-access--net-12059 */
   function connectToDb($host,$database,$user,$pass){
     try {
@@ -187,8 +193,34 @@
     }
     return $text;
   }
+  
+  function getTimezoneOffzet($timestamp){
+  	if (!isset($_SESSION)){
+  		return 0;
+  	}
+  	if (!isset($_SESSION['country'])){
+  		return 0;
+  	}
+  	if ($_SESSION['country']=='UTC'){
+  		return 0;
+  	}
+  	$summertimeOffset=3600*date('I',$timestamp);
+  	$code=$_SESSION['country'];
+  	if ($code=='DE'){
+  		return $summertimeOffset+3600;
+  	}
+  	warn(str_replace('%tz',$_SESSION['country'],loc('Unknown timezone: %tz')));
+  	return null;
+  }
+  
 
-  function parseDate($array){
+  /* this converts a datetime array to a timestamp (seconds since 1960 or somethin like that).
+   * if a timezone (country code) is given, it is checked whether the referenced date is in summertime and
+   * the timestamp is adjusted apropriately to reflect the date in UTC.
+   * format of array:
+   * timstamp = arrray(year => YYYY, month => MM, day => dd, hour => hh, minute => mm, timezone => 'DE') // or UTC
+   */
+  function parseDateTime($array){
     if (!isset($array['year'])){
       return false;
     }
@@ -197,14 +229,11 @@
     }
     if (!isset($array['day'])){
       return false;
-    }
-    $d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];
-    return strtotime($d_string);
-  }
+    }    
   
-  function parseTime($array){
-    $secs=0;
-
+    $d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];
+    $secs=strtotime($d_string);
+    
     if (isset($array['hour'])){
       $hour=(int) $array['hour'];
       $secs+=3600 * $hour;
@@ -215,9 +244,20 @@
     }
     if (isset($array['addtime'])){
     	$secs+=(int)$array['addtime'];
-    }
+    }    
+   	$secs-=getTimezoneOffzet($secs);    
     return $secs;
   }
+  
+  function clientTime($timestamp){
+  	if (!isset($_SESSION) || !isset($_SESSION['country']) || $_SESSION['country']=='UTC'){
+  		return $timestamp;
+  	}
+  	global $db_time_format;
+  	$secs=strtotime($timestamp);
+  	return date($db_time_format,$secs+getTimezoneOffzet($secs));  	
+  }
+  
   
   function notify($message){
   	global $notifications;
@@ -230,23 +270,24 @@
   }
   
   function parseAppointmentData($data){
-  	global $db_time_format;
+  	global $db_time_format,$countries;
+    if (isset($data['timezone']) && array_key_exists($data['timezone'], $countries)){
+  		$_SESSION['country']=$data['timezone'];
+  	}
   	if (empty($data['title'])){
   		warn('no title given');
   		return false;
-  	}
-  	$start=parseDate($data['start']);
+  	}  	
+  	$start=parseDateTime($data['start']);
   	if (!$start){
   		warn('invalid start date');
   		return false;
   	}
-  	$end=parseDate($data['end']);
+  	$end=parseDateTime($data['end']);
   	if (!$end){
   		warn('invalid end date');
   		return false;
   	}
-  	$start+=parseTime($data['start']);
-  	$end+=parseTime($data['end']);
   	if ($end<$start){
   		$end=$start;
   	}
@@ -445,6 +486,7 @@
   		header('Content-type: text/calendar; charset=utf-8');
   		header('Content-Disposition: inline; filename=calendar.ics');
   		$format='ical';
+  		$_SESSION['country']='UTC';
   	}
   	if ($_GET['format']=='webdav'){
   		$format='webdav';
@@ -457,6 +499,10 @@
   
   if (isset($_GET['debug'])){
   	$_SESSION['debug']=$_GET['debug'];
+  }
+  
+  if (isset($_GET['country']) && array_key_exists($_GET['country'],$countries)){
+  	$_SESSION['country']=$_GET['country'];
   }
   
 ?>
