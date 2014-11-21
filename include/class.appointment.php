@@ -159,7 +159,7 @@
     	$instance=new self();    	 
     	$sql="SELECT * FROM appointments WHERE aid=$id";
     	foreach ($db->query($sql) as $row){
-    		$instance=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false);
+    		$instance=self::create($row['title'], $row['description'], clientTime($row['start']), clientTime($row['end']), $row['location'],$row['coords'],false);
     		$instance->id=$id;
     		$instance->loadRelated();
     		return $instance;
