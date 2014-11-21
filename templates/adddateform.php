@@ -35,18 +35,6 @@ include 'forms.php';
 
 	</div>
 	<div class="right">
-	  <div class="timezone">
-	    <?php echo loc('timezone')?>:
-	    <select name="newappointment[timezone]">
-	      <?php foreach ($countries as $code=>$country){
-	      	if ($country == $_SESSION['country']){
-						echo '<option value="'.$code.'" selected>'.$country.'</option>'.PHP_EOL;
-					} else {
-						echo '<option value="'.$code.'">'.$country.'</option>'.PHP_EOL;
-					}
-				}	?>
-	    </select>
-	  </div>
 		<?php include 'openlayers.php'; ?>
 		<div class="start">
 			<?php echo loc('start date'); datepicker('newappointment[start]'); echo loc('start time'); timepicker('newappointment[start]',date($db_time_format)); ?>

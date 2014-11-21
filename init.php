@@ -3,7 +3,8 @@
   define("OCC_ROOT", realpath(dirname(__FILE__)));
   
   require  (OCC_ROOT.'/config/db.php');
-  
+  require OCC_ROOT."/locale/de.php";
+    
   session_start();
   
   if (isset($_SESSION) && !isset($_SESSION['country'])){
@@ -250,9 +251,6 @@
   }
   
   function clientTime($timestamp){
-  	if (!isset($_SESSION) || !isset($_SESSION['country']) || $_SESSION['country']=='UTC'){
-  		return $timestamp;
-  	}
   	global $db_time_format;
   	$secs=strtotime($timestamp);
   	return date($db_time_format,$secs+getTimezoneOffzet($secs));  	
@@ -476,8 +474,6 @@
 
   checkTables($db);
 
-  require OCC_ROOT."/locale/de.php";
-  
   $format='html';
   $limit=null;
   
@@ -486,7 +482,6 @@
   		header('Content-type: text/calendar; charset=utf-8');
   		header('Content-Disposition: inline; filename=calendar.ics');
   		$format='ical';
-  		$_SESSION['country']='UTC';
   	}
   	if ($_GET['format']=='webdav'){
   		$format='webdav';
@@ -501,8 +496,8 @@
   	$_SESSION['debug']=$_GET['debug'];
   }
   
-  if (isset($_GET['country']) && array_key_exists($_GET['country'],$countries)){
-  	$_SESSION['country']=$_GET['country'];
+  if (isset($_POST['country']) && array_key_exists($_POST['country'],$countries)){
+  	$_SESSION['country']=$_POST['country'];
   }
   
 ?>
