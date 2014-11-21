@@ -32,5 +32,7 @@ PRODID:<?php echo "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]".PHP_EOL; ?>
 		 	}
 		}	?>
 	</select>
+	<button type="submit"><?php echo loc('change');?></button>
+	<?php echo loc('Note: Summertime ("daylight saving time") will be automatically taken into account.')?>	
 </form>
 <?php } ?>
