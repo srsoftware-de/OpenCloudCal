@@ -110,8 +110,13 @@
   	}
   	
   	static function convertRFC2445DateTimeToUTCtimestamp($datetime,$timezone=null){
+  		if (substr($datetime,-1)=='Z'){
+  			$timezone='UTC';
+  		}
   		$dummy=substr($datetime, 0,4).'-'.substr($datetime, 4,2).'-'.substr($datetime, 6,2).' '.	substr($datetime, 9,2).':'.substr($datetime, 11,2).':'.substr($datetime, 13,2);
-//  		print $dummy."<br/>\n";
+			if ($timezone != null && $timezone != 'UTC'){
+				warn(str_replace('%tz', $timezone, loc('Handling of timezone "%tz" currently not implemented!')));
+			}
   		return $dummy;
   	}
   	
@@ -189,6 +194,11 @@
     	$sql = "DELETE FROM appointments WHERE aid=:id";
     	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
     	$stm->execute(array(':id'=>$id));
+    	
+    	$sql = "DELETE FROM imported_appointments WHERE aid=:id";
+    	$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    	$stm->execute(array(':id'=>$id));
+    	 
     }
   
     function save(){
