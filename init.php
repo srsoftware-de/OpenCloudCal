@@ -486,6 +486,7 @@
   		header('Content-type: text/calendar; charset=utf-8');
   		header('Content-Disposition: inline; filename=calendar.ics');
   		$format='ical';
+  		$_SESSION['country']='UTC';
   	}
   	if ($_GET['format']=='webdav'){
   		$format='webdav';
