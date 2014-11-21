@@ -4,7 +4,15 @@ require 'init.php';
 
 $selected_tags = array();
 
-include 'templates/head.php';
+if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
+	include 'config/autoimport.php';
+	foreach ($importurls as $url){
+		importIcal($url);
+	}
+	die();
+} else {
+	include 'templates/head.php';
+}
 
 function gricalValue(){
 	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on'){
