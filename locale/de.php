@@ -57,6 +57,7 @@ $locale=array(
 		'weeks' => 'Wochen',
 		'Yes'	=> 'Ja',
 		"You decided to not use JavaScript. That is totally ok, but you will not be able to use the interactive map. Don't worry, you can still enter coordinates manually!" => 'Sie haben siche entschieden, JavaScript nicht zuzulassen. Das it vollkommen okay, bedeutet aber, dass die interaktive Karte nicht verfügbar ist. Koordinaten können nur händisch eingegeben werden.',
+		'You must supply an adress to import from!'=>'Sie müssen eine Adresse angeben, von der importiert werden soll!',
 		'* You should complete your appointment with all sessions and links, before submitting to calcifer or grical!'=>'* Sie sollten den Termin erst mit alles Sessions und Links vervollständigen, bevor dieser an calcifer oder grical übertragen wird!'
 );
 ?>

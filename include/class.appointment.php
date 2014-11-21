@@ -62,37 +62,37 @@
   		while (!empty($stack)){
   			$line=trim(array_pop($stack));
   		
-  			if (strpos($line,'UID:') === 0){
+  			if (startsWith($line,'UID:')){
   				$foreignId=substr($line,4);
-	  		} elseif (strpos($line,'DTSTART:') === 0){
+	  		} elseif (startsWith($line,'DTSTART:')){
   				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
-	  		} elseif (strpos($line,'DTSTART;VALUE=DATE:') === 0){
+	  		} elseif (startsWith($line,'DTSTART;VALUE=DATE:')){
   				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 19).'T000000',$timezone);
-	  		} elseif (strpos($line,'DTEND:') === 0){
+	  		} elseif (startsWith($line,'DTEND:')){
   				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 6), $timezone);
-	  		} elseif (strpos($line,'DTEND;VALUE=DATE:') === 0){
+	  		} elseif (startsWith($line,'DTEND;VALUE=DATE:')){
   				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 17).'T235959',$timezone);
-	  		} elseif (strpos($line,'GEO:') === 0){
+	  		} elseif (startsWith($line,'GEO:')){
 	  			$geo=str_replace('\;', ';',substr($line,4));
-	  		} elseif (strpos($line,'URL:') === 0){
+	  		} elseif (startsWith($line,'URL:')){
 	  			if ($urls==null){
 	  				$urls=array();
 	  			}
 	  			$urls[]=substr($line,4) . readMultilineFromIcal($stack);
-	  		} elseif (strpos($line,'LOCATION:') === 0){
+	  		} elseif (startsWith($line,'LOCATION:')){
 	  			$location=str_replace('\,', ',',substr($line,9) . readMultilineFromIcal($stack));
-	  		} elseif (strpos($line,'SUMMARY:') === 0){
+	  		} elseif (startsWith($line,'SUMMARY:')){
 	  			$summary=str_replace('\,', ',',substr($line,8) . readMultilineFromIcal($stack));
-	  		} elseif (strpos($line,'CATEGORIES:') === 0){
+	  		} elseif (startsWith($line,'CATEGORIES:')){
 	  			$tags=str_replace('\,', ',',substr($line,11) . readMultilineFromIcal($stack));
 	  			$tags=explode(',',$tags);
-	  		} elseif (strpos($line,'DESCRIPTION:') === 0){
+	  		} elseif (startsWith($line,'DESCRIPTION:')){
 	  			$description=$line=str_replace('\,', ',', substr($line,12) . readMultilineFromIcal($stack));
-	  		} elseif (strpos($line,'CLASS:') === 0){
+	  		} elseif (startsWith($line,'CLASS:')){
 	  			// no use for class at the moment
-	  		} elseif (strpos($line,'DTSTAMP:') === 0){
+	  		} elseif (startsWith($line,'DTSTAMP:')){
 	  			// no use for ststamp at the moment
-	  		} elseif (strpos($line,'X-') === 0){
+	  		} elseif (startsWith($line,'X-')){
 	  			// no use for ststamp at the moment
 	  		} elseif ($line=='END:VEVENT'){
 	  			// create appointment, do not save it, return it.
