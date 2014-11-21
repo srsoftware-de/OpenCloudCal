@@ -5,7 +5,13 @@
   require  (OCC_ROOT.'/config/db.php');
   
   session_start();
-
+  
+  if (isset($_SESSION) && !isset($_SESSION['country'])){
+  	$_SESSION['country']='DE';
+  }
+  $countries=array(	'DE'  => loc('Germany'),
+  									'UTC' => 'UTC');
+  
   /* this was written using http://code.tutsplus.com/tutorials/why-you-should-be-using-phps-pdo-for-database-access--net-12059 */
   function connectToDb($host,$database,$user,$pass){
     try {
@@ -188,15 +194,22 @@
     return $text;
   }
   
-  function getTimezoneOffzet($timestamp,$countrycode){
-  	if ($countrycode=='UTC'){
+  function getTimezoneOffzet($timestamp){
+  	if (!isset($_SESSION)){
+  		return 0;
+  	}
+  	if (!isset($_SESSION['country'])){
+  		return 0;
+  	}
+  	if ($_SESSION['country']=='UTC'){
   		return 0;
   	}
   	$summertimeOffset=3600*date('I',$timestamp);
-  	if ($countrycode=='DE'){
+  	$code=$_SESSION['country'];
+  	if ($code=='DE'){
   		return $summertimeOffset+3600;
   	}
-  	warn(str_replace('%tz',$timezone,loc('Unknown timezone: %tz')));
+  	warn(str_replace('%tz',$_SESSION['country'],loc('Unknown timezone: %tz')));
   	return null;
   }
   
@@ -207,7 +220,7 @@
    * format of array:
    * timstamp = arrray(year => YYYY, month => MM, day => dd, hour => hh, minute => mm, timezone => 'DE') // or UTC
    */
-  function parseDateTime($array,$timezone=null){
+  function parseDateTime($array){
     if (!isset($array['year'])){
       return false;
     }
@@ -232,21 +245,17 @@
     if (isset($array['addtime'])){
     	$secs+=(int)$array['addtime'];
     }    
-    if (isset($timezone)){
-    	$offset=getTimezoneOffzet($secs,$timezone);
-    	if ($offset == null){
-    		return false;
-    	}
-    	$secs-=$offset;
-    }
-    
+   	$secs-=getTimezoneOffzet($secs);    
     return $secs;
   }
   
   function clientTime($timestamp){
-  	global $db_time_format,$user_country;
+  	if (!isset($_SESSION) || !isset($_SESSION['country']) || $_SESSION['country']=='UTC'){
+  		return $timestamp;
+  	}
+  	global $db_time_format;
   	$secs=strtotime($timestamp);
-  	return date($db_time_format,$secs+getTimezoneOffzet($secs, $user_country));  	
+  	return date($db_time_format,$secs+getTimezoneOffzet($secs));  	
   }
   
   
@@ -261,22 +270,20 @@
   }
   
   function parseAppointmentData($data){
-  	global $db_time_format;
+  	global $db_time_format,$countries;
+    if (isset($data['timezone']) && array_key_exists($data['timezone'], $countries)){
+  		$_SESSION['country']=$data['timezone'];
+  	}
   	if (empty($data['title'])){
   		warn('no title given');
   		return false;
   	}  	
-  	if (isset($data['timezone'])){
-  		$timezone=$data['timezone'];
-  	} else {
-  		$timezone=null;
-  	}
-  	$start=parseDateTime($data['start'],$timezone);
+  	$start=parseDateTime($data['start']);
   	if (!$start){
   		warn('invalid start date');
   		return false;
   	}
-  	$end=parseDateTime($data['end'],$timezone);
+  	$end=parseDateTime($data['end']);
   	if (!$end){
   		warn('invalid end date');
   		return false;
@@ -468,10 +475,6 @@
   $db = connectToDb($host,$database,$user,$pass);
 
   checkTables($db);
-  
- 	$user_country='DE';
- 	$countries=array(	'DE'  => loc('Germany'),
- 										'UTC' => 'UTC');
 
   require OCC_ROOT."/locale/de.php";
   
@@ -498,7 +501,7 @@
   }
   
   if (isset($_GET['country']) && array_key_exists($_GET['country'],$countries)){
-  	$user_country=$_GET['country'];
+  	$_SESSION['country']=$_GET['country'];
   }
   
 ?>

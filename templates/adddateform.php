@@ -39,7 +39,7 @@ include 'forms.php';
 	    <?php echo loc('timezone')?>:
 	    <select name="newappointment[timezone]">
 	      <?php foreach ($countries as $code=>$country){
-	      	if ($country == $usercountry){
+	      	if ($country == $_SESSION['country']){
 						echo '<option value="'.$code.'" selected>'.$country.'</option>'.PHP_EOL;
 					} else {
 						echo '<option value="'.$code.'">'.$country.'</option>'.PHP_EOL;
