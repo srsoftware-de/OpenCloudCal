@@ -80,14 +80,14 @@
 	  			}
 	  			$urls[]=substr($line,4) . readMultilineFromIcal($stack);
 	  		} elseif (startsWith($line,'LOCATION:')){
-	  			$location=str_replace('\,', ',',substr($line,9) . readMultilineFromIcal($stack));
+	  			$location=str_replace(array('\,','\n'), array(',',"\n"),substr($line,9) . readMultilineFromIcal($stack));
 	  		} elseif (startsWith($line,'SUMMARY:')){
-	  			$summary=str_replace('\,', ',',substr($line,8) . readMultilineFromIcal($stack));
+	  			$summary=str_replace(array('\,','\n'), array(',',"\n"),substr($line,8) . readMultilineFromIcal($stack));
 	  		} elseif (startsWith($line,'CATEGORIES:')){
-	  			$tags=str_replace('\,', ',',substr($line,11) . readMultilineFromIcal($stack));
+	  			$tags=str_replace(array('\,','\n'), array(',',"\n"),substr($line,11) . readMultilineFromIcal($stack));
 	  			$tags=explode(',',$tags);
 	  		} elseif (startsWith($line,'DESCRIPTION:')){
-	  			$description=$line=str_replace('\,', ',', substr($line,12) . readMultilineFromIcal($stack));
+	  			$description=$line=str_replace(array('\,','\n'), array(',',"\n"), substr($line,12) . readMultilineFromIcal($stack));
 	  		} elseif (startsWith($line,'CLASS:')){
 	  			// no use for class at the moment
 	  		} elseif (startsWith($line,'DTSTAMP:')){
