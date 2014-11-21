@@ -2,6 +2,10 @@
 
 require 'init.php';
 
+$selected_tags = array();
+
+include 'templates/head.php';
+
 function gricalValue(){
 	if (isset($_POST['gricalpost']) && $_POST['gricalpost']=='on'){
 		return 'checked';
@@ -13,10 +17,6 @@ function calciferValue(){
 		return 'checked';
 	}
 }
-
-$selected_tags = array();
-
-include 'templates/head.php';
 
 /* if data for a new appointment is recieved, handle it */
 if (isset($_POST['newappointment'])){
