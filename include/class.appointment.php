@@ -552,7 +552,7 @@
     	return implode($separator, $res);
     }
     
-    function toVEvent(){  	
+    function toVEvent(){	
     	$nl="\r\n";
       $result ='BEGIN:VEVENT'.$nl;
       if (isset($this->id) && $this->id != null) {
@@ -568,13 +568,8 @@
     	$result.='GEO:'.$this->coords['lat'].';'.$this->coords['lon'].$nl;
     	$result.='LOCATION:'.$this->location.$nl;
     	$result.='SUMMARY:'.$this->title.$nl;
-    	if (isset($this->urls) && $this->urls != null){
-    		foreach ($this->urls as $url){
-    			$result.='URL:'.$url->address.$nl;
-    		}
-    	}
     	if (isset($this->id) && $this->id != null){ 
-    		$result.='URL:http://'.$_SERVER['HTTP_HOST'].'/?show='.$this->id.$nl;
+    		$result.='URL:http://'.$_SERVER['HTTP_HOST'].$_SERVER["PHP_SELF"].'?show='.$this->id.$nl;
     	}
     	$result.='DTEND:'.str_replace(array('-',' ',':'),array('','T',''),$this->end).'Z'.$nl;
     	$result.='END:VEVENT'.$nl;
