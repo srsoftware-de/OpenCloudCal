@@ -1,5 +1,1 @@
-*.autosave
-*.dia~
-*.swp
-config/db.php
-reply.html
+config/settings.php
