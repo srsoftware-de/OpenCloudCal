@@ -38,10 +38,10 @@ function getTimezoneOffzet($timestamp){
 	if ($_SESSION['country']=='UTC'){
 		return 0;
 	}
-	$summertimeOffset=3600*date('I',$timestamp);
+	$summertimeOffset=3600*date('I',$timestamp); // date('I',$timestamp) returns 0 or 1 for winter or summer time
 	$code=$_SESSION['country'];
 	if ($code=='DE'){
-		return $summertimeOffset+3600;
+		return $summertimeOffset+3600; // one additional hour to UTC
 	}
 	warn(str_replace('%tz',$_SESSION['country'],loc('Unknown timezone: %tz')));
 	return null;
