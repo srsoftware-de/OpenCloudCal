@@ -2,10 +2,10 @@
   // get full path
   define("OCC_ROOT", realpath(dirname(__FILE__)));
   
-  require OCC_ROOT.'/config/db.php';
-  require OCC_ROOT.'/locale/de.php';
-  require OCC_ROOT.'/functions.php';
-  require OCC_ROOT.'/db_functions.php';
+  require 'config/db.php';
+  require 'locale/de.php';
+  require 'functions.php';
+  require 'db_functions.php';
   
   session_start();
   
