@@ -49,7 +49,11 @@ if (! function_exists('replace_open_cloudcal_tags')){
 			if (trim($occ_date['BEGIN'])=="VCALENDAR") continue;
 			$occ_start=$occ_date['DTSTART'];
 			$occ_output.='<tr>';
-			$occ_output.='<td class="appointment_date"><nobr>'.substr($occ_start,0,4).'-'.substr($occ_start,4,2).'-'.substr($occ_start,6,2).'</nobr></td>';
+			$occ_output.='<td class="appointment_date"><nobr>'.substr($occ_start,0,4).'-'.substr($occ_start,4,2).'-'.substr($occ_start,6,2);
+			if ((strpos($occ_start, 'T') !== false) && (strpos($occ_start, 'Z') !== false)){
+				$occ_output.=' '.substr($occ_start,9,2).':'.substr($occ_start, 11,2);
+			}
+			$occ_output.='</nobr></td>';
 			$occ_output.='<td class="appointment_title"><a href="'.$occ_date['URL'].'">'.$occ_date['SUMMARY'].'</a></td>';
 			$occ_output.='<td class="appointment_description">'.str_replace('\n', "<br/>\n", $occ_date['DESCRIPTION']).'</td>';
 			$occ_output.='</tr>';
