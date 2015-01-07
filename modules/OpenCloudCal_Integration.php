@@ -35,6 +35,11 @@ if (! function_exists('replace_open_cloudcal_tags')){
 
 		return $occ_icsDates;
 	}
+	
+	function localtime($date,$offset){		
+		$summertimeOffset=3600*date('I',$date); // date('I',$timestamp) returns 0 or 1 for winter or summer time
+		return $date+$offset+$summertimeOffset;
+	}
 
 
 	function get_open_cloudcal_replacement($occ_key){
