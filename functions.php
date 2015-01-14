@@ -182,6 +182,7 @@ function parseAttachmentData($data){
 		warn('no appointment given');
 		return false;
 	}
+	
 	if (empty($data['url'])){
 		warn('no url given');
 		return false;
@@ -190,8 +191,11 @@ function parseAttachmentData($data){
 	if (!strpos($url,':')){
 		$url='http://'.$url;
 	}
-	$attachment=attachment::create($data['aid'],$url,$data['description']);
-	return $attachment;
+	if (empty($data['mime'])){
+		$data['mime'] = guess_mime_type($url);
+	}	
+	$url=url::create($data['aid'],$url,$data['mime']);
+	return $url;
 }
 
 function readTimezoneMode(&$stack){

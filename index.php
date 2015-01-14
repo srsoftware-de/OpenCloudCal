@@ -61,11 +61,11 @@ if (isset($_POST['newlink'])){
 
 /* if attachment data is provided: create attachment */
 if (isset($_POST['newattachment'])){
-	$attachment=parseAttachmentData($_POST['newattachment']); // try to create link
-	if ($attachment){ // if successfull:
-		$attachment->save(); // save session
+	$link=parseAttachmentData($_POST['newattachment']); // try to create link
+	if ($link){ // if successfull:
+		$link->save(); // save session
 		$appointment=appointment::load($attachment->aid);
-		$appointment->addUrl($link);
+		$appointment->addAttachment($link);
 	}
 }
 
