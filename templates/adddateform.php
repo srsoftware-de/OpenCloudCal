@@ -57,8 +57,8 @@ include 'forms.php';
 				</label>
 			</div>
 			<div class="choice">
-				<input type="radio" id="addattachment" name="nextaction" value=""addattachment"" />
-				<label for="addlink">			
+				<input type="radio" id="addattachment" name="nextaction" value="addattachment"" />
+				<label for="addattachment">			
 					<?php echo loc('Add an attachment to this appointment in the next step.'); ?>
 				</label>
 			</div>
