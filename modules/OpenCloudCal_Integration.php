@@ -35,21 +35,40 @@ if (! function_exists('replace_open_cloudcal_tags')){
 
 		return $occ_icsDates;
 	}
+	
+	function localized_time($date,$localtime_settings){
+		$summertimeOffset=3600*date('I',$date); // date('I',$timestamp) returns 0 or 1 for winter or summer time
+		$sec_offset=3600*$localtime_settings['offset'];
+		return date($localtime_settings['format'],$date+$sec_offset+$summertimeOffset);
+	}
 
+	function getUTCtimestamp($datetime,$timezone=null){
+		return substr($datetime, 0,4).'-'.substr($datetime, 4,2).'-'.substr($datetime, 6,2).' '.	substr($datetime, 9,2).':'.substr($datetime, 11,2).':'.substr($datetime, 13,2);		
+	}
 
 	function get_open_cloudcal_replacement($occ_key){
-		$occ_key=str_replace('opencloudcal:', '', trim($occ_key));
+		$localtime_settings=array('offset'=>0,'format'=>'Y-m-d H:i:s');
+		
+		$key_parts=explode(':', $occ_key,4);
+		$len=count($key_parts);		
+		$occ_key=trim($key_parts[1]);
 		$occ_url='http://cal.srsoftware.de/?tag='.$occ_key.'&format=ical';
-		
+		if ($len>2) {
+			$localtime_settings['offset']=(int)$key_parts[2];
+		}
+		if ($len>3) {
+			$localtime_settings['format']=str_replace('[space]', ' ', $key_parts[3]);
+		}
+				
 		$occ_dates=occ_icsToArray($occ_url);
-		
 		$occ_output='<table class="cloudcal"><thead><tr><th class="appointment_date">Datum</th><th class="appointment_title">Ereignis</th><th class="appointment_description">Beschreibung</th></tr></thead><tbody>';
 		
 		foreach ($occ_dates as $occ_date){
 			if (trim($occ_date['BEGIN'])=="VCALENDAR") continue;
-			$occ_start=$occ_date['DTSTART'];
+			$occ_start=strtotime(getUTCtimestamp($occ_date['DTSTART']));
+			$occ_start=localized_time($occ_start,$localtime_settings); // Germany has 1 hr offset to UTC
 			$occ_output.='<tr>';
-			$occ_output.='<td class="appointment_date"><nobr>'.substr($occ_start,0,4).'-'.substr($occ_start,4,2).'-'.substr($occ_start,6,2).'</nobr></td>';
+			$occ_output.='<td class="appointment_date"><nobr>'.$occ_start.'</nobr></td>';
 			$occ_output.='<td class="appointment_title"><a href="'.$occ_date['URL'].'">'.$occ_date['SUMMARY'].'</a></td>';
 			$occ_output.='<td class="appointment_description">'.str_replace('\n', "<br/>\n", $occ_date['DESCRIPTION']).'</td>';
 			$occ_output.='</tr>';
