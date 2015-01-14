@@ -57,6 +57,12 @@ include 'forms.php';
 				</label>
 			</div>
 			<div class="choice">
+				<input type="radio" id="addattachment" name="nextaction" value=""addattachment"" />
+				<label for="addlink">			
+					<?php echo loc('Add an attachment to this appointment in the next step.'); ?>
+				</label>
+			</div>
+			<div class="choice">
 				<input type="checkbox" id="gricalpost" name="gricalpost" />
 				<label for="gricalpost">			
 					<?php echo loc('Send this appointment to grical, too.').'*'; ?>
