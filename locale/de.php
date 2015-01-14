@@ -10,6 +10,7 @@ $locale=array(
 		'Address' => 'Adresse',
 		'appointment overview' => 'Terminübersicht',
 		'Appointment sent to #service.'=>'Termin wurde bei #service eingetragen.',
+		'attachments' => 'Anhänge',
 		'Back to overview' => 'Zurück zur Übersicht',
 		'change' => 'wechseln',
 		'clone' => 'klonen',		

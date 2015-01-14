@@ -169,6 +169,7 @@
     
     /* loads tags, urls and sessions related to the current appointment */
     function loadRelated(){
+    	$this->attachments=$this->getAttachments();    	 
     	$this->urls=$this->getUrls();
     	$this->tags=$this->getTags();
     	$this->sessions=session::loadAll($this->id);
@@ -439,20 +440,6 @@
     }
     
     /* adds a url to the appointment */
-    function addAttachment($url){
-    	global $db;
-    	if ($url instanceof url){
-    		$stm=$db->prepare("INSERT INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-    		$stm->execute(array(':uid' => $url->id,':aid' => $url->aid,':mime'=>$url->description));
-    		$this->urls[$url->id]=$url;
-    	} else {
-    		$url=url::create($this->id, $url ,'Attachment');
-    		$url->save();
-    		$this->addUrl($url);
-    	}
-    }
-    
-    /* adds a url to the appointment */
     function addUrl($url){
       global $db;
       if ($url instanceof url){
@@ -483,6 +470,52 @@
     }
 
     /********* URLs ***********/
+    /******** Attachments *****/
+    
+    /* adds an attachment to the appointment */
+    function addAttachment($url){
+    	global $db;
+    	if ($url instanceof url){
+    		$stm=$db->prepare("INSERT INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    		$stm->execute(array(':uid' => $url->id,':aid' => $url->aid,':mime'=>$url->description));
+    		$this->urls[$url->id]=$url;
+    	} else {
+    		$url=url::create($this->id, $url ,'Attachment');
+    		$url->save();
+    		$this->addUrl($url);
+    	}
+    }
+    
+    function getAttachments(){
+    	global $db;
+    	$urls=array();
+    	$sql="SELECT uid,mime FROM appointment_attachments WHERE aid=$this->id";
+    	foreach ($db->query($sql) as $row){
+    		$url=url::load($row['uid']);
+    		if ($url){
+    			$url->description=$row['mime'];
+    			$urls[$url->id]=$url;
+    		}
+    	}
+    	return $urls;
+    }
+    
+    /* remove attachment from appointment */
+    function removeAttachment($url){
+    	global $db;
+    	if ($url instanceof url){
+    		$sql="DELETE FROM appointment_attachments WHERE uid=$url->id AND aid=$this->id";
+    		$db->query($sql);
+    		unset($this->urls[$url->id]);
+    	} else {
+    		if (is_int($url)){
+    			$this->removeAttachment(url::load($url));
+    		} else {
+    			$this->removeAttachment(url::create($url));
+    		}
+    	}
+    }
+    /******** Attachments *****/
     /* loading all appointments */
     public static function loadAll($tags=null){
       global $db,$limit;

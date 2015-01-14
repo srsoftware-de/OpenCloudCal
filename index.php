@@ -64,7 +64,7 @@ if (isset($_POST['newattachment'])){
 	$link=parseAttachmentData($_POST['newattachment']); // try to create link
 	if ($link){ // if successfull:
 		$link->save(); // save session
-		$appointment=appointment::load($attachment->aid);
+		$appointment=appointment::load($link->aid);
 		$appointment->addAttachment($link);
 	}
 }
@@ -99,6 +99,14 @@ if (isset($_POST['deletesession'])){
 	session::delete($sid);
 }
 
+/* attachment shall be removed from appointment */
+if (isset($_POST['deleteattachment'])){
+	$uid=$_POST['deleteattachment'];
+	$aid=$_GET['show'];
+	$appointment=appointment::load($aid);
+	$appointment->removeAttachment((int)$uid);
+}
+
 /* link shall be removed from appointment */
 if (isset($_POST['deletelink'])){
 	$uid=$_POST['deletelink'];
@@ -106,6 +114,7 @@ if (isset($_POST['deletelink'])){
 	$appointment=appointment::load($aid);
 	$appointment->removeUrl((int)$uid);
 }
+
 
 if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	include 'templates/addsession.php';

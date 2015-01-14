@@ -45,6 +45,10 @@
 			</div>
 <?php 	}
 
+
+
+
+
 	if (isset($appointment->urls) && count($appointment->urls)>0){ ?>
 		<div id="links">
 		<h3><?php echo loc('Links'); ?></h3>
@@ -67,7 +71,33 @@
 <?php } // foreach ?>
 		</table>
 		</div>
+<?php } // if	
+
+
+
+
+
+	if (isset($appointment->attachments) && count($appointment->attachments)>0){ ?>
+		<div id="attachments">
+		<h3><?php echo loc('attachments'); ?></h3>
+<?php foreach ($appointment->attachments as $attachment){
+			if (startsWith($attachment->description, 'image')){
+				$image=$attachment->address;
+			} else {
+			  $image='http://upload.wikimedia.org/wikipedia/commons/7/7b/Gnome-mime-manpage.png';
+			}	?>      
+			<div class="attachment">
+			  <a href="<?php print $attachment->address; ?>"><img src="<?php print $image; ?>"></a>
+				<form class="delattachment" action="?show=<?php echo $appointment->id; ?>" method="POST">
+  				<button type="submit" name="deleteattachment" value="<?php echo $attachment->id; ?>"><?php echo loc('delete');?></button>
+				</form>
+			</div>
+<?php } // foreach ?>
+		</div>
 <?php } // if	?>
+
+
+
 <form class="detailactions" action="." method="POST">
   <h3><?php echo loc('Actions');?></h3>
   <button type="submit"><?php echo loc('Back to overview'); ?></button>

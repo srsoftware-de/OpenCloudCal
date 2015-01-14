@@ -198,6 +198,23 @@ function parseAttachmentData($data){
 	return $url;
 }
 
+function guess_mime_type($url){
+	$URL=strtoupper($url);
+	if (endsWith($URL, 'JPG') || endsWith($URL, 'JPEG')){
+		return 'image/jpeg';
+	}
+	if (endsWith($URL, 'PNG')){
+		return 'image/png';
+	}
+	if (endsWith($URL, 'GIF')){
+		return 'image/gif';
+	}
+	if (endsWith($URL, 'SVG')){
+		return 'image/svg+xml';
+	}
+	return 'unknown';
+}
+
 function readTimezoneMode(&$stack){
 	$mode=array();
 	while (!empty($stack)){
