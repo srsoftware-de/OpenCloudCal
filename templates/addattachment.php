@@ -8,10 +8,6 @@
 	</h2>
 	<form class="addattachment" method="POST" action="?show=<?php echo $appointment->id; ?>">
 		<input type="hidden" name="newattachment[aid]" value="<?php echo $appointment->id; ?>" />	
-		<div id="description">
-			<?php echo loc('description'); ?>
-			<input type="text" name="newattachment[description]" />
-		</div>
 		<div id="url">
 			<?php echo loc('url'); ?>
 			<input type="text" name="newattachment[url]" />

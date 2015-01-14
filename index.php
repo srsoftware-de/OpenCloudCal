@@ -100,6 +100,10 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	include 'templates/addsession.php';
 	include 'templates/detail.php';	
 	
+} else if (isset($_POST['nextaction']) && $_POST['nextaction']=='addattachment'){
+	include 'templates/addattachment.php';
+	include 'templates/detail.php';	
+	
 } else if (isset($_POST['nextaction']) && $_POST['nextaction']=='addlink'){
 	include 'templates/addlink.php';
 	include 'templates/detail.php';	
