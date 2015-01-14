@@ -9,6 +9,9 @@ h2,h3{
 	margin: 5px;
 }
 
+.inline{
+	display: inline;
+}
 #detail_time_start,#detail_time_end,#description,#location,#tags{
 	margin: 0 5px;
 }

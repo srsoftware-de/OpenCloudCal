@@ -1,8 +1,8 @@
 <?php if ($format=='html') { ?>
-<h2>
+<h2 class="inline">
 	<?php echo $appointment->title ?>
 </h2>
-<div id="detail_time_start">
+<div id="detail_time_start" class="inline">
 	<?php echo loc('Start').': '.clientTime($appointment->start); ?>
 </div>
 <div id="detail_time_end">
