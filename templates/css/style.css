@@ -28,7 +28,8 @@ h2,h3{
 form.adddate,
 form.addsession,
 form.addlink,
-form.timezone{
+form.timezone,
+#attachments div.attachment{
 	background-color: #ddffdd;
 	margin: 5px;
 	border: 1px solid gray;
@@ -141,4 +142,14 @@ tr.session td{
 	color: red;
 	font-weight: bold;
 }
+
+#attachments div.attachment{
+	float: left;
+	text-align: center;
+}
+.attachment img{
+	max-width: 256px;
+}
+.endfloat{
+	clear: both;
 }

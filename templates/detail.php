@@ -94,6 +94,7 @@
 			</div>
 <?php } // foreach ?>
 		</div>
+		<div class="endfloat"></div>
 <?php } // if	?>
 
 
