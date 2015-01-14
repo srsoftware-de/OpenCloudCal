@@ -84,7 +84,7 @@
 			if (startsWith($attachment->description, 'image')){
 				$image=$attachment->address;
 			} else {
-			  $image='http://upload.wikimedia.org/wikipedia/commons/7/7b/Gnome-mime-manpage.png';
+			  $image='http://upload.wikimedia.org/wikipedia/commons/0/04/Gnome-mime-text-x-install.png';
 			}	?>      
 			<div class="attachment">
 			  <a href="<?php print $attachment->address; ?>"><img src="<?php print $image; ?>"></a>
