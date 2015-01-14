@@ -157,6 +157,9 @@ SUMMARY:<?php echo $appointment->title.PHP_EOL; ?>
 <?php
 foreach ($appointment->urls as $url){
 	print 'URL:'.$url->address.PHP_EOL;
+}
+foreach ($appointment->attachments as $attachment){
+  print 'ATTACH;FMTTYPE='.$attachment->description.':'.$attachment->address.PHP_EOL;
 } 
 ?>
 DTEND:<?php echo str_replace(array('-',' ',':'),array('','T',''),$appointment->end).'Z'.PHP_EOL; ?>

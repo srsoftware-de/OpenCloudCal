@@ -1,10 +1,9 @@
 <?php
 
 if ($format=='ical') {
-	$nl="\r\n";
-foreach ($appointments as $app){
-  echo $app->toVEvent();	
-} // foreach
+	foreach ($appointments as $app){
+  	echo $app->toVEvent();
+	} // foreach
 
 
 

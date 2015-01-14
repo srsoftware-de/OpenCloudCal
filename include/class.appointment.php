@@ -170,9 +170,9 @@
     /* loads tags, urls and sessions related to the current appointment */
     function loadRelated(){
     	$this->attachments=$this->getAttachments();    	 
-    	$this->urls=$this->getUrls();
-    	$this->tags=$this->getTags();
-    	$this->sessions=session::loadAll($this->id);
+    	$this->urls				=$this->getUrls();
+    	$this->tags				=$this->getTags();
+    	$this->sessions		=session::loadAll($this->id);
     }
     
     function delete($id=false){
@@ -617,6 +617,9 @@
     	$result.='SUMMARY:'.$this->title.$nl;
     	if (isset($this->id) && $this->id != null){ 
     		$result.='URL:http://'.$_SERVER['HTTP_HOST'].$_SERVER["PHP_SELF"].'?show='.$this->id.$nl;
+    	}    	
+    	foreach ($this->attachments as $attachment){
+    		$result.='ATTACH;FMTTYPE='.$attachment->description.':'.$attachment->address.$nl;
     	}
     	$result.='DTEND:'.str_replace(array('-',' ',':'),array('','T',''),$this->end).'Z'.$nl;
     	$result.='END:VEVENT'.$nl;
