@@ -176,6 +176,24 @@ function parseLinkData($data){
 	return $url;
 }
 
+function parseAttachmentData($data){
+	global $db_time_format;
+	if (empty($data['aid'])){
+		warn('no appointment given');
+		return false;
+	}
+	if (empty($data['url'])){
+		warn('no url given');
+		return false;
+	}
+	$url=$data['url'];
+	if (!strpos($url,':')){
+		$url='http://'.$url;
+	}
+	$attachment=attachment::create($data['aid'],$url,$data['description']);
+	return $attachment;
+}
+
 function readTimezoneMode(&$stack){
 	$mode=array();
 	while (!empty($stack)){

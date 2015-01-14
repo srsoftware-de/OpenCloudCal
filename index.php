@@ -49,15 +49,26 @@ if (isset($_POST['newsession'])){
 	}
 }
 
-/* if linkdata is provided: create session */
+/* if linkdata is provided: create link */
 if (isset($_POST['newlink'])){
-	$link=parseLinkData($_POST['newlink']); // try to create session
+	$link=parseLinkData($_POST['newlink']); // try to create link
 	if ($link){ // if successfull:
 		$link->save(); // save session
 		$appointment=appointment::load($link->aid);
 		$appointment->addUrl($link);
 	}
 }
+
+/* if attachment data is provided: create attachment */
+if (isset($_POST['newattachment'])){
+	$attachment=parseAttachmentData($_POST['newattachment']); // try to create link
+	if ($attachment){ // if successfull:
+		$attachment->save(); // save session
+		$appointment=appointment::load($attachment->aid);
+		$appointment->addUrl($link);
+	}
+}
+
 
 /* if edited appointment data is provided: save! */
 if (isset($_POST['editappointment'])){
