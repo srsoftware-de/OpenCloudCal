@@ -88,6 +88,21 @@ function checkAppointmentsTable($db){
 }
 
 /* assures the existence of the appointment_urls table */
+function checkAppointmentAttachmentsTable($db){
+	$results=$db->query("SHOW TABLES LIKE 'appointment_attachments'");
+	if (!$results){
+		die(print_r($dbh->errorInfo(), TRUE));
+	}
+	if ($results->rowCount()<1){
+		//      echo "table doesn't exist\n";
+		$sql = 'CREATE TABLE appointment_attachments (aid INT NOT NULL REFERENCES appointments(aid),uid INT NOT NULL REFERENCES urls(uid), mime TEXT, PRIMARY KEY (aid,uid));';
+		$db->exec($sql);
+		//    } else {
+		//      echo "table exists\n";
+	}
+}
+
+/* assures the existence of the appointment_urls table */
 function checkAppointmentUrlsTable($db){
 	$results=$db->query("SHOW TABLES LIKE 'appointment_urls'");
 	if (!$results){
@@ -156,6 +171,7 @@ function checkTables($db){
 		checkAppointmentsTable($db);
 		checkSessionsTable($db);
 		checkAppointmentUrlsTable($db);
+		checkAppointmentAttachmentsTable($db);
 		checkAppointmentTagsTable($db);
 		checkImportedAppointmentsTable($db);
 	} catch (PDOException $pdoex){

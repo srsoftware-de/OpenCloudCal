@@ -439,6 +439,20 @@
     }
     
     /* adds a url to the appointment */
+    function addAttachment($url){
+    	global $db;
+    	if ($url instanceof url){
+    		$stm=$db->prepare("INSERT INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    		$stm->execute(array(':uid' => $url->id,':aid' => $url->aid,':mime'=>$url->description));
+    		$this->urls[$url->id]=$url;
+    	} else {
+    		$url=url::create($this->id, $url ,'Attachment');
+    		$url->save();
+    		$this->addUrl($url);
+    	}
+    }
+    
+    /* adds a url to the appointment */
     function addUrl($url){
       global $db;
       if ($url instanceof url){
