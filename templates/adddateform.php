@@ -7,10 +7,14 @@ include 'forms.php';
 			<?php echo loc('title'); ?>
 			<input type="text" name="newappointment[title]" />
 		</div>
+		<div id="email">
+			<?php echo loc('email - bots only'); ?>
+			<input type="text" name="newappointment[email]" />
+		</div>
 		<div id="location">
 			<?php echo loc('location'); ?>
 			<input type="text" name="newappointment[location]" />
-		</div>
+		</div>		
 		<div id="coordinates">
 			<?php echo loc('coordinates'); ?>
 			<input type="text" id="coords" name="newappointment[coordinates]" />
