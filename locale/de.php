@@ -20,6 +20,7 @@ $locale=array(
 		'description' => 'Beschreibung',
 		'Description' => 'Beschreibung',
 		'edit' => 'Bearbeiten',
+		'email - bots only' => 'Email - nur wenn du ein Roboter bist',
 		'End' => 'Ende',
 		'end (optional)' => 'Ende (optional)',
 		'end date (optional)' => 'Enddatum (optional)',
