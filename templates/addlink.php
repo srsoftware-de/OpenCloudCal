@@ -16,6 +16,10 @@
 			<?php echo loc('url'); ?>
 			<input type="text" name="newlink[url]" />
 		</div>
+		<div id="email">
+			<?php echo loc('email - bots only'); ?>
+			<input type="text" name="newlink[email]" />
+		</div>
 		<div class="submit">
 			<div class="choice">
 		  	<input type="radio" id="addsession" name="nextaction" value="addsession" />
