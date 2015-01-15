@@ -17,6 +17,10 @@
   			}
   			echo '/>'; ?> 
   	</div>
+		<div id="email">
+			<?php echo loc('email - bots only'); ?>
+			<input type="text" name="editappointment[email]" />
+		</div>
   	<div id="location">
     	<?php echo loc('location').'<input type="text" name="editappointment[location]"';
   			if ($appointment){
