@@ -152,10 +152,9 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 
 } else if (isset($_POST['edit'])) {
 	$app_id=$_POST['edit'];
-	$appointments = appointment::loadAll($selected_tags);
-	$appointment=$appointments[$app_id];
+	$appointment=appointment::load($app_id);
 	include 'templates/editdateform.php';
-	include 'templates/overview.php';
+  include 'templates/detail.php';
 	
 } else if (isset($_GET['import'])) {
 	$import=$_GET['import'];
