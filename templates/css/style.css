@@ -9,6 +9,10 @@ h2,h3{
 	margin: 5px;
 }
 
+#email{
+	display: none;
+}
+
 .inline{
 	display: inline;
 }
