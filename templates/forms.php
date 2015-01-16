@@ -1,7 +1,6 @@
 <?php
   function datepicker($name,$time=null){
   	global $db_time_format;
-    date_default_timezone_set('UTC');
 
     if ($time==null){
       $time=date($db_time_format);
@@ -61,7 +60,6 @@
   }
 
   function timepicker($name,$time=null){
-    date_default_timezone_set('UTC');
 
     print '<div class="timepicker">'.PHP_EOL;
 
