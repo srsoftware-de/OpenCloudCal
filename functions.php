@@ -90,13 +90,29 @@ function parseDateTime($array){
 	return $secs;
 }
 
-
+function isSpam($data){
+	if (!empty($data['email'])){
+		return true; // no warning: Spam!
+	}
+	if (!empty($data['title'])){
+		if (strpos($data['title'],'http') !== false) {
+			return true;
+		}
+	}
+	if (!empty($data['description'])){
+		if (strpos($data['description'],'http') !== false) {
+			return true;
+		}
+	}
+	
+	return false;
+}
 
 function parseAppointmentData($data){
 	global $db_time_format,$countries;
-	if (!empty($data['email'])){
-		return false; // no warning: Spam!
-	}
+    if (isSpam($data)){
+    	return false;
+    }
 	if (isset($data['timezone']) && array_key_exists($data['timezone'], $countries)){
 		$_SESSION['country']=$data['timezone'];
 	}
@@ -162,6 +178,9 @@ function parseSessionData($data){
 
 function parseLinkData($data){
 	global $db_time_format;
+	if (isSpam($data)){
+		return false;
+	}
 	if (empty($data['aid'])){
 		warn('no appointment given');
 		return false;
@@ -184,6 +203,9 @@ function parseLinkData($data){
 
 function parseAttachmentData($data){
 	global $db_time_format;
+	if (isSpam($data)){
+		return false;
+	}
 	if (empty($data['aid'])){
 		warn('no appointment given');
 		return false;
