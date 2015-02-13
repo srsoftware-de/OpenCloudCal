@@ -94,12 +94,18 @@ function parseDateTime($array){
 
 function parseAppointmentData($data){
 	global $db_time_format,$countries;
+	if (!empty($data['email'])){
+		return false; // no warning: Spam!
+	}
 	if (isset($data['timezone']) && array_key_exists($data['timezone'], $countries)){
 		$_SESSION['country']=$data['timezone'];
 	}
 	if (empty($data['title'])){
 		warn('no title given');
 		return false;
+	}
+	if (strpos($data['title'],'http') !== false) {
+		return false; // no warning: Spam!
 	}
 	$start=parseDateTime($data['start']);
 	if (!$start){
