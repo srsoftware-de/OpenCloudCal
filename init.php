@@ -8,12 +8,21 @@
   require 'db_functions.php';
   
   session_start();
-  
+
   if (isset($_SESSION) && !isset($_SESSION['country'])){
   	$_SESSION['country']='DE';
   }
   $countries=array(	'DE'  => loc('Germany'),
   									'UTC' => 'UTC');
+
+
+  switch ($_SESSION['country']){
+    case 'DE':
+      date_default_timezone_set('Europe/Berlin');
+      break;
+    default:
+      date_default_timezone_set('UTC');
+  }
   
   function occ_autoload($class_name) {
     $path = OCC_ROOT . "/include/class." . $class_name . ".php";
