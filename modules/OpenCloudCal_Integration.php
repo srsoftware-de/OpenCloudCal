@@ -50,11 +50,12 @@ if (! function_exists('replace_open_cloudcal_tags')){
 		$localtime_settings=array('offset'=>0,'format'=>'Y-m-d H:i:s');
 		
 		$key_parts=explode(':', $occ_key,4);
-		$len=count($key_parts);		
+		$len=count($key_parts);
 		$occ_key=trim($key_parts[1]);
 		$occ_url='http://cal.srsoftware.de/?tag='.$occ_key.'&format=ical';
 		if ($len>2) {
 			$localtime_settings['offset']=(int)$key_parts[2];
+
 		}
 		if ($len>3) {
 			$localtime_settings['format']=str_replace('[space]', ' ', $key_parts[3]);
@@ -79,6 +80,7 @@ if (! function_exists('replace_open_cloudcal_tags')){
 	}
 
 	function replace_open_cloudcal_tags($content){
+		date_default_timezone_set('Europe/Berlin'); // important for determining daylight saving time
 		$opencloudcal_content = $content;
 		$occ_pos=strpos($opencloudcal_content, 'opencloudcal:');
 		while (false !== $occ_pos){
