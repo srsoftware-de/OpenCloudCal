@@ -6,8 +6,10 @@ $selected_tags = array();
 
 if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 	include 'config/autoimport.php';
-	foreach ($importurls as $url){
-		importIcal($url);
+	foreach ($importurls as $item){
+		if (is_array($item)){
+			importIcal($item['url'],$item['tag']);
+		} else importIcal($item);
 	}
 	die();
 } else {
