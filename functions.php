@@ -253,6 +253,10 @@ function readTimezoneMode(&$stack){
 			$mode['name']=substr($line, 7);
 		} else if (startsWith($line,'RRULE:')){
 			$mode['r_rule']=substr($line, 6);
+		} elseif (startsWith($line,'RDATE:')){
+			$timezone['rdate']=substr($line,6);
+		} elseif (startsWith($line,'TZNAME:')){
+			$timezone['name']=substr($line,7);
 		} else if (startsWith($line,'TZOFFSETTO:')){
 			$mode['offset_to']=substr($line, 11);
 		} else if (startsWith($line,'TZOFFSETFROM:')){
