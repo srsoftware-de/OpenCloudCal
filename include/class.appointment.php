@@ -100,11 +100,13 @@
 	  		} elseif (startsWith($line,'SUMMARY:')){
 	  			$summary=str_replace(array('\,','\n'), array(',',"\n"),substr($line,8) . readMultilineFromIcal($stack));
 	  		} elseif (startsWith($line,'CATEGORIES:')){
-	  			$tags=str_replace(array('\,','\n'), array(',',"\n"),substr($line,11) . readMultilineFromIcal($stack));
-	  			$tags=explode(',',$tags);
+	  			$cats=str_replace(array('\,','\n'), array(',',"\n"),substr($line,11) . readMultilineFromIcal($stack));
+	  			$cats=explode(',',$cats);
+				$tags = array_merge($tags,$cats);
 	  		} elseif (startsWith($line,'CATEGORIES;LANGUAGE=de-DE:')){
-	  			$tags=str_replace(array('\,','\n'), array(',',"\n"),substr($line,26) . readMultilineFromIcal($stack));
-	  			$tags=explode(',',$tags);
+	  			$cats=str_replace(array('\,','\n'), array(',',"\n"),substr($line,26) . readMultilineFromIcal($stack));
+	  			$cats=explode(',',$cats);
+				$tags = array_merge($tags,$cats);
 	  		} elseif (startsWith($line,'DESCRIPTION:')){
 	  			$description=$line=str_replace(array('\,','\n'), array(',',"\n"), substr($line,12) . readMultilineFromIcal($stack));
 	  		} elseif (startsWith($line,'CLASS:')){
