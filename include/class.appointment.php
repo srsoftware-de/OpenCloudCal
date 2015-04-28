@@ -76,6 +76,7 @@
 	  		} elseif (startsWith($line,'STATUS:')){
 	  		} elseif (startsWith($line,'RRULE:')){
 	  		} elseif (startsWith($line,'EXDATE')){
+	  		} elseif (startsWith($line,'CONTACT')){
 	  		} elseif (startsWith($line,'ATTENDEE')){
 	  		} elseif (startsWith($line,'TRANSP:')){
 	  		} elseif (startsWith($line,'LAST-MODIFIED:')){
@@ -100,6 +101,9 @@
 	  			$summary=str_replace(array('\,','\n'), array(',',"\n"),substr($line,8) . readMultilineFromIcal($stack));
 	  		} elseif (startsWith($line,'CATEGORIES:')){
 	  			$tags=str_replace(array('\,','\n'), array(',',"\n"),substr($line,11) . readMultilineFromIcal($stack));
+	  			$tags=explode(',',$tags);
+	  		} elseif (startsWith($line,'CATEGORIES;LANGUAGE=de-DE:')){
+	  			$tags=str_replace(array('\,','\n'), array(',',"\n"),substr($line,26) . readMultilineFromIcal($stack));
 	  			$tags=explode(',',$tags);
 	  		} elseif (startsWith($line,'DESCRIPTION:')){
 	  			$description=$line=str_replace(array('\,','\n'), array(',',"\n"), substr($line,12) . readMultilineFromIcal($stack));
