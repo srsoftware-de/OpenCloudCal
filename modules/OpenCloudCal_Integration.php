@@ -3,7 +3,7 @@
  Plugin Name: OpenCloudCal Integration
 Plugin URI: http://cal.srsoftware.de/
 Description: The OpenCloudCal Integration plugin allows to integrate appointments listed in the Open Cloud Calendar by a tag. Just use the text <strong>opencloudcal:keyword</strong> wherever you want.
-Version: 1.0
+Version: 1.03
 Author: Stephan Richter
 Author URI: http://srsoftware.de/
 Update Server: https://github.com/SRSoftware/OpenCloudCal
@@ -50,18 +50,19 @@ if (! function_exists('replace_open_cloudcal_tags')){
 		$localtime_settings=array('offset'=>0,'format'=>'Y-m-d H:i:s');
 		
 		$key_parts=explode(':', $occ_key,4);
-		$len=count($key_parts);		
+		$len=count($key_parts);
 		$occ_key=trim($key_parts[1]);
 		$occ_url='http://cal.srsoftware.de/?tag='.$occ_key.'&format=ical';
 		if ($len>2) {
 			$localtime_settings['offset']=(int)$key_parts[2];
+
 		}
 		if ($len>3) {
 			$localtime_settings['format']=str_replace('[space]', ' ', $key_parts[3]);
 		}
 				
 		$occ_dates=occ_icsToArray($occ_url);
-		$occ_output='<table class="cloudcal"><thead><tr><th class="appointment_date">Datum</th><th class="appointment_title">Ereignis</th><th class="appointment_description">Beschreibung</th></tr></thead><tbody>';
+		$occ_output='<table class="cloudcal"><thead><tr><th class="appointment_date">Datum</th><th class="appointment_title">Ereignis</th><th class="appointment_location">Ort</th><th class="appointment_description">Beschreibung</th></tr></thead><tbody>';
 		
 		foreach ($occ_dates as $occ_date){
 			if (trim($occ_date['BEGIN'])=="VCALENDAR") continue;
@@ -70,15 +71,17 @@ if (! function_exists('replace_open_cloudcal_tags')){
 			$occ_output.='<tr>';
 			$occ_output.='<td class="appointment_date"><nobr>'.$occ_start.'</nobr></td>';
 			$occ_output.='<td class="appointment_title"><a href="'.$occ_date['URL'].'">'.$occ_date['SUMMARY'].'</a></td>';
+			$occ_output.='<td class="appointment_location">'.$occ_date['LOCATION'].'</td>';
 			$occ_output.='<td class="appointment_description">'.str_replace('\n', "<br/>\n", $occ_date['DESCRIPTION']).'</td>';
 			$occ_output.='</tr>';
 		}
 		
-		$occ_output.='</tbody></table><div class="addappointment"><a href="http://cal.srsoftware.de">Neues Ereignis eintragen.</a> Benutze bei OpenCloudCal das Schlüsselwort <strong>'.$occ_key.'</strong>, damit der Termin hier erscheint.</div>';
+		$occ_output.='</tbody></table><div class="addappointment"><a href="http://cal.srsoftware.de/?tag='.$occ_key.'">Neues Ereignis eintragen.</a> Benutze bei OpenCloudCal das Schlüsselwort <strong>'.$occ_key.'</strong>, damit der Termin hier erscheint.</div>';
 		return $occ_output;
 	}
 
 	function replace_open_cloudcal_tags($content){
+		date_default_timezone_set('Europe/Berlin'); // important for determining daylight saving time
 		$opencloudcal_content = $content;
 		$occ_pos=strpos($opencloudcal_content, 'opencloudcal:');
 		while (false !== $occ_pos){

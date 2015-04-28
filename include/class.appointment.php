@@ -647,9 +647,11 @@
     	$result.='SUMMARY:'.$this->title.$nl;
     	if (isset($this->id) && $this->id != null){ 
     		$result.='URL:http://'.$_SERVER['HTTP_HOST'].$_SERVER["PHP_SELF"].'?show='.$this->id.$nl;
-    	}    	
-    	foreach ($this->attachments as $attachment){
-    		$result.='ATTACH;FMTTYPE='.$attachment->description.':'.$attachment->address.$nl;
+    	}   
+	if (isset($this->attachments) && is_array($this->attachments)){
+	    	foreach ($this->attachments as $attachment){
+    			$result.='ATTACH;FMTTYPE='.$attachment->description.':'.$attachment->address.$nl;
+		}
     	}
     	$result.='DTEND:'.str_replace(array('-',' ',':'),array('','T',''),$this->end).'Z'.$nl;
     	$result.='END:VEVENT'.$nl;
