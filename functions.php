@@ -313,7 +313,7 @@ function readMultilineFromIcal(&$stack){
 	}
 }
 
-function importIcal($url,$tag=null){
+function importIcal($url,$tags=null){
 	if (!isset($url) || empty($url)){
 		warn('You must supply an adress to import from!');
 		return;
@@ -347,7 +347,7 @@ function importIcal($url,$tag=null){
 		} else if ($line=='BEGIN:VTIMEZONE') {
 			$timezone=readTimezone($stack);
 		} else if ($line=='BEGIN:VEVENT') {
-			$app=appointment::readFromIcal($stack,$tag,$timezone);
+			$app=appointment::readFromIcal($stack,$tags,$timezone);
 			//die();
 		} else if ($line=='END:VCALENDAR') {
 		} else {
