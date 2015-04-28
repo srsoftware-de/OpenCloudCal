@@ -46,7 +46,7 @@
     	return false;
     }
     
-    public static function readFromIcal(&$stack,$tag=null,$timezone=null){
+    public static function readFromIcal(&$stack,$tags=null,$timezone=null){
     	$start=null;
     	$end=null;
     	$geo=null;
@@ -55,10 +55,12 @@
     	$summary=null;
     	$description=null;
     	$foreignId=null;
-    	$tags=array();
-    	if ($tag!=null){
-    		$tags[]=$tag;
-    	}
+	if ($tags==null){
+	    	$tags=array();
+	}
+	if (!is_array($tags)){
+		$tags=array($tags);
+	}
   		while (!empty($stack)){			
   			$line=array_pop($stack);
 			if (startsWith($line,' ')){
