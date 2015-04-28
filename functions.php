@@ -28,7 +28,7 @@ function endsWith($haystack, $needle){
 /***** end of: very basic functions ******/
 
 /***** time calculations ******/
-function getTimezoneOffzet($timestamp){
+function getTimezoneOffset($timestamp){
 	if (!isset($_SESSION)){
 		return 0;
 	}
@@ -50,7 +50,7 @@ function getTimezoneOffzet($timestamp){
 function clientTime($timestamp){
 	global $db_time_format;
 	$secs=strtotime($timestamp);
-	return date($db_time_format,$secs+getTimezoneOffzet($secs));
+	return date($db_time_format,$secs+getTimezoneOffset($secs));
 }
 /***** end of: time calculations ******/
 
@@ -86,7 +86,7 @@ function parseDateTime($array){
 	if (isset($array['addtime'])){
 		$secs+=(int)$array['addtime'];
 	}
-	$secs-=getTimezoneOffzet($secs);
+	$secs-=getTimezoneOffset($secs);
 	return $secs;
 }
 
@@ -249,6 +249,8 @@ function readTimezoneMode(&$stack){
 		$line=trim(array_pop($stack));
 		if (startsWith($line,'DTSTART:')){
 			$mode['start']=substr($line, 8);
+		} else if (startsWith($line,'TZNAME:')){
+			$mode['name']=substr($line, 7);
 		} else if (startsWith($line,'RRULE:')){
 			$mode['r_rule']=substr($line, 6);
 		} else if (startsWith($line,'TZOFFSETTO:')){
@@ -273,6 +275,8 @@ function readTimezone(&$stack){
 
 		if (startsWith($line,'TZID:')){
 			$timezone['id']=substr($line, 5);
+		} else if (startsWith($line,'X-LIC-LOCATION:')){
+			$timezone['x-lic-location']=substr($line,15);
 		} elseif ($line=='BEGIN:DAYLIGHT'){
 			if (!isset($timezone['modes'])){
 				$timezone['modes']=array();

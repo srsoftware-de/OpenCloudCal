@@ -59,17 +59,32 @@
     	if ($tag!=null){
     		$tags[]=$tag;
     	}
-  		while (!empty($stack)){
-  			$line=trim(array_pop($stack));
-  		
-  			if (startsWith($line,'UID:')){
+  		while (!empty($stack)){			
+  			$line=array_pop($stack);
+			if (startsWith($line,' ')){
+				continue;
+			}
+  			$line=trim($line);
+			if (startsWith($line,'UID:')){
   				$foreignId=substr($line,4);
 	  		} elseif (startsWith($line,'DTSTART:')){
   				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
+	  		} elseif (startsWith($line,'DTSTART;TZID=Europe/Berlin:')){
+  				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 27),$timezone);
+	  		} elseif (startsWith($line,'CREATED:')){
+	  		} elseif (startsWith($line,'SEQUENCE:')){
+	  		} elseif (startsWith($line,'STATUS:')){
+	  		} elseif (startsWith($line,'RRULE:')){
+	  		} elseif (startsWith($line,'EXDATE')){
+	  		} elseif (startsWith($line,'ATTENDEE')){
+	  		} elseif (startsWith($line,'TRANSP:')){
+	  		} elseif (startsWith($line,'LAST-MODIFIED:')){
 	  		} elseif (startsWith($line,'DTSTART;VALUE=DATE:')){
   				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 19).'T000000',$timezone);
 	  		} elseif (startsWith($line,'DTEND:')){
   				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 6), $timezone);
+	  		} elseif (startsWith($line,'DTEND;TZID=Europe/Berlin:')){
+  				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 25), $timezone);
 	  		} elseif (startsWith($line,'DTEND;VALUE=DATE:')){
   				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 17).'T235959',$timezone);
 	  		} elseif (startsWith($line,'GEO:')){
@@ -111,12 +126,23 @@
   	}
   	
   	static function convertRFC2445DateTimeToUTCtimestamp($datetime,$timezone=null){
+		global $db_time_format;
   		if (substr($datetime,-1)=='Z'){
   			$timezone='UTC';
   		}
   		$dummy=substr($datetime, 0,4).'-'.substr($datetime, 4,2).'-'.substr($datetime, 6,2).' '.	substr($datetime, 9,2).':'.substr($datetime, 11,2).':'.substr($datetime, 13,2);
 			if ($timezone != null && $timezone != 'UTC'){
-				warn(str_replace('%tz', $timezone, loc('Handling of timezone "%tz" currently not implemented!')));
+				if ($timezone['id']=='Europe/Berlin'){
+					$_SESSION['country']='DE';
+					$secs=strtotime($dummy);						
+					$dummy=date($db_time_format,$secs-getTimezoneOffset($secs));
+					
+				} else {
+					print_r($timezone);
+					print $datetime;
+					die();
+					warn(str_replace('%tz', $timezone, loc('Handling of timezone "%tz" currently not implemented!')));
+				}
 			}
   		return $dummy;
   	}
