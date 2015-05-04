@@ -47,7 +47,11 @@ if ($format=='ical') {
 	  </td>
     <td class="tags"><?php echo $app->tagLinks(); ?></td>
 	  <td class="edit">
-      <form action="." method="POST">
+        <form action="." method="POST">
+        <div class="email">	
+	<?php echo loc('email - bots only'); ?>
+	<input type="text" name="email" />
+	</div>
         <button name="clone" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('clone'); ?></button>
         <button name="edit" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('edit'); ?></button>
         <button name="delete" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('delete'); ?></button>

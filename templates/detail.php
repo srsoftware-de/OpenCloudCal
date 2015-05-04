@@ -101,6 +101,10 @@
 
 <form class="detailactions" action="." method="POST">
   <h3><?php echo loc('Actions');?></h3>
+  <div class="email">
+    <?php echo loc('email - bots only'); ?>
+    <input type="text" name="email" />
+  </div>
   <button type="submit"><?php echo loc('Back to overview'); ?></button>
   <button type="submit" name="edit" value="<?php echo $appointment->id; ?>"><?php echo loc('edit'); ?></button>
   <button type="submit" name="clone" value="<?php echo $appointment->id; ?>"><?php echo loc('clone'); ?></button>
