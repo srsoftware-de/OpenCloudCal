@@ -136,6 +136,7 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	include 'templates/detail.php';
 	
 } else if (isset($_POST['clone'])) {
+	if (isSpam($_POST)) die;
 	$app_id=$_POST['clone'];
 	$appointment=appointment::load($app_id);
 	unset($appointment->id);
@@ -153,6 +154,7 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	include 'templates/overview.php';
 
 } else if (isset($_POST['edit'])) {
+	if (isSpam($_POST)) die;
 	$app_id=$_POST['edit'];
 	$appointment=appointment::load($app_id);
 	include 'templates/editdateform.php';
@@ -167,6 +169,7 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	include 'templates/overview.php';
 	
 } else if (isset($_POST['delete'])){
+	if (isSpam($_POST)) die;
 	$app_id=$_POST['delete'];
 	if (isset($_POST['confirm'])){
 		if ($_POST['confirm']=='yes'){
