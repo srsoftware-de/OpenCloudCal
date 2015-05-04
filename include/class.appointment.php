@@ -11,11 +11,12 @@
     
     public static function create($title,$description,$start, $end,$location,$coords,$save=true){
       $instance=new self();
-    	$instance->title=$title;
-    	$instance->description=$description;
-    	$instance->start=$start;
-    	$instance->end=$end;
+      $instance->title=$title;
+      $instance->description=$description;
+      $instance->start=$start;
+      $instance->end=$end;
       $instance->location=$location;
+      $instance->imported=false;
       
       $c=explode(',',str_replace(' ', '', str_replace(';', ',', $coords)));
       if (count($c)==2){
@@ -55,12 +56,12 @@
     	$summary=null;
     	$description=null;
     	$foreignId=null;
-	if ($tags==null){
+		if ($tags==null){
 	    	$tags=array();
-	}
-	if (!is_array($tags)){
-		$tags=array($tags);
-	}
+		}
+		if (!is_array($tags)){
+			$tags=array($tags);
+		}
   		while (!empty($stack)){			
   			$line=array_pop($stack);
 			if (startsWith($line,' ')){
@@ -192,10 +193,13 @@
     public static function load($id){
     	global $db;
     	$instance=new self();    	 
-    	$sql="SELECT * FROM appointments WHERE aid=$id";
+    	$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) WHERE appointments.aid=$id";
     	foreach ($db->query($sql) as $row){
     		$instance=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false);
     		$instance->id=$id;
+    		if ($row['md5hash']!=null) {
+    			$instance->imported=true;
+    		}    		
     		$instance->loadRelated();
     		return $instance;
     	}    	 
@@ -405,7 +409,7 @@
     	}
     	return false;
     }
-
+    
     /******* TAGS ****************/
     
     function getTags(){
@@ -559,7 +563,7 @@
 				if (!is_array($tags)){
 					$tags=array($tags);
 				}
-				$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE keyword IN (?) ORDER BY start";
+				$sql="SELECT * FROM imported_appointments RIGHT JOIN (appointments NATURAL JOIN appointment_tags NATURAL JOIN tags) ON (appointments.aid=imported_appointments.aid) WHERE keyword IN (?) ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}
@@ -567,7 +571,7 @@
     		$stm->bindValue(':tags', reset($tags));
 				
       } else {
-      	$sql="SELECT * FROM appointments ORDER BY start";
+      	$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}    		
@@ -579,8 +583,11 @@
       $stm->execute();
       $results=$stm->fetchAll();
       foreach ($results as $row){
-      	$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
+      	$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);      	
       	$appointment->id=$row['aid'];
+      	if ($row['md5hash']!=null) {
+      		$appointment->imported=true;
+      	}      	 
       	$appointment->loadRelated();      	 
         $appointments[$appointment->id]=$appointment;
       }
@@ -598,14 +605,14 @@
     		if (!is_array($tags)){
     			$tags=array($tags);
     		}
-    		$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE end>'$yesterday' AND keyword IN (:tags) ORDER BY start";
+    		$sql="SELECT * FROM imported_appointments RIGHT JOIN (appointments NATURAL JOIN appointment_tags NATURAL JOIN tags) ON (appointments.aid=imported_appointments.aid) WHERE end>'$yesterday' AND keyword IN (:tags) ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}
     		$stm=$db->prepare($sql);
     		$stm->bindValue(':tags', reset($tags));
     	} else {
-    		$sql="SELECT * FROM appointments WHERE end>'$yesterday' ORDER BY start";
+    		$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) WHERE end>'$yesterday' ORDER BY start";
     		if ($limit){
     			$sql.=' LIMIT :limit';
     		}    		
@@ -619,7 +626,10 @@
     	foreach ($results as $row){ 		
     		$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
     		$appointment->id=$row['aid'];
-    		$appointment->loadRelated();
+			if ($row['md5hash']!=null) {
+				$appointment->imported=true;
+			}
+			$appointment->loadRelated();
     		$appointments[$appointment->id]=$appointment;
     	}
     	return $appointments;

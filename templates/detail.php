@@ -101,14 +101,16 @@
 
 <form class="detailactions" action="." method="POST">
   <h3><?php echo loc('Actions');?></h3>
+  <button type="submit"><?php echo loc('Back to overview'); ?></button>
+  <?php if (!$appointment->imported) { ?>
   <div class="email">
     <?php echo loc('email - bots only'); ?>
     <input type="text" name="email" />
   </div>
-  <button type="submit"><?php echo loc('Back to overview'); ?></button>
   <button type="submit" name="edit" value="<?php echo $appointment->id; ?>"><?php echo loc('edit'); ?></button>
   <button type="submit" name="clone" value="<?php echo $appointment->id; ?>"><?php echo loc('clone'); ?></button>
   <button type="submit" name="delete" value="<?php echo $appointment->id; ?>"><?php echo loc('delete'); ?></button>
+  <?php } /* end if app->imported*/ ?>
 </form>
 <div id="coordinates">
 	<h3><?php echo loc('Map'); ?></h3>
