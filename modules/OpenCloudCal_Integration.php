@@ -1,12 +1,12 @@
 <?php
 /*
  Plugin Name: OpenCloudCal Integration
-Plugin URI: http://cal.srsoftware.de/
+Plugin URI: http://cal.keawe.de/
 Description: The OpenCloudCal Integration plugin allows to integrate appointments listed in the Open Cloud Calendar by a tag. Just use the text <strong>opencloudcal:keyword</strong> wherever you want.
 Version: 1.03
 Author: Stephan Richter
-Author URI: http://srsoftware.de/
-Update Server: https://github.com/SRSoftware/OpenCloudCal
+Author URI: http://keawe.de/
+Update Server: https://github.com/keawe-software/OpenCloudCal
 Min WP Version: 1.5
 Max WP Version: 2.0.4
 */
@@ -52,7 +52,7 @@ if (! function_exists('replace_open_cloudcal_tags')){
 		$key_parts=explode(':', $occ_key,4);
 		$len=count($key_parts);
 		$occ_key=trim($key_parts[1]);
-		$occ_url='http://cal.srsoftware.de/?tag='.$occ_key.'&format=ical';
+		$occ_url='http://cal.keawe.de/?tag='.$occ_key.'&format=ical';
 		if ($len>2) {
 			$localtime_settings['offset']=(int)$key_parts[2];
 
