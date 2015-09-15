@@ -64,7 +64,7 @@ function parse_tags($text){
 
 function parse_event($page){
 	$result=array();
-	$links=array($page);
+	$links=array($page => 'Veranstaltungsseite');
 	$imgs=array();
 	
 	$xml = new DOMDocument();
@@ -73,12 +73,20 @@ function parse_event($page){
 	
 	
 	/** Rosenkeller **/
-	$divs=$xml->getElementsByTagName('div');
+	$divs=$xml->getElementsByTagName('div');	
 	foreach ($divs as $div){
 		foreach ($div->attributes as $attr){
-			if ($attr->name == 'class' && $attr->value=='description'){
-				$result['text']=$div->firstChild->nodeValue;
+			if ($attr->name == 'class' && $attr->value=='event-description'){
+				$text=trim($div->childNodes->item(0)->nodeValue);
+				if (strlen($text)<10){
+					$text=trim($div->childNodes->item(1)->nodeValue);
+				}
+				$result['text']=$text;
+				break;
 			}
+		}
+		if (isset($result['text'])){
+			break;
 		}
 	}
 	
