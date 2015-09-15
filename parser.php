@@ -119,16 +119,32 @@ function parse_event($page){
 			$imgs[]=$src;
 		}
 	}
+	$lis=$xml->getElementsByTagName('li');
+	foreach ($lis as $li){
+		foreach ($li->attributes as $attr){
+			if ($attr->name == 'class' && strpos($attr->value,'active')!==false){
+				$result['title']=trim($li->nodeValue);
+				break;				
+			}
+		}
+	}
+	/** Rosenkeller **/
+	/** Wagner **/
+	if (!isset($result['date'])){
+		$paragraphs=$xml->getElementsByTagName('p');
+		foreach ($paragraphs as $paragraph){
+			print $paragraph->getAttribute('class')."\n";
+		}
+	}
+	/** Wagner **/
+
 	if (count($links)>0){
 		$result['links']=$links;
 	}
 	if (count($imgs)>0){
 		$result['images']=$imgs;
 	}
-	/** Rosenkeller **/
-	/** Wagner **/
 	
-	/** Wagner **/
 	return $result;
 }
 
