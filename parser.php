@@ -1,6 +1,9 @@
 <?php
 
-$sites = array("https://rosenkeller.org/index.html","http://www.wagnerverein-jena.de/");
+$sites = array();
+
+//$sites[]="https://rosenkeller.org/index.html";
+$sites[]="http://www.wagnerverein-jena.de/";
 
 function find_program_page($site){
 	$xml = new DOMDocument();
@@ -130,7 +133,7 @@ function parse_event($page){
 	}
 	/** Rosenkeller **/
 	/** Wagner **/
-	if (!isset($result['date'])){
+	if (!isset($result['title'])){
 		$paragraphs=$xml->getElementsByTagName('p');
 		foreach ($paragraphs as $paragraph){
 			print $paragraph->getAttribute('class')."\n";
