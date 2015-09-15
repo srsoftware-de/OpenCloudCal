@@ -2,7 +2,7 @@
 
 $sites = array();
 
-//$sites[]="https://rosenkeller.org/index.html";
+$sites[]="https://rosenkeller.org/index.html";
 $sites[]="http://www.wagnerverein-jena.de/";
 
 function find_program_page($site){
@@ -73,6 +73,15 @@ function parse_event($page){
 	
 	
 	/** Rosenkeller **/
+	$divs=$xml->getElementsByTagName('div');
+	foreach ($divs as $div){
+		foreach ($div->attributes as $attr){
+			if ($attr->name == 'class' && $attr->value=='description'){
+				$result['text']=$div->firstChild->nodeValue;
+			}
+		}
+	}
+	
 	$data=$xml->getElementsByTagName('i');
 	foreach ($data as $info){
 		if ($info->attributes){
