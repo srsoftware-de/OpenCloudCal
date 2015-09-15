@@ -47,33 +47,79 @@ function parse_date($text){
 	return $text;
 }
 
+function parse_tags($text){
+	$dummy=explode(' ', $text);
+	$result=array();
+	foreach ($dummy as $tag){
+		$tag=trim($tag);
+		if (strlen($tag)>2){
+			$result[]=$tag;
+		}
+	}
+	return $result;
+}
+
 function parse_event($page){
-	print $page."\n";
 	$xml = new DOMDocument();
 	@$xml->loadHTMLFile($page);
+	print $page."\n";
+	/** Rosenkeller **/
 	$data=$xml->getElementsByTagName('i');
 	$result=array();	
-	if ($data->length>0){
-		$info=$data->item(0);		
-		while (true){
-			if ($info->attributes){
-				foreach ($info->attributes as $attr){
-					if ($attr->name == 'class' && strpos($attr->value, 'fa-calendar') !== false){
+	$result['links']=array();
+	$result['images']=array();
+	foreach ($data as $info){
+		if ($info->attributes){
+			foreach ($info->attributes as $attr){
+				if ($attr->name == 'class'){
+					if (strpos($attr->value, 'fa-calendar') !== false){
 						$result['date']=parse_date($info->nextSibling->wholeText);
 						break;
-					} else {
-						print_r($attr);
 					}
+					if (strpos($attr->value, 'fa-building') !==false){
+						$result['place']=$info->nextSibling->wholeText;
+						break;
+					}
+					if (strpos($attr->value, 'fa-music') !==false){
+						$result['tags']=parse_tags($info->nextSibling->wholeText);
+						break;
+					}
+					if (strpos($attr->value, 'fa-money') !==false){
+						break;
+					}
+					if (strpos($attr->value, 'fa-globe') !==false){
+						$link=$info->nextSibling;
+						if (!isset($link->tagName)){ // link separated by text: skip to link
+							$link=$link->nextSibling;
+						}
+						if (!isset($link->tagName) || $link->tagName != 'a'){ // still no link found: give up
+							break;
+						}
+						$href=trim($link->getAttribute('href'));
+						$tx=trim($link->nodeValue);
+						$result['links'][$href]=$tx;
+						break;
+					}						
 				}
-			}
-			if ($info->nextSibling){
-				$info=$info->nextSibling;
-			} else {
-				break;
+				print_r($attr);
+				die();				
 			}
 		}
 	}
-	die();
+	$images=$xml->getElementsByTagName('img');
+	foreach ($images as $image){
+		if ($image->hasAttribute('pagespeed_high_res_src')){
+			$src=$image->getAttribute('pagespeed_high_res_src');
+			if (stripos($src, '://')===false){
+				$src=dirname($page).'/'.$src;
+			}
+			$result['images'][]=$src;
+		}
+	}
+	/** Rosenkeller **/
+	/** Wagner **/
+	
+	/** Wagner **/
 	return $result;
 }
 
@@ -87,6 +133,7 @@ foreach ($sites as $site){
 	$events = array();
 	foreach ($event_pages as $event_page){
 		$event=parse_event($event_page);
+		print_r($event);
 		//store_event($event);
 	}
 }
