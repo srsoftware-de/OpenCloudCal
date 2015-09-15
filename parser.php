@@ -60,14 +60,17 @@ function parse_tags($text){
 }
 
 function parse_event($page){
+	$result=array();
+	$links=array();
+	$imgs=array();
+	
 	$xml = new DOMDocument();
 	@$xml->loadHTMLFile($page);
 	print $page."\n";
+	
+	
 	/** Rosenkeller **/
 	$data=$xml->getElementsByTagName('i');
-	$result=array();	
-	$result['links']=array();
-	$result['images']=array();
 	foreach ($data as $info){
 		if ($info->attributes){
 			foreach ($info->attributes as $attr){
@@ -97,7 +100,7 @@ function parse_event($page){
 						}
 						$href=trim($link->getAttribute('href'));
 						$tx=trim($link->nodeValue);
-						$result['links'][$href]=$tx;
+						$links[$href]=$tx;
 						break;
 					}						
 				}
@@ -113,8 +116,14 @@ function parse_event($page){
 			if (stripos($src, '://')===false){
 				$src=dirname($page).'/'.$src;
 			}
-			$result['images'][]=$src;
+			$imgs[]=$src;
 		}
+	}
+	if (count($links)>0){
+		$result['links']=$links;
+	}
+	if (count($imgs)>0){
+		$result['images']=$imgs;
 	}
 	/** Rosenkeller **/
 	/** Wagner **/
