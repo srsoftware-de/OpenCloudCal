@@ -64,7 +64,7 @@ function parse_tags($text){
 
 function parse_event($page){
 	$result=array();
-	$links=array();
+	$links=array($page);
 	$imgs=array();
 	
 	$xml = new DOMDocument();
@@ -133,17 +133,44 @@ function parse_event($page){
 	}
 	/** Rosenkeller **/
 	/** Wagner **/
-	if (!isset($result['title'])){
+	if (!isset($result['date'])){
+		$headings=$xml->getElementsByTagName('h1');
+		foreach ($headings as $heading){
+			$result['title']=$heading->nodeValue;
+			break;
+		}	
+		
+		
 		$paragraphs=$xml->getElementsByTagName('p');
+		$die=false;
 		foreach ($paragraphs as $paragraph){
-			print $paragraph->getAttribute('class')."\n";
-		}
+			$text=trim($paragraph->nodeValue);
+			if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
+				$result['date']=parse_date($text);
+				continue;
+			}
+			$pos=strpos($text,'Kategorie');
+			if ($pos!==false){
+				$result['tags']=parse_tags(substr($text, $pos+8));
+				continue;
+			}
+			if (strpos($text,'comment form')!==false){
+				continue;
+			}
+			if (strlen($text)>200){				
+				$result['text']=$text;
+				continue;
+			}
+			print_r($result);
+			print "\n";
+			print_r($text);
+			print "\n";
+			die();
+		}		
 	}
 	/** Wagner **/
 
-	if (count($links)>0){
-		$result['links']=$links;
-	}
+	$result['links']=$links;
 	if (count($imgs)>0){
 		$result['images']=$imgs;
 	}
