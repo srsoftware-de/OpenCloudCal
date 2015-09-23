@@ -49,13 +49,16 @@ function extract_date($text){
 }
 
 function extract_time($text){
-	return 1;
+	preg_match('/\d?\d:\d?\d/', $text, $matches);
+	$time=$matches[0];
+	return $time;
 }
 
 function parser_parse_date($text){
 	$date=extract_date($text);
-	print_r(date_parse($date));
-	$time=extract_time($text);	
+	$time=extract_time($text);
+	print_r(date_parse($date.' '.$time));
+	
 	return 0;
 }
 
