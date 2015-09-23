@@ -44,7 +44,8 @@ function find_event_pages($page){
 
 function extract_date($text){
 	preg_match('/\d?\d\.\d?\d\.\d\d\d\d/', $text, $matches);
-	return reset($matches);
+	$date=$matches[0];
+	return $date;
 }
 
 function extract_time($text){
