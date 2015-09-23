@@ -79,7 +79,7 @@ function parse_event($page){
 	global $db_time_format;
 	$result=array();
 	$links=array();
-	$links[]=url::create(null, $page,loc('Origin'));
+	$links[]=url::create(null, $page,loc('Event page'));
 	$imgs=array();
 	
 	$xml = new DOMDocument();
@@ -236,11 +236,10 @@ function parserImport($site,$tags=null,$coords=null){
 		}
 		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], $coords);
 		if (isset($tags) && $tags!=null){
-			$tags=array_merge($tags,$event_data['tags']);
-		} else {
-			$tags=$event_data['tags'];
+			$event_data['tags']=array_merge($tags,$event_data['tags']);
 		}
-		$appointment->safeIfNotAlreadyImported($tags,$event_data['links']);
+		$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
+		print $event_page."<br/>\n";
 	}
 }
 
