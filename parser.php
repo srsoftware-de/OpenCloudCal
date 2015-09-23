@@ -83,9 +83,7 @@ function parse_event($page){
 	$imgs=array();
 	
 	$xml = new DOMDocument();
-	@$xml->loadHTMLFile($page);
-	print $page."\n";
-	
+	@$xml->loadHTMLFile($page);	
 	
 	/** Rosenkeller **/
 	$divs=$xml->getElementsByTagName('div');	
@@ -220,13 +218,11 @@ function parse_event($page){
 }
 
 function parserImport($site,$tags=null,$coords=null){
-	print "<pre>\n";
 	if (!isset($site) || empty($site)){
 		warn('You must supply an adress to import from!');
 		return;
 	}
 	$program_page=find_program_page($site);
-	print $program_page."\n";
 	$event_pages=find_event_pages($program_page);
 	$events = array();
 	foreach ($event_pages as $event_page){
@@ -239,7 +235,6 @@ function parserImport($site,$tags=null,$coords=null){
 		}		
 		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], $event_data['coords'],false);
 		$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
-		print $event_page."<br/>\n";
 	}
 }
 
