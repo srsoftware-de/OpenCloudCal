@@ -253,6 +253,9 @@ function parserImport($site,$tags=null,$coords=null){
 		}		
 		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], $event_data['coords'],false);
 		$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
+		foreach ($event_data['images'] as $src){
+			$appointment->addAttachment($src);
+		}
 	}
 }
 
