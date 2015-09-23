@@ -59,8 +59,8 @@ function parser_parse_date($text){
 	$date=extract_date($text);
 	$time=extract_time($text);
 	$date=date_parse($date.' '.$time);
-    $time=parseDateTime($date);    
-    return date($db_time_format,$time-getTimezoneOffset($time));
+    $secs=parseDateTime($date);    
+    return $secs;
 }
 
 function parse_tags($text){
@@ -110,7 +110,7 @@ function parse_event($page){
 			foreach ($info->attributes as $attr){
 				if ($attr->name == 'class'){
 					if (strpos($attr->value, 'fa-calendar') !== false){
-						$result['date']=parser_parse_date($info->nextSibling->wholeText);
+						$result['start']=parser_parse_date($info->nextSibling->wholeText);
 						break;
 					}
 					if (strpos($attr->value, 'fa-building') !==false){
@@ -202,6 +202,14 @@ function parse_event($page){
 	foreach ($links as $url){
 		$url->save();
 	}
+	
+	$starttime=$result['start'];
+	$result['start']=date($db_time_format,$starttime-getTimezoneOffset($starttime));
+	
+	if (!isset($result['end'])){
+		$endtime=$starttime+2*3600; // 2h later
+		$result['end']=date($db_time_format,$endtime-getTimezoneOffset($endtime));
+	}
 	$result['links']=$links;
 	if (count($imgs)>0){
 		$result['images']=$imgs;
@@ -223,7 +231,7 @@ function parserImport($site,$tags=null){
 	$events = array();
 	foreach ($event_pages as $event_page){
 		$event_data=parse_event($event_page);
-		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['date'], null, $event_data['place'], null);
+		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], null);
 		print_r($event_data);
 		$appointment->safeIfNotAlreadyImported($tags,$event_data['links']);
 		print_r($appointment);
