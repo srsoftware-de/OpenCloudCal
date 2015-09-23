@@ -109,7 +109,7 @@ function parse_event($page){
 			foreach ($info->attributes as $attr){
 				if ($attr->name == 'class'){
 					if (strpos($attr->value, 'fa-calendar') !== false){
-						$result['start']=parser_parse_date($info->nextSibling->wholeText)-3600;
+						$result['start']=parser_parse_date($info->nextSibling->wholeText);
 						break;
 					}
 					if (strpos($attr->value, 'fa-building') !==false){
@@ -203,11 +203,11 @@ function parse_event($page){
 	}
 	
 	$starttime=$result['start'];
-	$result['start']=date($db_time_format,$starttime-getTimezoneOffset($starttime));
+	$result['start']=date($db_time_format,$starttime);
 	
 	if (!isset($result['end'])){
 		$endtime=$starttime+2*3600; // 2h later
-		$result['end']=date($db_time_format,$endtime-getTimezoneOffset($endtime));
+		$result['end']=date($db_time_format,$endtime);
 	}
 	$result['links']=$links;
 	if (count($imgs)>0){
