@@ -219,7 +219,7 @@ function parse_event($page){
 	return $result;
 }
 
-function parserImport($site,$tags=null){
+function parserImport($site,$tags=null,$coords=null){
 	print "<pre>\n";
 	if (!isset($site) || empty($site)){
 		warn('You must supply an adress to import from!');
@@ -231,10 +231,17 @@ function parserImport($site,$tags=null){
 	print_r($event_pages);
 	$events = array();
 	foreach ($event_pages as $event_page){
-		$event_data=parse_event($event_page);
-		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], null);
+		$event_data=parse_event($event_page);		
+		if (isset($event_data['coords'])){
+			$coords=$event_data['coords'];
+		}
+		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], $coords);
 		print_r($event_data);
-		$tags=array_merge($tags,$event_data['tags']);
+		if (isset($tags) && $tags!=null){
+			$tags=array_merge($tags,$event_data['tags']);
+		} else {
+			$tags=$event_data['tags'];
+		}
 		$appointment->safeIfNotAlreadyImported($tags,$event_data['links']);
 		print_r($appointment);
 		die();

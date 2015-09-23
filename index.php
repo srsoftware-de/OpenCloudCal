@@ -8,7 +8,7 @@ if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 	include 'config/autoimport.php';
 	foreach ($parse_import_urls as $item){
 		if (is_array($item)){
-			parserImport($item['url'],$item['tag']);
+			parserImport($item['url'],$item['tag'],$item['coords']);
 		} else parserImport($item);
 	}
 	die();
