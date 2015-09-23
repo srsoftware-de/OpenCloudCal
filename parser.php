@@ -267,6 +267,7 @@ function parserImport($site,$tags=null,$coords=null){
 				$attach=array();
 				$attach['aid']=$appointment->id;
 				$attach['url']=$src;
+				print_r($attach);
 				$attach=parseAttachmentData($attach);
 				if ($attach){
 					print "Attachment:\n";
