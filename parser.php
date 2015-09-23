@@ -194,10 +194,12 @@ function parse_event($page){
 			if (strpos($text,'comment form')!==false){
 				continue;
 			}
-			$links=$paragraph->getElementsByTagName('a');
-			foreach ($links as $link){
+			$hrefs=$paragraph->getElementsByTagName('a');
+			foreach ($hrefs as $link){
 				$href=trim($link->getAttribute('href'));
+				print_r($href);
 				$tx=trim($link->nodeValue);
+				print_r($tx);
 				$links[]=url::create(null, $href,$tx);
 				
 			}
