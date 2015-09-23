@@ -486,7 +486,7 @@
       global $db;
       if ($url instanceof url){
         $stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-				$stm->execute(array(':uid' => $url->id,':aid' => $url->aid,':description'=>$url->description));
+				$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':description'=>$url->description));
         $this->urls[$url->id]=$url;
       } else {
         $url=url::create($this->id, $url ,'Homepage');
