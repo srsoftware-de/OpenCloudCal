@@ -54,7 +54,7 @@ function extract_time($text){
 
 function parser_parse_date($text){
 	$date=extract_date($text);
-	print_r(parse_date($date));
+	print_r(date_parse($date));
 	$time=extract_time($text);	
 	return 0;
 }
