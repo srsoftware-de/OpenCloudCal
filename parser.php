@@ -57,7 +57,9 @@ function extract_date($text){
 
 function extract_time($text){
 	preg_match('/\d?\d:\d?\d/', $text, $matches);
-	$time=$matches[0];
+	if (count($time)>0){
+		$time=$matches[0];
+	}
 	return $time;
 }
 
@@ -195,7 +197,8 @@ function parse_event($page){
 			}
 			$result['text'].="\n".$text;				
 		}
-		if (isset($result['text'])){
+		if (isset($result['start'])){
+			
 			print "<pre>";
 			print_r($result);	
 			die();			
