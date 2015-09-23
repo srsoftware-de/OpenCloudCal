@@ -188,7 +188,7 @@
     		$values=array($this->title,$results[0]['aid']);
     		warn(str_replace($keys, $values, loc('"%title" already present (<a href="?show=%id">link</a>)!')));    		
     	}    		 
-		}
+	}
     
     public static function load($id){
     	global $db;

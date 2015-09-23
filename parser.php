@@ -197,6 +197,9 @@ function parse_event($page){
 	}
 	/** Wagner **/
 
+	foreach ($links as $url){
+		$url->save();
+	}
 	$result['links']=$links;
 	if (count($imgs)>0){
 		$result['images']=$imgs;
