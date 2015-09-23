@@ -237,7 +237,7 @@ function parserImport($site,$tags=null,$coords=null){
 		if (isset($tags) && $tags!=null){
 			$event_data['tags']=array_merge($event_data['tags'],$tags);
 		}		
-		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], $event_data['coords']);
+		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], $event_data['coords'],false);
 		$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
 		print $event_page."<br/>\n";
 	}
