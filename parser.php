@@ -174,7 +174,7 @@ function parse_event($page){
 		foreach ($paragraphs as $paragraph){
 			$text=trim($paragraph->nodeValue);
 			if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
-				$result['start']=parser_parse_date($text);
+				$result['start']=$text;//parser_parse_date($text);
 				continue;
 			}
 			$pos=strpos($text,'Kategorie');
@@ -185,7 +185,7 @@ function parse_event($page){
 			if (strpos($text,'comment form')!==false){
 				continue;
 			}
-			$result['text'].=$text;
+			$result['text'].="\n".$text;
 		}
 		print "<pre>";
 		print_r($result);
