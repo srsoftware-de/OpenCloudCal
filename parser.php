@@ -109,7 +109,7 @@ function parse_event($page){
 			foreach ($info->attributes as $attr){
 				if ($attr->name == 'class'){
 					if (strpos($attr->value, 'fa-calendar') !== false){
-						$result['start']=parser_parse_date($info->nextSibling->wholeText);
+						$result['start']=parser_parse_date($info->nextSibling->wholeText)-3600;
 						break;
 					}
 					if (strpos($attr->value, 'fa-building') !==false){

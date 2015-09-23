@@ -7,5 +7,5 @@
   		);
   $parse_import_urls=array(
   		array('url'=>'https://rosenkeller.org/index.html','tag' => array('Rosenkeller','Jena'),'coords'=>'50.929463, 11.584644'),
-  		array('url'=>'http://www.wagnerverein-jena.de/','tag'=>array('CafeWagner','Jena'))
+  		//array('url'=>'http://www.wagnerverein-jena.de/','tag'=>array('CafeWagner','Jena'))
   		);
