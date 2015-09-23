@@ -215,6 +215,11 @@ function parse_event($page){
 	}
 	/** Wagner **/
 
+	if (!isset($result['start'])){
+		return false;
+	}
+	
+	
 	foreach ($links as $url){
 		$url->save();
 	}
@@ -245,7 +250,10 @@ function parserImport($site,$tags=null,$coords=null){
 	$event_pages=find_event_pages($program_page);
 	$events = array();
 	foreach ($event_pages as $event_page){
-		$event_data=parse_event($event_page);		
+		$event_data=parse_event($event_page);
+		if ($event_data === false){
+			continue;
+		}		
 		if (!isset($event_data['coords'])){
 			$event_data['coords']=$coords;
 		}
