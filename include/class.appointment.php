@@ -515,16 +515,16 @@
     /******** Attachments *****/
     
     /* adds an attachment to the appointment */
-    function addAttachment($url){
+    function addAttachment($attachment){
     	global $db;
-    	if ($url instanceof url){
+    	if ($attachment instanceof url){
     		$stm=$db->prepare("INSERT INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-    		$stm->execute(array(':uid' => $url->id,':aid' => $url->aid,':mime'=>$url->description));
-    		$this->urls[$url->id]=$url;
+    		$stm->execute(array(':uid' => $attachment->id,':aid' => $this->id,':mime'=>$attachment->description));
+    		$this->urls[$attachment->id]=$url;
     	} else {
-    		$url=url::create($this->id, $url ,'Attachment');
-    		$url->save();
-    		$this->addUrl($url);
+    		$attachment=url::create($this->id, $attachment ,'Attachment');
+    		$attachment->save();
+    		$this->addUrl($attachment);
     	}
     }
     
