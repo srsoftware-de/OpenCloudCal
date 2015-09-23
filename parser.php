@@ -47,7 +47,7 @@ function extract_date($text){
 	if (count($matches)>0){
 		$date=$matches[0];
 	} else {
-		preg_match('/\d?\d\.\d?\d\.', $text, $matches);
+		preg_match('/\d?\d\.\d?\d\./', $text, $matches);
 		if (count($matches)>0){
 			$date=$matches[0].date("Y");
 		}
