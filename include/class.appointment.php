@@ -9,11 +9,15 @@
 			$sessions=array();    	
     }
     
+    /* start and end are expected to be UTC timestamps in the form YYYY-MM-DD hh:mm:ss */
     public static function create($title,$description,$start, $end,$location,$coords,$save=true){
       $instance=new self();
       $instance->title=$title;
       $instance->description=$description;
       $instance->start=$start;
+      if ($end==null){
+      	$end=$start;
+      }
       $instance->end=$end;
       $instance->location=$location;
       $instance->imported=false;
@@ -159,8 +163,8 @@
   	public function safeIfNotAlreadyImported($tags=null,$urls=null){
   		global $db;
   		if ($tags!=null && !empty($tags)){
-  			if (in_array('OpenCloudCal', $tags)) return;
-  			if (in_array('opencloudcal', $tags)) return;
+  			if (in_array('OpenCloudCal', $tags)) return false;
+  			if (in_array('opencloudcal', $tags)) return false;
   		}
   		$md5=md5($this->toVEvent(),TRUE);
   		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
@@ -183,12 +187,14 @@
     		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
     		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
     		$stm->execute(array(':aid'=>$this->id,':hash'=>$md5));
+    		return true;
     	} else {
     		$keys=array('%title','%id');
     		$values=array($this->title,$results[0]['aid']);
-    		warn(str_replace($keys, $values, loc('"%title" already present (<a href="?show=%id">link</a>)!')));    		
+    		warn(str_replace($keys, $values, loc('"%title" already present (<a href="?show=%id">link</a>)!')));
+    		return false;    		
     	}    		 
-		}
+	}
     
     public static function load($id){
     	global $db;
@@ -482,7 +488,7 @@
       global $db;
       if ($url instanceof url){
         $stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-				$stm->execute(array(':uid' => $url->id,':aid' => $url->aid,':description'=>$url->description));
+				$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':description'=>$url->description));
         $this->urls[$url->id]=$url;
       } else {
         $url=url::create($this->id, $url ,'Homepage');
@@ -511,16 +517,16 @@
     /******** Attachments *****/
     
     /* adds an attachment to the appointment */
-    function addAttachment($url){
+    function addAttachment($attachment){
     	global $db;
-    	if ($url instanceof url){
+    	if ($attachment instanceof url){
     		$stm=$db->prepare("INSERT INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-    		$stm->execute(array(':uid' => $url->id,':aid' => $url->aid,':mime'=>$url->description));
-    		$this->urls[$url->id]=$url;
+    		$stm->execute(array(':uid' => $attachment->id,':aid' => $this->id,':mime'=>$attachment->description));
+    		$this->urls[$attachment->id]=$url;
     	} else {
-    		$url=url::create($this->id, $url ,'Attachment');
-    		$url->save();
-    		$this->addUrl($url);
+    		$attachment=url::create($this->id, $attachment ,'Attachment');
+    		$attachment->save();
+    		$this->addUrl($attachment);
     	}
     }
     

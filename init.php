@@ -5,6 +5,7 @@
   require 'config/db.php';
   require 'locale/de.php';
   require 'functions.php';
+  require 'parser.php';
   require 'db_functions.php';
   
   session_start();
