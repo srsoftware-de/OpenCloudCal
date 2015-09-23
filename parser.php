@@ -60,7 +60,7 @@ function parser_parse_date($text){
 	$date=date_parse($date.' '.$time);
     $time= parseDateTime($date);
     $dummy=date($db_time_format,$time-getTimezoneOffset($time));
-    return dummy;
+    return $dummy;
 }
 
 function parse_tags($text){
