@@ -231,13 +231,13 @@ function parserImport($site,$tags=null,$coords=null){
 	$events = array();
 	foreach ($event_pages as $event_page){
 		$event_data=parse_event($event_page);		
-		if (isset($event_data['coords'])){
-			$coords=$event_data['coords'];
+		if (!isset($event_data['coords'])){
+			$event_data['coords']=$coords;
 		}
-		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], $coords);
 		if (isset($tags) && $tags!=null){
-			$event_data['tags']=array_merge($tags,$event_data['tags']);
-		}
+			$event_data['tags']=array_merge($event_data['tags'],$tags);
+		}		
+		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], $event_data['coords']);
 		$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
 		print $event_page."<br/>\n";
 	}
