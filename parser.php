@@ -64,6 +64,7 @@ function extract_time($text){
 function parser_parse_date($text){
 	global $db_time_format;
 	$date=extract_date($text);
+	print $date;
 	$time=extract_time($text);
 	$date=date_parse($date.' '.$time);
     $secs=parseDateTime($date);    
@@ -192,10 +193,12 @@ function parse_event($page){
 			if (strpos($text,'comment form')!==false){
 				continue;
 			}
-			$result['text'].="\n".$text;
+			$result['text'].="\n".$text;				
 		}
-		print "<pre>";
-		print_r($result);
+		if (isset($result['text'])){
+			print "<pre>";
+			print_r($result);				
+		}
 	}
 	/** Wagner **/
 
