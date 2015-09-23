@@ -220,13 +220,10 @@ function parse_event($page){
 	$result['links']=$links;
 	if (count($imgs)>0){
 		$result['images']=$imgs;
-	}
-	if (isset($result['text'])){
-			
-		print "<pre>";
-		print_r($result);
-		die();
-	}
+	}			
+	print "<pre>";
+	print_r($result);
+	die();
 	
 	return $result;
 }
