@@ -192,13 +192,15 @@ function parse_event($page){
 }
 
 function parserImport($site,$tags=null){
+	print "<pre>\n";
 	if (!isset($site) || empty($site)){
 		warn('You must supply an adress to import from!');
 		return;
 	}
-
 	$program_page=find_program_page($site);
+	print $program_page."\n";
 	$event_pages=find_event_pages($program_page);
+	print_r($event_pages);
 	$events = array();
 	foreach ($event_pages as $event_page){
 		$event_data=parse_event($event_page);
