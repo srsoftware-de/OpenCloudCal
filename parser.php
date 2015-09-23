@@ -60,7 +60,7 @@ function extract_date($text){
 function extract_time($text){
 	print "extract_time($text)\n";
 	preg_match('/\d?\d:\d?\d/', $text, $matches);
-	if (count($time)>0){
+	if (count($matches)>0){
 		$time=$matches[0];
 		return $time;
 	}
