@@ -132,12 +132,10 @@ function parse_event($page){
 						}
 						$href=trim($link->getAttribute('href'));
 						$tx=trim($link->nodeValue);
-						//$links[]=url::create(null, $href,$tc);
+						$links[]=url::create(null, $href,$tc);
 						break;
 					}						
 				}
-				print_r($attr);
-				die();				
 			}
 		}
 	}
