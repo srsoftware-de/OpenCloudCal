@@ -191,8 +191,8 @@ function parse_event($page){
 	return $result;
 }
 
-function parserImport($url,$tags=null){
-	if (!isset($url) || empty($url)){
+function parserImport($site,$tags=null){
+	if (!isset($site) || empty($site)){
 		warn('You must supply an adress to import from!');
 		return;
 	}
