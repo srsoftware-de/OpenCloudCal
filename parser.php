@@ -185,20 +185,10 @@ function parse_event($page){
 			if (strpos($text,'comment form')!==false){
 				continue;
 			}
-			if (strlen($text)>200){				
-				$result['text']=$text;
-				continue;
-			}
-			print "<pre>";
-			print $page."\n";
-			print_r($result);
-			print "\n";
-			print_r($paragraph);
-			print "\n";
-			print_r($text);
-			print "\n";
-			die();
-		}		
+			$result['text'].=$text;
+		}
+		print "<pre>";
+		print_r($result);		
 	}
 	/** Wagner **/
 
