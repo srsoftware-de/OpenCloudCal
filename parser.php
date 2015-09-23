@@ -1,9 +1,5 @@
 <?php
 
-$sites = array();
-
-$sites[]="https://rosenkeller.org/index.html";
-$sites[]="http://www.wagnerverein-jena.de/";
 
 function find_program_page($site){
 	$xml = new DOMDocument();
@@ -195,20 +191,21 @@ function parse_event($page){
 	return $result;
 }
 
-function store_event($event){
+function parserImport($url,$tags=null){
+	if (!isset($url) || empty($url)){
+		warn('You must supply an adress to import from!');
+		return;
+	}
 
-}
-
-foreach ($sites as $site){
 	$program_page=find_program_page($site);
 	$event_pages=find_event_pages($program_page);
 	$events = array();
 	foreach ($event_pages as $event_page){
-		$event=parse_event($event_page);
+		$event_data=parse_event($event_page);
 		print_r($event);
+		die();
 		//store_event($event);
 	}
 }
-
 
 ?>
