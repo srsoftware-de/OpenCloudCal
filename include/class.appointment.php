@@ -9,6 +9,7 @@
 			$sessions=array();    	
     }
     
+    /* start and end are expected to be UTC timestamps in the form YYYY-MM-DD hh:mm:ss */
     public static function create($title,$description,$start, $end,$location,$coords,$save=true){
       $instance=new self();
       $instance->title=$title;

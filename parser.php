@@ -55,12 +55,12 @@ function extract_time($text){
 }
 
 function parser_parse_date($text){
+	global $db_time_format;
 	$date=extract_date($text);
 	$time=extract_time($text);
 	$date=date_parse($date.' '.$time);
-    $time= parseDateTime($date);
-    $dummy=date($db_time_format,$time-getTimezoneOffset($time));
-    return $dummy;
+    $time=parseDateTime($date);    
+    return date($db_time_format,$time-getTimezoneOffset($time));
 }
 
 function parse_tags($text){
