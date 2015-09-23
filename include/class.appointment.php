@@ -15,6 +15,9 @@
       $instance->title=$title;
       $instance->description=$description;
       $instance->start=$start;
+      if ($end==null){
+      	$end=$start;
+      }
       $instance->end=$end;
       $instance->location=$location;
       $instance->imported=false;
