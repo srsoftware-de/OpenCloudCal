@@ -75,7 +75,8 @@ function parse_tags($text){
 
 function parse_event($page){
 	$result=array();
-	$links=array($page => 'Veranstaltungsseite');
+	$links=array();
+	$links[]=url::create(null, $page,loc('Origin'));
 	$imgs=array();
 	
 	$xml = new DOMDocument();
@@ -131,7 +132,7 @@ function parse_event($page){
 						}
 						$href=trim($link->getAttribute('href'));
 						$tx=trim($link->nodeValue);
-						$links[$href]=$tx;
+						$links[]=url::create(null, $href,$tc);
 						break;
 					}						
 				}
