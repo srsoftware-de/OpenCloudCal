@@ -44,19 +44,18 @@ function find_event_pages($page){
 
 function extract_date($text){
 	preg_match('/\d?\d\.\d?\d\.\d\d\d\d/', $text, $matches);
-	
-	print_r($matches);
-	return 1;
+	return reset($matches);
 }
 
 function extract_time($text){
 	return 1;
 }
 
-function parse_date($text){
+function parser_parse_date($text){
 	$date=extract_date($text);
+	print_r(parse_date($date));
 	$time=extract_time($text);	
-	return $date+$time;
+	return 0;
 }
 
 function parse_tags($text){
@@ -105,7 +104,7 @@ function parse_event($page){
 			foreach ($info->attributes as $attr){
 				if ($attr->name == 'class'){
 					if (strpos($attr->value, 'fa-calendar') !== false){
-						$result['date']=parse_date($info->nextSibling->wholeText);
+						$result['date']=parser_parse_date($info->nextSibling->wholeText);
 						break;
 					}
 					if (strpos($attr->value, 'fa-building') !==false){
@@ -172,7 +171,7 @@ function parse_event($page){
 		foreach ($paragraphs as $paragraph){
 			$text=trim($paragraph->nodeValue);
 			if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
-				$result['date']=parse_date($text);
+				$result['date']=parser_parse_date($text);
 				continue;
 			}
 			$pos=strpos($text,'Kategorie');
