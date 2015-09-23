@@ -92,7 +92,7 @@ function parse_tags($text){
 
 function parse_event($page){
 	global $db_time_format;
-	$result=array();
+	$result=array('place'=>null,'text'=>'');
 	$links=array();
 	$links[]=url::create(null, $page,loc('Event page'));
 	$imgs=array();
