@@ -188,7 +188,8 @@ function parse_event($page){
 			$result['text'].=$text;
 		}
 		print "<pre>";
-		print_r($result);		
+		print_r($result);
+		die();		
 	}
 	/** Wagner **/
 
