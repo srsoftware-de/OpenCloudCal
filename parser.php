@@ -58,6 +58,7 @@ function extract_date($text){
 }
 
 function extract_time($text){
+	print "extract_time($text)\n";
 	preg_match('/\d?\d:\d?\d/', $text, $matches);
 	if (count($time)>0){
 		$time=$matches[0];
@@ -70,8 +71,8 @@ function parser_parse_date($text){
 	global $db_time_format;
 	$date=extract_date($text);
 	$time=extract_time($text);
-	$date=date_parse($date.' '.$time);
 	print "----".$date.' / '.$time."----\n";
+	$date=date_parse($date.' '.$time);
 	$secs=parseDateTime($date);
 	return $secs;
 }
