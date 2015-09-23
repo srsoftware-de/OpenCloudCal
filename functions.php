@@ -318,6 +318,8 @@ function importIcal($url,$tags=null){
 		warn('You must supply an adress to import from!');
 		return;
 	}
+	print "importing events from "+$url."\n";
+	flush();
 	$data=file($url);
 	$len=count($data);
 	if ($len<1){

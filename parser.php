@@ -244,6 +244,8 @@ function parserImport($site,$tags=null,$coords=null){
 	}
 	$program_page=find_program_page($site);
 	$event_pages=find_event_pages($program_page);
+	print "importing events from ".$program_page."\n";
+	flush();
 	$events = array();
 	foreach ($event_pages as $event_page){
 		$event_data=parse_event($event_page);
