@@ -195,6 +195,10 @@ function parse_event($page){
 			if (strpos($text,'comment form')!==false){
 				continue;
 			}
+			$links=$paragraph->getElementsByTagName('a');
+			foreach ($links as $link){
+				print_r($link);
+			}
 			$result['text'].="\n".$text;				
 		}
 		if (isset($result['start'])){
