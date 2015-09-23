@@ -204,7 +204,7 @@ function parserImport($site,$tags=null){
 	$events = array();
 	foreach ($event_pages as $event_page){
 		$event_data=parse_event($event_page);
-		print_r($event);
+		print_r($event_data);
 		die();
 		//store_event($event);
 	}
