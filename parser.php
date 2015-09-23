@@ -219,8 +219,8 @@ function parserImport($site,$tags=null){
 	$events = array();
 	foreach ($event_pages as $event_page){
 		$event_data=parse_event($event_page);
-		//$appointment=appointment::create($event_data['title'], $event_data['text'], $start, $end, $event_data['place'], null)
-		print_r($event_data);
+		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['date'], null, $event_data['place'], null);
+		$appointment->safeIfNotAlreadyImported($tags,$event_data['links']);
 		
 		die();
 		//store_event($event);
