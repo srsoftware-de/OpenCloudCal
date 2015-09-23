@@ -189,7 +189,11 @@ function parse_event($page){
 				$result['text']=$text;
 				continue;
 			}
+			print "<pre>";
+			print $page."\n";
 			print_r($result);
+			print "\n";
+			print_r($paragraph);
 			print "\n";
 			print_r($text);
 			print "\n";
