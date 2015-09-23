@@ -163,8 +163,8 @@
   	public function safeIfNotAlreadyImported($tags=null,$urls=null){
   		global $db;
   		if ($tags!=null && !empty($tags)){
-  			if (in_array('OpenCloudCal', $tags)) return;
-  			if (in_array('opencloudcal', $tags)) return;
+  			if (in_array('OpenCloudCal', $tags)) return false;
+  			if (in_array('opencloudcal', $tags)) return false;
   		}
   		$md5=md5($this->toVEvent(),TRUE);
   		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
@@ -187,10 +187,12 @@
     		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
     		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
     		$stm->execute(array(':aid'=>$this->id,':hash'=>$md5));
+    		return true;
     	} else {
     		$keys=array('%title','%id');
     		$values=array($this->title,$results[0]['aid']);
-    		warn(str_replace($keys, $values, loc('"%title" already present (<a href="?show=%id">link</a>)!')));    		
+    		warn(str_replace($keys, $values, loc('"%title" already present (<a href="?show=%id">link</a>)!')));
+    		return false;    		
     	}    		 
 	}
     

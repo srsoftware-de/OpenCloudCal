@@ -71,11 +71,9 @@ function parser_parse_date($text){
 	$date=extract_date($text);
 	$time=extract_time($text);
 	$date=date_parse($date.' '.$time);
-	print "----";
-	print_r($date);
-	print "----\n";
-    $secs=parseDateTime($date);    
-    return $secs;
+	print "----".$date.' / '.$time."----\n";
+	$secs=parseDateTime($date);
+	return $secs;
 }
 
 function parse_tags($text){
@@ -96,12 +94,12 @@ function parse_event($page){
 	$links=array();
 	$links[]=url::create(null, $page,loc('Event page'));
 	$imgs=array();
-	
+
 	$xml = new DOMDocument();
-	@$xml->loadHTMLFile($page);	
-	
+	@$xml->loadHTMLFile($page);
+
 	/** Rosenkeller **/
-	$divs=$xml->getElementsByTagName('div');	
+	$divs=$xml->getElementsByTagName('div');
 	foreach ($divs as $div){
 		foreach ($div->attributes as $attr){
 			if ($attr->name == 'class' && $attr->value=='event-description'){
@@ -117,7 +115,7 @@ function parse_event($page){
 			break;
 		}
 	}
-	
+
 	$data=$xml->getElementsByTagName('i');
 	foreach ($data as $info){
 		if ($info->attributes){
@@ -150,7 +148,7 @@ function parse_event($page){
 						$tx=trim($link->nodeValue);
 						$links[]=url::create(null, $href,$tx);
 						break;
-					}						
+					}
 				}
 			}
 		}
@@ -170,7 +168,7 @@ function parse_event($page){
 		foreach ($li->attributes as $attr){
 			if ($attr->name == 'class' && strpos($attr->value,'active')!==false){
 				$result['title']=trim($li->nodeValue);
-				break;				
+				break;
 			}
 		}
 	}
@@ -181,9 +179,9 @@ function parse_event($page){
 		foreach ($headings as $heading){
 			$result['title']=$heading->nodeValue;
 			break;
-		}	
-		
-		
+		}
+
+
 		$paragraphs=$xml->getElementsByTagName('p');
 		$die=false;
 		foreach ($paragraphs as $paragraph){
@@ -203,14 +201,15 @@ function parse_event($page){
 			$hrefs=$paragraph->getElementsByTagName('a');
 			foreach ($hrefs as $link){
 				$href=trim($link->getAttribute('href'));
-				if (endsWith($href, '.png') || endsWith($href, '.jpg')){
+				$mime=guess_mime_type($href);				
+				if (startsWith($mime, 'image')){
 					$imgs[]=$href;
 				} else {
 					$tx=trim($link->nodeValue);
 					$links[]=url::create(null, $href,$tx);
-				}				
+				}
 			}
-			$result['text'].="\n".$text;				
+			$result['text'].="\n".$text;
 		}
 	}
 	/** Wagner **/
@@ -218,15 +217,15 @@ function parse_event($page){
 	if (!isset($result['start'])){
 		return false;
 	}
-	
-	
+
+
 	foreach ($links as $url){
 		$url->save();
 	}
-	
+
 	$starttime=$result['start'];
 	$result['start']=date($db_time_format,$starttime);
-	
+
 	if (!isset($result['end'])){
 		$endtime=$starttime+2*3600; // 2h later
 		$result['end']=date($db_time_format,$endtime);
@@ -235,9 +234,9 @@ function parse_event($page){
 	if (count($imgs)>0){
 		$result['images']=$imgs;
 	}
-		print "<pre>";
-		print_r($result);
-	
+	print "<pre>";
+	print_r($result);
+
 	return $result;
 }
 
@@ -253,27 +252,29 @@ function parserImport($site,$tags=null,$coords=null){
 		$event_data=parse_event($event_page);
 		if ($event_data === false){
 			continue;
-		}		
+		}
 		if (!isset($event_data['coords'])){
 			$event_data['coords']=$coords;
 		}
 		if (isset($tags) && $tags!=null){
 			$event_data['tags']=array_merge($event_data['tags'],$tags);
-		}		
+		}
 		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], $event_data['coords'],false);
-		$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
-		if (isset($event_data['images'])) {
-			foreach ($event_data['images'] as $src){
-				$attach=array();
-				$attach['aid']=$appointment->id;
-				$attach['url']=$src;
-				print_r($attach);
-				$attach=parseAttachmentData($attach);
-				if ($attach){
-					print "Attachment:\n";
+		$saved=$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
+		if ($saved){
+			if (isset($event_data['images'])) {
+				foreach ($event_data['images'] as $src){
+					$attach=array();
+					$attach['aid']=$appointment->id;
+					$attach['url']=$src;
 					print_r($attach);
-					$attach->save();
-					$appointment->addAttachment($attach);
+					$attach=parseAttachmentData($attach);
+					if ($attach){
+						print "Attachment:\n";
+						print_r($attach);
+						$attach->save();
+						$appointment->addAttachment($attach);
+					}
 				}
 			}
 		}
