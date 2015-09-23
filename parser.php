@@ -125,7 +125,7 @@ function parse_event($page){
 						break;
 					}
 					if (strpos($attr->value, 'fa-building') !==false){
-						$result['place']=$info->nextSibling->wholeText;
+						$result['location']=$info->nextSibling->wholeText;
 						break;
 					}
 					if (strpos($attr->value, 'fa-music') !==false){
@@ -237,7 +237,7 @@ function parse_event($page){
 	return $result;
 }
 
-function parserImport($site,$tags=null,$coords=null){
+function parserImport($site,$tags=null,$coords=null,$location=null){
 	if (!isset($site) || empty($site)){
 		warn('You must supply an adress to import from!');
 		return;
@@ -252,13 +252,17 @@ function parserImport($site,$tags=null,$coords=null){
 		if ($event_data === false){
 			continue;
 		}
-		if (!isset($event_data['coords'])){
+		if (!isset($event_data['coords']) || $event_data['coords']==null){
 			$event_data['coords']=$coords;
 		}
+		if (!isset($event_data['location']) || $event_data['location']==null){
+			$event_data['location']=$location;
+		}
+		
 		if (isset($tags) && $tags!=null){
 			$event_data['tags']=array_merge($event_data['tags'],$tags);
 		}
-		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], $event_data['coords'],false);
+		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['location'], $event_data['coords'],false);
 		$saved=$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
 		if ($saved){
 			if (isset($event_data['images'])) {
