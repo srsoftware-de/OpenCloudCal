@@ -228,7 +228,6 @@ function parserImport($site,$tags=null,$coords=null){
 	$program_page=find_program_page($site);
 	print $program_page."\n";
 	$event_pages=find_event_pages($program_page);
-	print_r($event_pages);
 	$events = array();
 	foreach ($event_pages as $event_page){
 		$event_data=parse_event($event_page);		
@@ -236,16 +235,12 @@ function parserImport($site,$tags=null,$coords=null){
 			$coords=$event_data['coords'];
 		}
 		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['place'], $coords);
-		print_r($event_data);
 		if (isset($tags) && $tags!=null){
 			$tags=array_merge($tags,$event_data['tags']);
 		} else {
 			$tags=$event_data['tags'];
 		}
 		$appointment->safeIfNotAlreadyImported($tags,$event_data['links']);
-		print_r($appointment);
-		die();
-		//store_event($event);
 	}
 }
 
