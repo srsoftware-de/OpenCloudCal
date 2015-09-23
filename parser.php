@@ -162,7 +162,7 @@ function parse_event($page){
 	}
 	/** Rosenkeller **/
 	/** Wagner **/
-	if (!isset($result['date'])){
+	if (!isset($result['start'])){
 		$headings=$xml->getElementsByTagName('h1');
 		foreach ($headings as $heading){
 			$result['title']=$heading->nodeValue;
@@ -175,7 +175,7 @@ function parse_event($page){
 		foreach ($paragraphs as $paragraph){
 			$text=trim($paragraph->nodeValue);
 			if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
-				$result['date']=parser_parse_date($text);
+				$result['start']=parser_parse_date($text);
 				continue;
 			}
 			$pos=strpos($text,'Kategorie');
