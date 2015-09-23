@@ -318,7 +318,7 @@ function importIcal($url,$tags=null){
 		warn('You must supply an adress to import from!');
 		return;
 	}
-	print "importing events from "+$url."\n";
+	print "importing events from "+$url."<br/>\n";
 	flush();
 	$data=file($url);
 	$len=count($data);
