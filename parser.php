@@ -196,15 +196,12 @@ function parse_event($page){
 			}
 			$links=$paragraph->getElementsByTagName('a');
 			foreach ($links as $link){
-				print_r($link);
+				$href=trim($link->getAttribute('href'));
+				$tx=trim($link->nodeValue);
+				$links[]=url::create(null, $href,$tx);
+				
 			}
 			$result['text'].="\n".$text;				
-		}
-		if (isset($result['text'])){
-			
-			print "<pre>";
-			print_r($result);	
-			die();			
 		}
 	}
 	/** Wagner **/
@@ -223,6 +220,12 @@ function parse_event($page){
 	$result['links']=$links;
 	if (count($imgs)>0){
 		$result['images']=$imgs;
+	}
+	if (isset($result['text'])){
+			
+		print "<pre>";
+		print_r($result);
+		die();
 	}
 	
 	return $result;
