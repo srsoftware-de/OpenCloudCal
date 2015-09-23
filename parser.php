@@ -258,8 +258,12 @@ function parserImport($site,$tags=null,$coords=null){
 				$attach['aid']=$appointment->id;
 				$attach['url']=$src;
 				$attach=parseAttachmentData($attach);
-				print_r($attach);
-				$appointment->addAttachment($attach);
+				if ($attach){
+					print "Attachment:\n";
+					print_r($attach);
+					$attach->save();
+					$appointment->addAttachment($attach);
+				}
 			}
 		}
 	}
