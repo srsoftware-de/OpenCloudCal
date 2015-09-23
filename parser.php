@@ -46,21 +46,24 @@ function extract_date($text){
 	preg_match('/\d?\d\.\d?\d\.\d\d\d\d/', $text, $matches);
 	if (count($matches)>0){
 		$date=$matches[0];
+		return $date;
 	} else {
 		preg_match('/\d?\d\.\d?\d\./', $text, $matches);
 		if (count($matches)>0){
 			$date=$matches[0].date("Y");
+			return $date;
 		}
 	}
-	return $date;
+	return '';
 }
 
 function extract_time($text){
 	preg_match('/\d?\d:\d?\d/', $text, $matches);
 	if (count($time)>0){
 		$time=$matches[0];
+		return $time;
 	}
-	return $time;
+	return '';
 }
 
 function parser_parse_date($text){
@@ -227,7 +230,6 @@ function parse_event($page){
 	if (isset($result['text'])){			
 		print "<pre>";
 		print_r($result);
-		die();
 	}
 	
 	return $result;
