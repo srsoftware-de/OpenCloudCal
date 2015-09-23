@@ -42,8 +42,21 @@ function find_event_pages($page){
 	return $result;
 }
 
+function extract_date($text){
+	preg_match('/\d?\d\.\d?\d\.\d\d\d\d/', $text, $matches);
+	
+	print_r($matches);
+	return 1;
+}
+
+function extract_time($text){
+	return 1;
+}
+
 function parse_date($text){
-	return $text;
+	$date=extract_date($text);
+	$time=extract_time($text);	
+	return $date+$time;
 }
 
 function parse_tags($text){
@@ -204,7 +217,9 @@ function parserImport($site,$tags=null){
 	$events = array();
 	foreach ($event_pages as $event_page){
 		$event_data=parse_event($event_page);
+		//$appointment=appointment::create($event_data['title'], $event_data['text'], $start, $end, $event_data['place'], null)
 		print_r($event_data);
+		
 		die();
 		//store_event($event);
 	}
