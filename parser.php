@@ -71,7 +71,9 @@ function parser_parse_date($text){
 	$date=extract_date($text);
 	$time=extract_time($text);
 	$date=date_parse($date.' '.$time);
-	print "---".$date.'---'."\n";
+	print "----";
+	print_r($date);
+	print "----\n";
     $secs=parseDateTime($date);    
     return $secs;
 }
