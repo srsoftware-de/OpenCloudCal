@@ -76,6 +76,7 @@ function parse_tags($text){
 }
 
 function parse_event($page){
+	global $db_time_format;
 	$result=array();
 	$links=array();
 	$links[]=url::create(null, $page,loc('Origin'));
