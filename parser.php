@@ -197,11 +197,12 @@ function parse_event($page){
 			$hrefs=$paragraph->getElementsByTagName('a');
 			foreach ($hrefs as $link){
 				$href=trim($link->getAttribute('href'));
-				print_r($href);
-				$tx=trim($link->nodeValue);
-				print_r($tx);
-				$links[]=url::create(null, $href,$tx);
-				
+				if (endsWith($href, '.png') || endsWith($href, '.jpg')){
+					$imgs[]=$href;
+				} else {
+					$tx=trim($link->nodeValue);
+					$links[]=url::create(null, $href,$tx);
+				}				
 			}
 			$result['text'].="\n".$text;				
 		}
