@@ -11,7 +11,6 @@ if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 			parserImport($item['url'],$item['tag'],$item['coords'],$item['location']);
 		} else parserImport($item);
 	}
-	die();
 	foreach ($ical_import_urls as $item){
 		if (is_array($item)){
 			importIcal($item['url'],$item['tag']);
