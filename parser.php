@@ -57,9 +57,8 @@ function extract_time($text){
 function parser_parse_date($text){
 	$date=extract_date($text);
 	$time=extract_time($text);
-	print_r(date_parse($date.' '.$time));
-	
-	return 0;
+	$date=date_parse($date.' '.$time);	
+	return parseDateTime($date);
 }
 
 function parse_tags($text){
