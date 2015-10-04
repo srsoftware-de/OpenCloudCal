@@ -53,8 +53,8 @@
   
   if (isset($_GET['format'])){
   	if ($_GET['format']=='ical'){
-  		//header('Content-type: text/calendar; charset=utf-8');
-  		//header('Content-Disposition: inline; filename=calendar.ics');
+  		header('Content-type: text/calendar; charset=utf-8');
+  		header('Content-Disposition: inline; filename=calendar.ics');
   		$format='ical';
   	}
   	if ($_GET['format']=='webdav'){
