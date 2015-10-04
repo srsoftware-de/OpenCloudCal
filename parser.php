@@ -98,24 +98,24 @@ function parse_event($page){
 	@$xml->loadHTMLFile($page);
 
 	/** Rosenkeller **/
-	$divs=$xml->getElementsByTagName('div');
+	$divs=$xml->getElementsByTagName('div'); // Suchen aller divs
 	foreach ($divs as $div){
 		foreach ($div->attributes as $attr){
-			if ($attr->name == 'class' && $attr->value=='event-description'){
-				$text=trim($div->childNodes->item(0)->nodeValue);
+			if ($attr->name == 'class' && $attr->value=='event-description'){ // Suchen des Beschreibungstextes
+				$text=trim($div->childNodes->item(0)->nodeValue); // Das "event-description"-div hat mehrere unterlemenete. Eines davon ist der eigentliche Text
 				if (strlen($text)<10){
 					$text=trim($div->childNodes->item(1)->nodeValue);
 				}
-				$result['text']=$text;
+				$result['text']=$text; // wen wir den Text haben: Suche beenden
 				break;
 			}
 		}
-		if (isset($result['text'])){
+		if (isset($result['text'])){ // wen wir den Text haben: Suche beenden
 			break;
 		}
 	}
 
-	$data=$xml->getElementsByTagName('i');
+	$data=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
 	foreach ($data as $info){
 		if ($info->attributes){
 			foreach ($info->attributes as $attr){
@@ -237,6 +237,8 @@ function parse_event($page){
 	return $result;
 }
 
+
+
 function parserImport($site,$tags=null,$coords=null,$location=null){
 	if (!isset($site) || empty($site)){
 		warn('You must supply an adress to import from!');
@@ -260,6 +262,9 @@ function parserImport($site,$tags=null,$coords=null,$location=null){
 		if (isset($tags) && $tags!=null){
 			$event_data['tags']=array_merge($event_data['tags'],$tags);
 		}
+		
+		$event_data['text']=htmlspecialchars_decode($event_data['text']	);
+		
 		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['location'], $event_data['coords'],false);
 		$saved=$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
 		if ($saved){
