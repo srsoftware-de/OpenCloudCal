@@ -487,6 +487,9 @@ class appointment {
 	function addUrl($url){
 		global $db;
 		if ($url instanceof url){
+			if (!isset($url->id) || $url->id == null){
+				return;
+			}
 			$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 			$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':description'=>$url->description));
 			$this->urls[$url->id]=$url;

@@ -9,7 +9,7 @@ if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 	if (isset($parse_import_urls)){
 		foreach ($parse_import_urls as $item){
 			if (is_array($item)){
-				parserImport($item['url'],$item['tag'],$item['coords'],$item['location']);
+				parserImport($item);
 			} else parserImport($item);
 		}
 	}
