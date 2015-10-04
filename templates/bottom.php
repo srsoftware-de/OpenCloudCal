@@ -1,7 +1,7 @@
-<?php if ($format=='ical') { ?>
-X-WR-CALNAME:OpenCloudCal
-END:VCALENDAR
-<?php } else if ($format=='html') {	
+<?php if ($format=='ical') {
+	echo icalLine('X-WR-CALNAME','OpenCloudCal');
+	echo icalLine('END','VCALENDAR');
+} else if ($format=='html') {	
     if (strlen($notifications)>3){
       echo '<div class="notifications">'.$notifications.'</div>'.PHP_EOL;
     }

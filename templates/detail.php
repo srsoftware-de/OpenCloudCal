@@ -149,25 +149,6 @@
 
 
 
-} else if ($format=='ical') { ?>
-BEGIN:VEVENT
-UID:<?php echo $appointment->id.'@'.$_SERVER['HTTP_HOST'].PHP_EOL; ?>
-DTSTART:<?php echo str_replace(array('-',' ',':'),array('','T',''),$appointment->start).'Z'.PHP_EOL; ?>
-CATEGORIES:<?php echo $appointment->tags(',').PHP_EOL; ?>
-CLASS:PUBLIC
-DESCRIPTION:<?php echo str_replace("\r\n","\\n",$appointment->description).PHP_EOL; ?>
-DTSTAMP:<?php echo str_replace(array('-',' ',':'),array('','T',''),$appointment->start).'Z'.PHP_EOL; ?>
-GEO:<?php echo $appointment->coords['lat'].'\;'.$appointment->coords['lon'].PHP_EOL;?>
-LOCATION:<?php echo $appointment->location.PHP_EOL; ?>
-SUMMARY:<?php echo $appointment->title.PHP_EOL; ?>
-<?php
-foreach ($appointment->urls as $url){
-	print 'URL:'.$url->address.PHP_EOL;
-}
-foreach ($appointment->attachments as $attachment){
-  print 'ATTACH;FMTTYPE='.$attachment->description.':'.$attachment->address.PHP_EOL;
-} 
-?>
-DTEND:<?php echo str_replace(array('-',' ',':'),array('','T',''),$appointment->end).'Z'.PHP_EOL; ?>
-END:VEVENT
-<?php } ?>
+} else if ($format=='ical') {
+ print $appointment->toVEvent();
+} ?>
