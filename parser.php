@@ -14,12 +14,26 @@ function find_program_page($site){
 				$text=$child->wholeText;
 				if (stripos($text, 'Programm')!==false){
 					$result=$link->getAttribute('href');
+					break;
+				}
+				if (stripos($text, 'Termine')!==false){
+					$result=$link->getAttribute('href');
+					break;
 				}
 			}
 		}
 	}
 	if (stripos($result, '://')===false){
-		$result=dirname($site).'/'.$result;
+		$dir=dirname($site);
+		if ($dir=='http:'){
+			if (substr($site, -1,1)=='/'){
+				$result=$site.$result;
+			} else {
+				$result=$site.'/'.$result;
+			}
+		} else {
+			$result=$dir.'/'.$result;
+		}
 	}
 
 	return $result;
@@ -182,7 +196,6 @@ function parse_event($page){
 
 
 		$paragraphs=$xml->getElementsByTagName('p');
-		$die=false;
 		foreach ($paragraphs as $paragraph){
 			$text=trim($paragraph->nodeValue);
 			if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
@@ -200,7 +213,7 @@ function parse_event($page){
 			$hrefs=$paragraph->getElementsByTagName('a');
 			foreach ($hrefs as $link){
 				$href=trim($link->getAttribute('href'));
-				$mime=guess_mime_type($href);				
+				$mime=guess_mime_type($href);
 				if (startsWith($mime, 'image')){
 					$imgs[]=$href;
 				} else {
@@ -212,6 +225,34 @@ function parse_event($page){
 		}
 	}
 	/** Wagner **/
+
+	/** cosmic dawn **/
+	if (!isset($result['start'])){
+		$startdate=0;
+		$paragraphs=$xml->getElementsByTagName('p');
+		foreach ($paragraphs as $paragraph){
+			$text=trim($paragraph->nodeValue);
+			if (preg_match('/\d\d.\d\d.\d\d\d\d/',$text)){
+				$startdate=parser_parse_date($text);
+				$result['start']=$startdate;
+			}
+			if (preg_match('/doors: *(?P<hour>\d\d?)pm/',$text,$hits)){
+				if (isset($result['start'])){
+					$result['start']=$result['start']+3600*(12+$hits['hour']);
+					continue;
+				}
+			}
+			$images=$xml->getElementsByTagName('img');
+		}
+		foreach ($images as $image){
+			$imgs[]=trim($image->baseURI.$image->getAttribute('src'));
+		}		
+		if($startdate!=0 && $startdate==$result['start']){
+			$result['start']=$result['start']+(20*3600); // default start time: 20°°
+		}
+	}
+
+	/** cosmic dawn **/
 
 	if (!isset($result['start'])){
 		return false;
@@ -237,14 +278,32 @@ function parse_event($page){
 	return $result;
 }
 
+function merge_fields(&$target_data,$additional_data,$fields){
+	foreach ($fields as $field){
+		if (isset($target_data[$field])){
+			if ($target_data[$field]==null){
+				$target_data[$field]=$additional_data[$field];
+			} else if (is_array($target_data[$field])){
+				if (is_array($additional_data[$field])){
+					$target_data[$field]=array_merge($target_data[$field],$additional_data[$field]);
+				} else {
+					if (isset($additional_data[$field])){
+						$target_data[$field]=$additional_data[$field];
+					}
+				}
+			}
+		} else {
+			$target_data[$field]=$additional_data[$field];
+		}
+	}
+}
 
-
-function parserImport($site,$tags=null,$coords=null,$location=null){
-	if (!isset($site) || empty($site)){
-		warn('You must supply an adress to import from!');
+function parserImport($data){
+	if (!isset($data['url']) || empty($data['url'])){
+		warn('You must supply an url to import from!');
 		return;
 	}
-	$program_page=find_program_page($site);
+	$program_page=find_program_page($data['url']);
 	$event_pages=find_event_pages($program_page);
 	$events = array();
 	foreach ($event_pages as $event_page){
@@ -252,19 +311,9 @@ function parserImport($site,$tags=null,$coords=null,$location=null){
 		if ($event_data === false){
 			continue;
 		}
-		if (!isset($event_data['coords']) || $event_data['coords']==null){
-			$event_data['coords']=$coords;
-		}
-		if (!isset($event_data['location']) || $event_data['location']==null){
-			$event_data['location']=$location;
-		}
-		
-		if (isset($tags) && $tags!=null){
-			$event_data['tags']=array_merge($event_data['tags'],$tags);
-		}
-		
+		merge_fields($event_data,$data,array('coords','location','tags'));		
+
 		$event_data['text']=htmlspecialchars_decode($event_data['text']	);
-		
 		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['location'], $event_data['coords'],false);
 		$saved=$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
 		if ($saved){

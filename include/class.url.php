@@ -19,6 +19,9 @@ class url {
 
 	function save(){
 		global $db;
+		if (startsWith($this->address, 'javascript')){
+			return;
+		}		
 		$stm=$db->prepare("SELECT * FROM urls WHERE url=?");
 		$stm->execute(array($this->address));
 		$results=$stm->fetchAll();
