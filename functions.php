@@ -359,3 +359,9 @@ function importIcal($url,$tags=null){
 	}
 	// TODO: code here?
 }
+
+function icalLine($head,$content){
+	$line_breaks=array("\r\n","\n", "\r");
+	$content=str_replace($line_breaks,'\n',$content);
+	return wordwrap($head.':'.$content,75,CRLF.' ',true).CRLF;
+}
