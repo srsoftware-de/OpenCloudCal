@@ -5,6 +5,7 @@ require 'init.php';
 $selected_tags = array();
 
 if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
+	set_time_limit(0);
 	include 'config/autoimport.php';
 	if (isset($parse_import_urls)){
 		foreach ($parse_import_urls as $item){
