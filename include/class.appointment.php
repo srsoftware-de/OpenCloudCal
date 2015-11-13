@@ -160,9 +160,10 @@ class appointment {
 		return $dummy;
 	}
 	 
+	/* tries to save the event, if it is not already in the database */
 	public function safeIfNotAlreadyImported($tags=null,$urls=null){
 		global $db;
-		if ($tags!=null && !empty($tags)){
+		if ($tags!=null && !empty($tags)){ // if the event originates from our calender: do not re-import it
 			if (in_array('OpenCloudCal', $tags)) return false;
 			if (in_array('opencloudcal', $tags)) return false;
 		}
@@ -171,7 +172,7 @@ class appointment {
 		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 		$stm->execute(array(':hash'=>$md5));
 		$results=$stm->fetchAll();
-		if (count($results) < 1){
+		if (count($results) < 1){ // not imported, yet
 			$this->save();
 			$this->addTag(loc('imported'));
 			if ($tags!=null && !empty($tags)){
@@ -188,11 +189,23 @@ class appointment {
 			$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 			$stm->execute(array(':aid'=>$this->id,':hash'=>$md5));
 			return true;
-		} else {
+		} else { // already imported
 			$keys=array('%title','%id');
 			$values=array($this->title,$results[0]['aid']);
 			warn(str_replace($keys, $values, loc('"%title" already present (<a href="?show=%id">link</a>)!')));
 			return false;
+		}
+	}
+	
+	public function import($event_data,$source_url){
+		if (empty($source_url)) {
+			return;
+		}
+		$existing_event=get_imported_event($source_url);
+		if ($existing_event == null){
+			$new_event=null; // TODO: create 
+		} else {
+			$existing_event->update_with($event_data);			
 		}
 	}
 

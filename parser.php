@@ -298,37 +298,34 @@ function merge_fields(&$target_data,$additional_data,$fields){
 	}
 }
 
-function parserImport($data){
-	if (!isset($data['url']) || empty($data['url'])){
+function parserImport($site_data){
+	if (!is_array($site_data)){
+		$site_data=array('url'=>$site_data);
+	}
+	if (!isset($site_data['url']) || empty($site_data['url'])){
 		warn('You must supply an url to import from!');
 		return;
 	}
-	$program_page=find_program_page($data['url']);
-	$event_pages=find_event_pages($program_page);
-	$events = array();
-	foreach ($event_pages as $event_page){
-		$event_data=parse_event($event_page);
-		if ($event_data === false){
-			continue;
-		}
-		merge_fields($event_data,$data,array('coords','location','tags'));		
-
-		$event_data['text']=htmlspecialchars_decode($event_data['text']	);
-		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['location'], $event_data['coords'],false);
-		$saved=$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
-		if ($saved){
-			if (isset($event_data['images'])) {
-				foreach ($event_data['images'] as $src){
-					$attach=array();
-					$attach['aid']=$appointment->id;
-					$attach['url']=$src;
-					$attach=parseAttachmentData($attach);
-					if ($attach){
-						$attach->save();
-						$appointment->addAttachment($attach);
-					}
-				}
-			}
+	$program_page=find_program_page($site_data['url']); // $url usually specifies the root url of a website
+	$event_pages=find_event_pages($program_page); // the program page usually links to the event pages
+	foreach ($event_pages as $event_url){
+		$source   = file_get_contents($event_url);
+		$title    = grep_event_title($source);
+		$description = grep_event_description($source);
+		$start    = grep_event_start($source);
+		$end	  = grep_event_end($source);
+		$location = grep_event_location($source,$site_data['location']); // fallback
+		$coords   = grep_event_coords($source,$site_data['coords']); // fallback
+		$tags		 = grep_event_tags($source,$site_data['tags']); // merge
+		$links		 = grep_event_links($source);
+		$images		 = grep_event_images($source);
+		
+		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images);
+		
+		if (already_imported($event_url)){
+			// TODO: update
+		} else {
+			$event->save(); // TODO: currently does not save tags, links and images
 		}
 	}
 }
