@@ -1,16 +1,22 @@
 <?php
 
 class appointment {
+	private $title=NULL;
+	private $description=NULL;
+	private $start=NULL;
+	private $end=NULL;
+	private $location=NULL;
+	private $coords=NULL;
+	private $tags=array();
+	private $links=array();
+	private $attachments=array();
 
 	/* create new appointment object */
-	/* TODO: load tags, urls and sessions */
 	function __construct(){
-		$urls=array();
-		$sessions=array();
 	}
 
-	/* start and end are expected to be UTC timestamps in the form YYYY-MM-DD hh:mm:ss */
-	public static function create($title,$description,$start, $end,$location,$coords,$save=true){
+	/** start and end are expected to be UTC timestamps in the form YYYY-MM-DD hh:mm:ss **/
+	public static function create($title, $description, $start, $end=null, $location=null, $coords=null, $tags=null, $links=null, $attachments=null,$save=true){
 		$instance=new self();
 		$instance->title=$title;
 		$instance->description=$description;
@@ -22,18 +28,35 @@ class appointment {
 		$instance->location=$location;
 		$instance->imported=false;
 
-		$c=explode(',',str_replace(' ', '', str_replace(';', ',', $coords)));
-		if (count($c)==2){
-			$instance->coords=array('lat'=>$c[0],'lon'=>$c[1]);
-		} else {
-			$instance->coords=false;
-		}
+		set_coords($coords);
+		$instance->tags=$tags;
+		$instance->links=$links;
+		$instance->attachments=$attachments;
 		if ($save){
 			$instance->save();
 		}
 		return $instance;
 	}
+	
+	
+	/** sets the coordinates of this event **/
+	function set_coords($coords){
+		if ($coords==NULL){
+			$this->coords=NULL;
+		} elseif (is_array($coords)){
+			$this->coords=$coords;
+		} else { // if coords given as string => convert to array
+			$c=explode(',',str_replace(' ', '', str_replace(';', ',', $coords)));
+			$c=explode(',',str_replace(' ', '', str_replace(';', ',', $coords)));
+			if (count($c)==2){
+				$instance->coords=array('lat'=>$c[0],'lon'=>$c[1]);
+			} else {
+				$instance->coords=NULL;
+			}				
+		}
+	}
 
+	/** create links for tags of this event **/
 	function tagLinks(){
 		$result="";
 		if (isset($this->tags)){
@@ -44,6 +67,7 @@ class appointment {
 		return $result;
 	}
 
+	/** create map link for this event **/
 	function mapLink(){
 		if ($this->coords){
 			return 'http://www.openstreetmap.org/?mlat='.$this->coords['lat'].'&mlon='.$this->coords['lon'].'&zoom=15';
@@ -51,6 +75,7 @@ class appointment {
 		return false;
 	}
 
+	/** read an event from an ical file **/
 	public static function readFromIcal(&$stack,$tags=null,$timezone=null){
 		$start=null;
 		$end=null;
@@ -138,6 +163,7 @@ class appointment {
 		}
 	}
 	 
+	/** convert an RFC 2445 formatted time string to a UTC timestamp **/
 	static function convertRFC2445DateTimeToUTCtimestamp($datetime,$timezone=null){
 		global $db_time_format;
 		if (substr($datetime,-1)=='Z'){
@@ -160,7 +186,8 @@ class appointment {
 		return $dummy;
 	}
 	 
-	/* tries to save the event, if it is not already in the database */
+	/** tries to save the event, if it is not already in the database **/
+	/* soon to be replaced by import */
 	public function safeIfNotAlreadyImported($tags=null,$urls=null){
 		global $db;
 		if ($tags!=null && !empty($tags)){ // if the event originates from our calender: do not re-import it
@@ -203,7 +230,7 @@ class appointment {
 		}
 		$existing_event=get_imported_event($source_url);
 		if ($existing_event == null){
-			$new_event=null; // TODO: create 
+			$new_event=appointment::create($event_data['title'], $event_data['description'], $event_data['start'],$event_data['end'],$event_data['location'],$event_data['coords'],$event_data['tags'],$event_data['links'],$event_data['attachments'],TRUE);
 		} else {
 			$existing_event->update_with($event_data);			
 		}
@@ -277,6 +304,8 @@ class appointment {
 			$stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':location' => $this->location,':coords' => $coords));
 			$this->id=$db->lastInsertId();
 		}
+		save_tags();
+		save_links();
 	}
 
 	function sendToGrical(){
@@ -443,17 +472,26 @@ class appointment {
 	}
 
 	/* adds a tag to the appointment */
-	function addTag($tag){
+	function add_tag($tag){
 		global $db;
 		if ($tag instanceof tag){
 			$sql="INSERT INTO appointment_tags (tid,aid) VALUES ($tag->id, $this->id)";
 			$db->query($sql);
-			$this->tags[$tag->id]=$tag;
+			$this->tags[]=$tag;
 		} else {
 			if (empty($tag)){
 				return;
 			}
 			$this->addTag(tag::create($tag));
+		}
+	}
+	
+	/* save all tags belonging to event */
+	function save_tags(){
+		$tags=$this->tags;
+		$this->tags=array(); // clear array, will be refilled by add_tag in loop
+		foreach ($tags as $tag){
+			add_tag($tag);
 		}
 	}
 
