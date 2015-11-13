@@ -304,8 +304,9 @@ class appointment {
 			$stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':location' => $this->location,':coords' => $coords));
 			$this->id=$db->lastInsertId();
 		}
-		save_tags();
-		save_links();
+		$this->save_tags();
+		$this->save_links();
+		$this->save_attachments();
 	}
 
 	function sendToGrical(){
@@ -518,9 +519,9 @@ class appointment {
 	}
 
 	/****** TAGS **************/
-	/****** URLS **************/
+	/****** LINKS **************/
 
-	function getUrls(){
+	function get_links(){
 		global $db;
 		$urls=array();
 		$sql="SELECT uid,description FROM appointment_urls WHERE aid=$this->id";
@@ -535,43 +536,51 @@ class appointment {
 	}
 
 	/* adds a url to the appointment */
-	function addUrl($url){
+	function add_link($link){
 		global $db;
-		if ($url instanceof url){
-			if (!isset($url->id) || $url->id == null){
+		if ($link instanceof url){
+			if (!isset($link->id) || $link->id == null){
 				return;
 			}
 			$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-			$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':description'=>$url->description));
-			$this->urls[$url->id]=$url;
+			$stm->execute(array(':uid' => $link->id,':aid' => $this->id,':description'=>$link->description));
+			$this->urls[]=$link;
 		} else {
-			$url=url::create($this->id, $url ,'Homepage');
-			$url->save();
-			$this->addUrl($url);
+			$link=url::create($this->id, $link ,'Homepage');
+			$link->save();
+			$this->addUrl($link);
+		}
+	}
+	
+	function save_links(){
+		$links=$this->links;
+		$this->links=array();
+		foreach ($links as $link){
+			add_link($link);
 		}
 	}
 
 	/* remove url from appointment */
-	function removeUrl($url){
+	function remove_link($link){
 		global $db;
-		if ($url instanceof url){
-			$sql="DELETE FROM appointment_urls WHERE uid=$url->id AND aid=$this->id";
+		if ($link instanceof url){
+			$sql="DELETE FROM appointment_urls WHERE uid=$link->id AND aid=$this->id";
 			$db->query($sql);
-			unset($this->urls[$url->id]);
+			unset($this->urls[$link->id]); // TODO will not work in this way
 		} else {
 			if (is_int($url)){
-				$this->removeUrl(url::load($url));
+				$this->remove_link(url::load($url));
 			} else {
-				$this->removeUrl(url::create($url));
+				$this->remove_link(url::create($url));
 			}
 		}
 	}
 
-	/********* URLs ***********/
+	/********* LINKS ***********/
 	/******** Attachments *****/
 
 	/* adds an attachment to the appointment */
-	function addAttachment($attachment){
+	function add_attachment($attachment){
 		global $db;
 		if ($attachment instanceof url){
 			$stm=$db->prepare("INSERT INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
@@ -583,8 +592,16 @@ class appointment {
 			$this->addUrl($attachment);
 		}
 	}
+	
+	function save_attachments(){
+		$attachments=$this->attachments;
+		$this->attachments=array(); // clear array, as the loop will re add thins
+		foreach ($attachments as $attachment){
+			$this->add_attachment($attachment);
+		}
+	}
 
-	function getAttachments(){
+	function get_attachments(){
 		global $db;
 		$urls=array();
 		$sql="SELECT uid,mime FROM appointment_attachments WHERE aid=$this->id";
@@ -599,7 +616,7 @@ class appointment {
 	}
 
 	/* remove attachment from appointment */
-	function removeAttachment($url){
+	function remove_attachment($url){
 		global $db;
 		if ($url instanceof url){
 			$sql="DELETE FROM appointment_attachments WHERE uid=$url->id AND aid=$this->id";
