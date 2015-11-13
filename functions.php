@@ -1,12 +1,18 @@
 <?php
 
 /***** very basic functions ******/
-function loc($text){
+function loc($text,$replacements=null){
 	global $locale;
+	$message=$text;	
 	if (isset($locale) && array_key_exists($text,$locale)){
-		return $locale[$text];
+		$message=$locale[$text];
 	}
-	return $text;
+	if (is_array($replacements)){
+		foreach ($replacements as $key => $val){
+			$message=str_replace($key, $val, $message);
+		}
+	}
+	return $message;
 }
 
 function notify($message){
