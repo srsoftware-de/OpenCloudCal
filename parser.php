@@ -298,6 +298,57 @@ function merge_fields(&$target_data,$additional_data,$fields){
 	}
 }
 
+function grep_event_title($source){
+	// TODO
+	return loc('%method not implemented, yet',array('%method','grep_event_title'));
+}
+
+function grep_event_description($source){
+	// TODO
+	return loc('%method not implemented, yet',array('%method','grep_event_description'));
+}
+
+function grep_event_start($source){
+	// TODO
+	return loc('%method not implemented, yet',array('%method','grep_event_start'));
+}
+
+function grep_event_end($source){
+	// TODO
+	return loc('%method not implemented, yet',array('%method','grep_event_end'));
+}
+
+function grep_event_location($source,$default=null){
+	// TODO
+	return loc('%method not implemented, yet',array('%method','grep_event_location'));
+}
+
+function grep_event_coords($source,$default=null){
+	// TODO
+	return loc('%method not implemented, yet',array('%method','grep_event_coords'));
+}
+
+function grep_event_tags($source,$additional=null){
+	// TODO
+	return loc('%method not implemented, yet',array('%method','grep_event_tags'));
+}
+
+function grep_event_links($source){
+	// TODO
+	return loc('%method not implemented, yet',array('%method','grep_event_links'));
+}
+
+function grep_event_images($source){
+	// TODO
+	return loc('%method not implemented, yet',array('%method','grep_event_images'));
+}
+
+function already_imported($event_url){
+	// TODO
+	print loc('%method not implemented, yet',array('%method','already_imported'));
+	return false;
+}
+
 function parserImport($site_data){
 	if (!is_array($site_data)){
 		$site_data=array('url'=>$site_data);
@@ -309,21 +360,31 @@ function parserImport($site_data){
 	$program_page=find_program_page($site_data['url']); // $url usually specifies the root url of a website
 	$event_pages=find_event_pages($program_page); // the program page usually links to the event pages
 	foreach ($event_pages as $event_url){
-		$source   = file_get_contents($event_url);
-		$title    = grep_event_title($source);
+		$source      = file_get_contents($event_url);
+		$title       = grep_event_title($source);
 		$description = grep_event_description($source);
-		$start    = grep_event_start($source);
-		$end	  = grep_event_end($source);
-		$location = grep_event_location($source,$site_data['location']); // fallback
-		$coords   = grep_event_coords($source,$site_data['coords']); // fallback
+		$start       = grep_event_start($source);
+		$end	  	 = grep_event_end($source);
+		$location    = grep_event_location($source,$site_data['location']); // fallback
+		$coords      = grep_event_coords($source,$site_data['coords']); // fallback
 		$tags		 = grep_event_tags($source,$site_data['tags']); // merge
 		$links		 = grep_event_links($source);
 		$images		 = grep_event_images($source);
 		
-		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images);
-		
-		if (already_imported($event_url)){
-			// TODO: update
+		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images); // TODO: add params
+		$existing_event = appointment::get_imported($event_url);
+		if ($existing_event != null){
+			// TODO: add all methods below
+			$existing_event->set_title($title);
+			$existing_event->set_description($description);
+			$existing_event->set_start($start);
+			$existing_event->set_end($end);
+			$existing_event->set_location($location);
+			$existing_event->set_coords($coords);
+			$existing_event->add_tags($tags);
+			$existing_event->add_links($links);
+			$existing_event->add_images($images);
+			$existing_event->save(); 
 		} else {
 			$event->save(); // TODO: currently does not save tags, links and images
 		}
