@@ -381,9 +381,15 @@ function parserImport($site_data){
 			$existing_event->set_end($end);
 			$existing_event->set_location($location);
 			$existing_event->set_coords($coords);
-			$existing_event->add_tags($tags);
-			$existing_event->add_links($links);
-			$existing_event->add_images($images);
+			foreach ($tags as $tag){
+				$existing_event->add_tag($tag);
+			}
+			foreach ($links as $link){
+				$existing_event->add_link($link);
+			}
+			foreach ($images as $image){
+				$existing_event->add_image($image);
+			}			
 			$existing_event->save(); 
 		} else {
 			$event->save(); // TODO: currently does not save tags, links and images

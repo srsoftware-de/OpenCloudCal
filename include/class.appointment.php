@@ -29,9 +29,15 @@ class appointment {
 		$instance->imported=false;
 
 		set_coords($coords);
-		$instance->tags=$tags;
-		$instance->links=$links;
-		$instance->attachments=$attachments;
+		foreach ($tags as $tag){
+			$instance->add_tag($tag);
+		}
+		foreach ($links as $link){
+			$instance->add_link($link);
+		}
+		foreach ($attachments as $attachment){
+			$instance->add_attachment($attachment);
+		}
 		if ($save){
 			$instance->save();
 		}
@@ -55,7 +61,29 @@ class appointment {
 			}				
 		}
 	}
+	
+	function set_title($title){
+		$this->title=$title;
+	}
 
+	function set_description($description){
+		$this->description=$description;
+	}
+	
+	function set_start($start){
+		if ($this->end == $this->start){
+			$this->end=$start;
+		}
+		$this->start=$start;
+	}
+	
+	function set_end($end){
+		$this->end=$end;
+	}
+	
+	function set_location($loc){
+		$this->location=$loc;
+	}
 	/** create links for tags of this event **/
 	function tagLinks(){
 		$result="";
@@ -305,8 +333,7 @@ class appointment {
 			$this->id=$db->lastInsertId();
 		}
 		$this->save_tags();
-		$this->save_links();
-		$this->save_attachments();
+		$this->save_links(); // attachments are also only links!
 	}
 
 	function sendToGrical(){
@@ -461,7 +488,7 @@ class appointment {
 
 	/******* TAGS ****************/
 
-	function getTags(){
+	function get_tags(){
 		global $db;
 		$tags=array();
 		$sql="SELECT tid FROM appointment_tags WHERE aid=$this->id";
@@ -472,36 +499,32 @@ class appointment {
 		return $tags;
 	}
 
-	/* adds a tag to the appointment */
+	/* Adds a tag to the appointment. While the tag is instantly created in the database,
+	 * the assignment will not be saved before $this->save() is called. */
 	function add_tag($tag){
-		global $db;
-		if ($tag instanceof tag){
-			$sql="INSERT INTO appointment_tags (tid,aid) VALUES ($tag->id, $this->id)";
-			$db->query($sql);
+		if ($tag instanceof $tag){
 			$this->tags[]=$tag;
 		} else {
-			if (empty($tag)){
-				return;
-			}
-			$this->addTag(tag::create($tag));
+			$this->add_tag(tag::create($tag));
 		}
 	}
 	
 	/* save all tags belonging to event */
-	function save_tags(){
-		$tags=$this->tags;
-		$this->tags=array(); // clear array, will be refilled by add_tag in loop
-		foreach ($tags as $tag){
-			add_tag($tag);
-		}
+	private function save_tags(){
+		global $db;
+		foreach ($this->tags as $tag){
+			$sql="INSERT INTO appointment_tags (tid,aid) VALUES ($tag->id, $this->id)";
+			$db->query($sql);				
+		}		
 	}
 
 	/* remove tag from appointment */
-	function removeTag($tag){
+	function remove_tag($tag){
 		global $db;
 		if ($tag instanceof tag){
 			$sql="DELETE FROM appointment_tags WHERE tid=$tag->id AND aid=$this->id";
 			$db->query($sql);
+		
 			unset($this->tags[$tag->id]);
 		} else {
 			if (is_int($tag)){
@@ -512,7 +535,7 @@ class appointment {
 		}
 	}
 
-	function removeAllTags(){
+	function remove_all_tags(){
 		global $db;
 		$sql="DELETE FROM appointment_tags WHERE aid=$this->id";
 		$db->query($sql);
@@ -535,28 +558,25 @@ class appointment {
 		return $urls;
 	}
 
-	/* adds a url to the appointment */
+	/* Adds a url to the appointment. Both the URL and the assignment between event and URL will not be saved
+	 * before the appointment is saved. */
 	function add_link($link){
-		global $db;
 		if ($link instanceof url){
-			if (!isset($link->id) || $link->id == null){
-				return;
-			}
-			$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-			$stm->execute(array(':uid' => $link->id,':aid' => $this->id,':description'=>$link->description));
-			$this->urls[]=$link;
+			$links[]=$url;
 		} else {
 			$link=url::create($this->id, $link ,'Homepage');
-			$link->save();
-			$this->addUrl($link);
+			$this->add_link($link);
 		}
 	}
 	
-	function save_links(){
-		$links=$this->links;
-		$this->links=array();
-		foreach ($links as $link){
-			add_link($link);
+	/* saves all links of the appointment */
+	private function save_links(){
+		global $db;
+		foreach ($this->links as $url){
+			$url->save();
+			$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+			$stm->execute(array(':uid' => $link->id,':aid' => $this->id,':description'=>$link->description));
+			$this->urls[]=$link;
 		}
 	}
 
@@ -583,24 +603,13 @@ class appointment {
 	function add_attachment($attachment){
 		global $db;
 		if ($attachment instanceof url){
-			$stm=$db->prepare("INSERT INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-			$stm->execute(array(':uid' => $attachment->id,':aid' => $this->id,':mime'=>$attachment->description));
-			$this->urls[$attachment->id]=$attachment;
+			$this->attachments[]=$attachment;
 		} else {
 			$attachment=url::create($this->id, $attachment ,'Attachment');
-			$attachment->save();
-			$this->addUrl($attachment);
+			$this->add_link($attachment);
 		}
 	}
 	
-	function save_attachments(){
-		$attachments=$this->attachments;
-		$this->attachments=array(); // clear array, as the loop will re add thins
-		foreach ($attachments as $attachment){
-			$this->add_attachment($attachment);
-		}
-	}
-
 	function get_attachments(){
 		global $db;
 		$urls=array();
