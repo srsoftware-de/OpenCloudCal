@@ -117,39 +117,12 @@ function parse_event($page){
 	@$xml->loadHTMLFile($page);
 
 	/** Rosenkeller **/
-	$divs=$xml->getElementsByTagName('div'); // Suchen aller divs
-	foreach ($divs as $div){
-		foreach ($div->attributes as $attr){
-			if ($attr->name == 'class' && $attr->value=='event-description'){ // Suchen des Beschreibungstextes
-				$text=trim($div->childNodes->item(0)->nodeValue); // Das "event-description"-div hat mehrere unterlemenete. Eines davon ist der eigentliche Text
-				if (strlen($text)<10){
-					$text=trim($div->childNodes->item(1)->nodeValue);
-				}
-				$result['text']=$text; // wen wir den Text haben: Suche beenden
-				break;
-			}
-		}
-		if (isset($result['text'])){ // wen wir den Text haben: Suche beenden
-			break;
-		}
-	}
 
 	$data=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
 	foreach ($data as $info){
 		if ($info->attributes){
 			foreach ($info->attributes as $attr){
 				if ($attr->name == 'class'){
-					if (strpos($attr->value, 'fa-building') !==false){
-						$result['location']=$info->nextSibling->wholeText;
-						break;
-					}
-					if (strpos($attr->value, 'fa-music') !==false){
-						$result['tags']=parse_tags($info->nextSibling->wholeText);
-						break;
-					}
-					if (strpos($attr->value, 'fa-money') !==false){
-						break;
-					}
 					if (strpos($attr->value, 'fa-globe') !==false){
 						$link=$info->nextSibling;
 						if (!isset($link->tagName)){ // link separated by text: skip to link
@@ -368,6 +341,20 @@ function grep_event_end($xml){
 }
 
 function grep_event_location($xml,$default=null){
+	/* Rosenkeller */
+	$infos=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
+	foreach ($infos as $info){
+		if ($info->attributes){
+			foreach ($info->attributes as $attr){
+				if ($attr->name == 'class'){
+					if (strpos($attr->value, 'fa-building') !==false){
+						return $info->nextSibling->wholeText;
+					}
+				}
+			}
+		}
+	}
+	/* Rosenkeller */
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_location'));
 }
@@ -378,6 +365,30 @@ function grep_event_coords($xml,$default=null){
 }
 
 function grep_event_tags($xml,$additional=null){
+	/* Rosenkeller */
+	$infos=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
+	foreach ($infos as $info){
+		if ($info->attributes){
+			foreach ($info->attributes as $attr){
+				if ($attr->name == 'class'){
+					if (strpos($attr->value, 'fa-music') !==false){
+						return parse_tags($info->nextSibling->wholeText);
+					}
+				}
+			}
+		}
+	}
+	/* Rosenkeller */
+	/* Wagner */
+	$paragraphs=$xml->getElementsByTagName('p');
+	foreach ($paragraphs as $paragraph){
+		$text=trim($paragraph->nodeValue);
+		$pos=strpos($text,'Kategorie');
+		if ($pos!==false){
+			return parse_tags(substr($text, $pos+8));
+		}
+	}
+	/* Wagner */
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_tags'));
 }
