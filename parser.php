@@ -139,10 +139,6 @@ function parse_event($page){
 		if ($info->attributes){
 			foreach ($info->attributes as $attr){
 				if ($attr->name == 'class'){
-					if (strpos($attr->value, 'fa-calendar') !== false){
-						$result['start']=parser_parse_date($info->nextSibling->wholeText);
-						break;
-					}
 					if (strpos($attr->value, 'fa-building') !==false){
 						$result['location']=$info->nextSibling->wholeText;
 						break;
@@ -188,10 +184,6 @@ function parse_event($page){
 		$paragraphs=$xml->getElementsByTagName('p');
 		foreach ($paragraphs as $paragraph){
 			$text=trim($paragraph->nodeValue);
-			if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
-				$result['start']=parser_parse_date($text);
-				continue;
-			}
 			$pos=strpos($text,'Kategorie');
 			if ($pos!==false){
 				$result['tags']=parse_tags(substr($text, $pos+8));
@@ -339,6 +331,33 @@ function grep_event_description($xml){
 }
 
 function grep_event_start($xml){
+	/* Rosenkeller */
+	$infos=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
+	foreach ($infos as $info){
+		if ($info->attributes){
+			foreach ($info->attributes as $attr){
+				if ($attr->name == 'class'){
+					if (strpos($attr->value, 'fa-calendar') !== false){
+						return parser_parse_date($info->nextSibling->wholeText);
+					}
+				}
+			}
+		}
+	}
+	/* Rosenkeller */
+	/* Wagner */
+	$paragraphs=$xml->getElementsByTagName('p');
+	foreach ($paragraphs as $paragraph){
+		$text=trim($paragraph->nodeValue);
+		if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
+			return parser_parse_date($text);
+		}
+		if (preg_match('/\d\d.\d\d.\d\d\d\d/',$text)){
+			return parser_parse_date($text);
+			$result['start']=$startdate;
+		}
+	}
+	/* Wagner */
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_start'));
 }
