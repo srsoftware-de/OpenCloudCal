@@ -1,9 +1,9 @@
-<?php if ($format=='ical') { ?>
-BEGIN:VCALENDAR
-VERSION:2.0
-METHOD:PUBLISH
-PRODID:<?php echo "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]".PHP_EOL; ?>
-<?php } else if ($format=='webdav') {?>
+<?php if ($format=='ical') { 
+	echo icalLine('BEGIN','VCALENDAR');
+	echo icalLine('VERSION','2.0');
+	echo icalLine('METHOD','PUBLISH');	
+	echo icalLine('PRODID',"https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
+} else if ($format=='webdav') {?>
 <html>
 	<head>
   	<title>Index for calendars/srichter/default calendar/ - SabreDAV 1.7.6-stable</title>

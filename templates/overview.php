@@ -2,7 +2,7 @@
 
 if ($format=='ical') {
 	foreach ($appointments as $app){
-  	echo $app->toVEvent();
+  		echo $app->toVEvent();
 	} // foreach
 
 
