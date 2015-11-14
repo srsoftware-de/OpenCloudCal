@@ -310,6 +310,30 @@ function grep_event_title($xml){
 }
 
 function grep_event_description($xml){
+	/* Rosenkeller */
+	$divs=$xml->getElementsByTagName('div'); // Suchen aller divs
+	foreach ($divs as $div){
+		foreach ($div->attributes as $attr){
+			if ($attr->name == 'class' && $attr->value=='event-description'){ // Suchen des Beschreibungstextes
+				$text=trim($div->childNodes->item(0)->nodeValue); // Das "event-description"-div hat mehrere unterlemenete. Eines davon ist der eigentliche Text
+				if (strlen($text)<10){
+					return trim($div->childNodes->item(1)->nodeValue);
+				}
+				return $text; // wen wir den Text haben: Suche beenden
+			}
+		}
+	}	
+	/* Rosenkeller */
+	/* Wagner */
+	$paragraphs=$xml->getElementsByTagName('p');
+	$text='';
+	foreach ($paragraphs as $paragraph){
+		$text=trim($paragraph->nodeValue).NL;
+	}
+	if (length($text) > 0){
+		return $text;
+	}
+	/* Wagner */
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_description'));
 }
