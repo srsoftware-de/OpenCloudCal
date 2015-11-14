@@ -101,6 +101,11 @@ function parse_tags($text){
 	return $result;
 }
 
+function load_xml($url){
+	$xml = new DOMDocument();
+	@$xml->loadHTMLFile($url);	
+}
+
 function parse_event($page){
 	global $db_time_format;
 	$result=array('place'=>null,'text'=>'');
@@ -360,16 +365,16 @@ function parserImport($site_data){
 	$program_page=find_program_page($site_data['url']); // $url usually specifies the root url of a website
 	$event_pages=find_event_pages($program_page); // the program page usually links to the event pages
 	foreach ($event_pages as $event_url){
-		$source      = file_get_contents($event_url);
-		$title       = grep_event_title($source);
-		$description = grep_event_description($source);
-		$start       = grep_event_start($source);
-		$end	  	 = grep_event_end($source);
-		$location    = grep_event_location($source,$site_data['location']); // fallback
-		$coords      = grep_event_coords($source,$site_data['coords']); // fallback
-		$tags		 = grep_event_tags($source,$site_data['tags']); // merge
-		$links		 = grep_event_links($source);
-		$images		 = grep_event_images($source);
+		$xml         = load_xml($event_url);
+		$title       = grep_event_title($xml);
+		$description = grep_event_description($xml);
+		$start       = grep_event_start($xml);
+		$end	  	 = grep_event_end($xml);
+		$location    = grep_event_location($xml,$site_data['location']); // fallback
+		$coords      = grep_event_coords($xml,$site_data['coords']); // fallback
+		$tags		 = grep_event_tags($xml,$site_data['tags']); // merge
+		$links		 = grep_event_links($xml);
+		$images		 = grep_event_images($xml);
 		
 		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images); // TODO: add params
 		$existing_event = appointment::get_imported($event_url);
