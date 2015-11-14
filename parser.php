@@ -303,47 +303,63 @@ function merge_fields(&$target_data,$additional_data,$fields){
 	}
 }
 
-function grep_event_title($source){
+function grep_event_title($xml){
+	/* Rosenkeller */
+	$list_elements=$xml->getElementsByTagName('li');
+	foreach ($list_elements as $list_element){
+		foreach ($list_element->attributes as $attribute){
+			if ($attribute->name == 'class' && strpos($attribute->value,'active')!==false){
+				return trim($list_element->nodeValue);
+			}
+		}
+	}	
+	/* Rosenkeller */
+	/* Wagner */
+	$headings=$xml->getElementsByTagName('h1');
+	foreach ($headings as $heading){
+		return $heading->nodeValue;
+	}
+	/* Wagner  */
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_title'));
 }
 
-function grep_event_description($source){
+function grep_event_description($xml){
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_description'));
 }
 
-function grep_event_start($source){
+function grep_event_start($xml){
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_start'));
 }
 
-function grep_event_end($source){
+function grep_event_end($xml){
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_end'));
 }
 
-function grep_event_location($source,$default=null){
+function grep_event_location($xml,$default=null){
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_location'));
 }
 
-function grep_event_coords($source,$default=null){
+function grep_event_coords($xml,$default=null){
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_coords'));
 }
 
-function grep_event_tags($source,$additional=null){
+function grep_event_tags($xml,$additional=null){
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_tags'));
 }
 
-function grep_event_links($source){
+function grep_event_links($xml){
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_links'));
 }
 
-function grep_event_images($source){
+function grep_event_images($xml){
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_images'));
 }
