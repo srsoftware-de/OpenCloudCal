@@ -106,133 +106,6 @@ function load_xml($url){
 	@$xml->loadHTMLFile($url);	
 }
 
-function parse_event($page){
-	global $db_time_format;
-	$result=array('place'=>null,'text'=>'');
-	$links=array();
-	$links[]=url::create(null, $page,loc('Event page'));
-	$imgs=array();
-
-	$xml = new DOMDocument();
-	@$xml->loadHTMLFile($page);
-
-	/** Rosenkeller **/
-
-	$data=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
-	foreach ($data as $info){
-		if ($info->attributes){
-			foreach ($info->attributes as $attr){
-				if ($attr->name == 'class'){
-					if (strpos($attr->value, 'fa-globe') !==false){
-						$link=$info->nextSibling;
-						if (!isset($link->tagName)){ // link separated by text: skip to link
-							$link=$link->nextSibling;
-						}
-						if (!isset($link->tagName) || $link->tagName != 'a'){ // still no link found: give up
-							break;
-						}
-						$href=trim($link->getAttribute('href'));
-						$tx=trim($link->nodeValue);
-						$links[]=url::create(null, $href,$tx);
-						break;
-					}
-				}
-			}
-		}
-	}
-	$images=$xml->getElementsByTagName('img');
-	foreach ($images as $image){
-		if ($image->hasAttribute('pagespeed_high_res_src')){
-			$src=$image->getAttribute('pagespeed_high_res_src');
-			if (stripos($src, '://')===false){
-				$src=dirname($page).'/'.$src;
-			}
-			$imgs[]=$src;
-		}
-	}
-	/** Rosenkeller **/
-	/** Wagner **/
-	if (!isset($result['start'])){
-
-		$paragraphs=$xml->getElementsByTagName('p');
-		foreach ($paragraphs as $paragraph){
-			$text=trim($paragraph->nodeValue);
-			$pos=strpos($text,'Kategorie');
-			if ($pos!==false){
-				$result['tags']=parse_tags(substr($text, $pos+8));
-				continue;
-			}
-			if (strpos($text,'comment form')!==false){
-				continue;
-			}
-			$hrefs=$paragraph->getElementsByTagName('a');
-			foreach ($hrefs as $link){
-				$href=trim($link->getAttribute('href'));
-				$mime=guess_mime_type($href);
-				if (startsWith($mime, 'image')){
-					$imgs[]=$href;
-				} else {
-					$tx=trim($link->nodeValue);
-					$links[]=url::create(null, $href,$tx);
-				}
-			}
-			$result['text'].="\n".$text;
-		}
-	}
-	/** Wagner **/
-
-	/** cosmic dawn **/
-	if (!isset($result['start'])){
-		$startdate=0;
-		$paragraphs=$xml->getElementsByTagName('p');
-		foreach ($paragraphs as $paragraph){
-			$text=trim($paragraph->nodeValue);
-			if (preg_match('/\d\d.\d\d.\d\d\d\d/',$text)){
-				$startdate=parser_parse_date($text);
-				$result['start']=$startdate;
-			}
-			if (preg_match('/doors: *(?P<hour>\d\d?)pm/',$text,$hits)){
-				if (isset($result['start'])){
-					$result['start']=$result['start']+3600*(12+$hits['hour']);
-					continue;
-				}
-			}
-			$images=$xml->getElementsByTagName('img');
-		}
-		foreach ($images as $image){
-			$imgs[]=trim($image->baseURI.$image->getAttribute('src'));
-		}		
-		if($startdate!=0 && $startdate==$result['start']){
-			$result['start']=$result['start']+(20*3600); // default start time: 20°°
-		}
-	}
-
-	/** cosmic dawn **/
-
-	if (!isset($result['start'])){
-		return false;
-	}
-
-
-	foreach ($links as $url){
-		$url->save();
-	}
-
-	$starttime=$result['start'];
-	$result['start']=date($db_time_format,$starttime);
-
-	if (!isset($result['end'])){
-		$endtime=$starttime+2*3600; // 2h later
-		$result['end']=date($db_time_format,$endtime);
-	}
-	$result['links']=$links;
-	if (count($imgs)>0){
-		$result['images']=$imgs;
-	}
-
-	return $result;
-}
-
 function merge_fields(&$target_data,$additional_data,$fields){
 	foreach ($fields as $field){
 		if (isset($target_data[$field])){
@@ -394,16 +267,98 @@ function grep_event_tags($xml,$additional=null){
 }
 
 function grep_event_links($xml){
+	$links=array();
+	$infos=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
+	foreach ($infos as $info){
+		if ($info->attributes){
+			foreach ($info->attributes as $attr){
+				if ($attr->name == 'class'){
+					if (strpos($attr->value, 'fa-globe') !==false){
+						$link=$info->nextSibling;
+						if (!isset($link->tagName)){ // link separated by text: skip to link
+							$link=$link->nextSibling;
+						}
+						if (!isset($link->tagName) || $link->tagName != 'a'){ // still no link found: give up
+							break;
+						}
+						$href=trim($link->getAttribute('href'));
+						$tx=trim($link->nodeValue);
+						$links[]=url::create(null, $href,$tx);
+					}
+				}
+			}
+		}
+	}
+	
+	
+	$paragraphs=$xml->getElementsByTagName('p');
+	foreach ($paragraphs as $paragraph){
+		$hrefs=$paragraph->getElementsByTagName('a');
+		foreach ($hrefs as $link){
+			$href=trim($link->getAttribute('href'));
+			$mime=guess_mime_type($href);
+			if (!startsWith($mime, 'image')){
+				$tx=trim($link->nodeValue);
+				$links[]=url::create(null, $href,$tx);
+			}
+		}
+	}
+	if (!empty($links))	{
+		return $links;
+	}
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_links'));
 }
 
 function grep_event_images($xml){
+	$images=$xml->getElementsByTagName('img');
+	$imgs=array();
+	/* Rosenkeller */
+	foreach ($images as $image){
+		if ($image->hasAttribute('pagespeed_high_res_src')){
+			$src=$image->getAttribute('pagespeed_high_res_src');
+			if (stripos($src, '://')===false){
+				$src=dirname($page).'/'.$src;
+			}
+			$imgs[]=$src;
+		}
+	}
+	if (!empty($imgs)){
+		return $imgs;
+	}
+	/* Rosenkeller */
+	/* Wagner */
+	$paragraphs=$xml->getElementsByTagName('p');
+	foreach ($paragraphs as $paragraph){
+		$hrefs=$paragraph->getElementsByTagName('a');
+		foreach ($hrefs as $link){
+			$href=trim($link->getAttribute('href'));
+			$mime=guess_mime_type($href);
+			if (startsWith($mime, 'image')){
+				$imgs[]=$href;
+			}
+		}
+	}
+	if (!empty($imgs)){
+		return $imgs;
+	}
+	/* Wagner */
+	
+	$images=$xml->getElementsByTagName('img');
+	foreach ($images as $image){
+		$imgs[]=trim($image->baseURI.$image->getAttribute('src'));
+	}
+	if (!empty($imgs)){
+		return $imgs;
+	}
+	
+	
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_images'));
 }
 
 function already_imported($event_url){
+
 	// TODO
 	print loc('%method not implemented, yet',array('%method','already_imported'));
 	return false;
