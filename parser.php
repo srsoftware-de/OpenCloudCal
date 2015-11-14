@@ -242,8 +242,8 @@ function parse_event($page){
 					continue;
 				}
 			}
-			$images=$xml->getElementsByTagName('img');
 		}
+		$images=$xml->getElementsByTagName('img');
 		foreach ($images as $image){
 			$imgs[]=trim($image->baseURI.$image->getAttribute('src'));
 		}		
