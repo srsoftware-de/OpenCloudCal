@@ -181,24 +181,9 @@ function parse_event($page){
 			$imgs[]=$src;
 		}
 	}
-	$lis=$xml->getElementsByTagName('li');
-	foreach ($lis as $li){
-		foreach ($li->attributes as $attr){
-			if ($attr->name == 'class' && strpos($attr->value,'active')!==false){
-				$result['title']=trim($li->nodeValue);
-				break;
-			}
-		}
-	}
 	/** Rosenkeller **/
 	/** Wagner **/
 	if (!isset($result['start'])){
-		$headings=$xml->getElementsByTagName('h1');
-		foreach ($headings as $heading){
-			$result['title']=$heading->nodeValue;
-			break;
-		}
-
 
 		$paragraphs=$xml->getElementsByTagName('p');
 		foreach ($paragraphs as $paragraph){
