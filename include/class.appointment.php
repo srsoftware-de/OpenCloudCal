@@ -225,11 +225,11 @@ class appointment {
 	 
 	/** tries to save the event, if it is not already in the database **/
 	/* soon to be replaced by import */
-	public function safeIfNotAlreadyImported($tags=null,$links=null){
+	public function safeIfNotAlreadyImported(){
 		global $db;
-		if ($tags!=null && !empty($tags)){ // if the event originates from our calender: do not re-import it
-			if (in_array('OpenCloudCal', $tags)) return false;
-			if (in_array('opencloudcal', $tags)) return false;
+		if ($this->tags!=null && !empty($this->tags)){ // if the event originates from our calender: do not re-import it
+			if (in_array('OpenCloudCal', $this->tags)) return false;
+			if (in_array('opencloudcal', $this->tags)) return false;
 		}
 		$md5=md5($this->toVEvent(),TRUE);
 		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
