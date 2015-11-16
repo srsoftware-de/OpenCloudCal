@@ -5,9 +5,8 @@ class url {
 	function __construct(){
 	}
 
-	public static function create($appointment_id,$address,$description=null){
+	public static function create($address,$description=null){
 		$instance=new self();
-		$instance->aid=$appointment_id;
 		if ($description==null){
 			$instance->description=$address;
 		} else {

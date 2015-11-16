@@ -53,7 +53,7 @@ function find_event_pages($page){
 			$result[]=$href;
 		}
 	}
-	return $result;
+	return array_unique($result);
 }
 
 function extract_date($text){
@@ -81,9 +81,11 @@ function extract_time($text){
 }
 
 function parser_parse_date($text){
-	global $db_time_format;
+	global $db_time_format;	
 	$date=extract_date($text);
+	
 	$time=extract_time($text);
+	
 	$date=date_parse($date.' '.$time);
 	$secs=parseDateTime($date);
 	return $secs;
@@ -104,6 +106,7 @@ function parse_tags($text){
 function load_xml($url){
 	$xml = new DOMDocument();
 	@$xml->loadHTMLFile($url);	
+	return $xml;
 }
 
 function merge_fields(&$target_data,$additional_data,$fields){
@@ -209,6 +212,7 @@ function grep_event_start($xml){
 }
 
 function grep_event_end($xml){
+	return null;
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_end'));
 }
@@ -233,6 +237,7 @@ function grep_event_location($xml,$default=null){
 }
 
 function grep_event_coords($xml,$default=null){
+	return null;
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_coords'));
 }
@@ -273,8 +278,8 @@ function grep_event_links($xml){
 		if ($info->attributes){
 			foreach ($info->attributes as $attr){
 				if ($attr->name == 'class'){
-					if (strpos($attr->value, 'fa-globe') !==false){
-						$link=$info->nextSibling;
+					if (strpos($attr->value, 'fa-globe') !==false){						
+						$link=$info->nextSibling;						
 						if (!isset($link->tagName)){ // link separated by text: skip to link
 							$link=$link->nextSibling;
 						}
@@ -283,7 +288,7 @@ function grep_event_links($xml){
 						}
 						$href=trim($link->getAttribute('href'));
 						$tx=trim($link->nodeValue);
-						$links[]=url::create(null, $href,$tx);
+						$links[]=url::create($href,$tx);
 					}
 				}
 			}
@@ -299,7 +304,7 @@ function grep_event_links($xml){
 			$mime=guess_mime_type($href);
 			if (!startsWith($mime, 'image')){
 				$tx=trim($link->nodeValue);
-				$links[]=url::create(null, $href,$tx);
+				$links[]=url::create($href,$tx);
 			}
 		}
 	}
@@ -310,7 +315,7 @@ function grep_event_links($xml){
 	return loc('%method not implemented, yet',array('%method','grep_event_links'));
 }
 
-function grep_event_images($xml){
+function grep_event_images($referer,$xml){
 	$images=$xml->getElementsByTagName('img');
 	$imgs=array();
 	/* Rosenkeller */
@@ -318,7 +323,7 @@ function grep_event_images($xml){
 		if ($image->hasAttribute('pagespeed_high_res_src')){
 			$src=$image->getAttribute('pagespeed_high_res_src');
 			if (stripos($src, '://')===false){
-				$src=dirname($page).'/'.$src;
+				$src=dirname($referer).'/'.$src;
 			}
 			$imgs[]=$src;
 		}
@@ -364,6 +369,8 @@ function already_imported($event_url){
 	return false;
 }
 
+
+
 function parserImport($site_data){
 	if (!is_array($site_data)){
 		$site_data=array('url'=>$site_data);
@@ -374,21 +381,24 @@ function parserImport($site_data){
 	}
 	$program_page=find_program_page($site_data['url']); // $url usually specifies the root url of a website
 	$event_pages=find_event_pages($program_page); // the program page usually links to the event pages
+	error_log(print_r($event_pages,true));
 	foreach ($event_pages as $event_url){
+		error_log('parsing '.$event_url);
 		$xml         = load_xml($event_url);
-		$title       = grep_event_title($xml);
+		$title       = grep_event_title($xml);		
 		$description = grep_event_description($xml);
 		$start       = grep_event_start($xml);
 		$end	  	 = grep_event_end($xml);
-		$location    = grep_event_location($xml,$site_data['location']); // fallback
+		$location    = grep_event_location($xml,$site_data['location']); // fallback		
 		$coords      = grep_event_coords($xml,$site_data['coords']); // fallback
-		$tags		 = grep_event_tags($xml,$site_data['tags']); // merge
+		$tags		 = grep_event_tags($xml,$site_data['tags']); // merge		
 		$links		 = grep_event_links($xml);
-		$images		 = grep_event_images($xml);
-		
-		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images); // TODO: add params
+		$images		 = grep_event_images($event_url,$xml);
+		print_r($start);		
+		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images,false); // TODO: add params
 		$existing_event = appointment::get_imported($event_url);
 		if ($existing_event != null){
+			error_log("appointment has been imported before");
 			// TODO: add all methods below
 			$existing_event->set_title($title);
 			$existing_event->set_description($description);
@@ -407,6 +417,7 @@ function parserImport($site_data){
 			}			
 			$existing_event->save(); 
 		} else {
+			error_log("saving appointment");
 			$event->save(); // TODO: currently does not save tags, links and images
 		}
 	}

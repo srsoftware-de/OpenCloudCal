@@ -4,6 +4,7 @@ class appointment {
 
 	/* create new appointment object */
 	function __construct(){
+		$this->id=NULL;
 		$this->title=NULL;
 		$this->description=NULL;
 		$this->start=NULL;
@@ -53,6 +54,20 @@ class appointment {
 		return $instance;
 	}
 	
+	public static function get_imported($url){
+		global $db;
+		$url_hash=md5($url);
+		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
+		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+		$stm->execute(array(':hash'=>$url_hash));
+		$results=$stm->fetchAll();
+		if (count($results) < 1){ // not imported, yet
+			return null;
+		} else { // already imported
+			$aid=$results[0]['aid'];
+			return appointment::load($aid);
+		}
+	}
 	
 	/** sets the coordinates of this event **/
 	function set_coords($coords){
@@ -564,7 +579,7 @@ class appointment {
 		if ($link instanceof url){
 			$this->links[]=$link;
 		} else {
-			$link=url::create($this->id, $link ,'Homepage');
+			$link=url::create($link ,'Homepage');
 			$this->add_link($link);
 		}
 	}
@@ -604,7 +619,7 @@ class appointment {
 		if ($attachment instanceof url){
 			$this->attachments[]=$attachment;
 		} else {
-			$attachment=url::create($this->id, $attachment ,'Attachment');
+			$attachment=url::create($attachment ,'Attachment');
 			$this->add_link($attachment);
 		}
 	}

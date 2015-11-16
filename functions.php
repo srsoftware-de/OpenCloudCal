@@ -78,7 +78,7 @@ function parseDateTime($array){
 		return false;
 	}
 
-	$d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];
+	$d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];	
 	$secs=strtotime($d_string);
 
 	if (isset($array['hour'])){
@@ -203,7 +203,7 @@ function parseLinkData($data){
 	if (!strpos($url,':')){
 		$url='http://'.$url;
 	}
-	$url=url::create($data['aid'],$url,$data['description']);
+	$url=url::create($url,$data['description']);
 	return $url;
 }
 
@@ -228,7 +228,7 @@ function parseAttachmentData($data){
 	if (empty($data['mime'])){
 		$data['mime'] = guess_mime_type($url);
 	}	
-	$url=url::create($data['aid'],$url,$data['mime']);
+	$url=url::create($url,$data['mime']);
 	return $url;
 }
 
