@@ -139,7 +139,6 @@ function parseAppointmentData($data){
 	}
 	
 	$end=parseDateTime($data['end']);
-	error_log("end: ".$end);
 	if ($end<$start){
 		$end=$start;
 	}

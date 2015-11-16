@@ -147,7 +147,8 @@ function grep_event_title($xml){
 	}
 	/* Wagner  */
 	// TODO
-	return loc('%method not implemented, yet',array('%method','grep_event_title'));
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_title')));
+	return null;
 }
 
 function grep_event_description_raw($xml){
@@ -168,15 +169,16 @@ function grep_event_description_raw($xml){
 	/* Wagner */
 	$paragraphs=$xml->getElementsByTagName('p');
 	$text='';
-	foreach ($paragraphs as $paragraph){
-		$text=trim($paragraph->nodeValue).NL;
+	foreach ($paragraphs as $paragraph){		
+		$text.=trim($paragraph->nodeValue)."\n";
 	}
-	if (length($text) > 0){
+	if (strlen($text) > 0){
 		return $text;
 	}
 	/* Wagner */
 	// TODO
-	return loc('%method not implemented, yet',array('%method','grep_event_description'));
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_description')));
+	return null;	
 }
 
 function grep_event_description($xml){
@@ -218,13 +220,14 @@ function grep_event_start($xml){
 	}
 	/* Wagner */
 	// TODO
-	return loc('%method not implemented, yet',array('%method','grep_event_start'));
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_start')));
+	return null;
 }
 
 function grep_event_end($xml){
 	return null;
 	// TODO
-	return loc('%method not implemented, yet',array('%method','grep_event_end'));
+	return loc('%method not implemented, yet',array('%method'=>'grep_event_end'));
 }
 
 function grep_event_location($xml,$default=null){
@@ -243,13 +246,14 @@ function grep_event_location($xml,$default=null){
 	}
 	/* Rosenkeller */
 	// TODO
-	return loc('%method not implemented, yet',array('%method','grep_event_location'));
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_location')));
+	return null;
 }
 
 function grep_event_coords($xml,$default=null){
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_coords')));
 	return null;
 	// TODO
-	return loc('%method not implemented, yet',array('%method','grep_event_coords'));
 }
 
 function grep_event_tags_raw($xml){
@@ -277,17 +281,32 @@ function grep_event_tags_raw($xml){
 		}
 	}
 	/* Wagner */
+	
+
 	// TODO
-	return loc('%method not implemented, yet',array('%method','grep_event_tags'));
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_tags')));
+	return null;
 }
 
 function grep_event_tags($xml, $additional=array()){
+	if ($additional==null){
+		$additional=array();
+	}
 	$additional[]=loc('imported');
-	return array_merge(grep_event_tags_raw($xml),$additional);
+	
+	$tags=grep_event_tags_raw($xml);
+	if ($tags==null){
+		return $additional;
+	}
+	return array_merge($tags,$additional);
 }
 
-function grep_event_links($xml){
+function grep_event_links($xml,$url=null){
 	$links=array();
+	if ($url!=null){
+		$url=url::create($url,loc('event page'));
+		$links[]=$url;
+	}
 	$infos=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
 	foreach ($infos as $info){
 		if ($info->attributes){
@@ -325,9 +344,10 @@ function grep_event_links($xml){
 	}
 	if (!empty($links))	{
 		return $links;
-	}
+	}	
 	// TODO
-	return loc('%method not implemented, yet',array('%method','grep_event_links'));
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_links')));
+	return array();
 }
 
 function grep_event_images_raw($referer,$xml){
@@ -372,13 +392,16 @@ function grep_event_images_raw($referer,$xml){
 		return $imgs;
 	}
 	
-	
 	// TODO
-	return loc('%method not implemented, yet',array('%method','grep_event_images'));
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_images')));
+	return null;
 }
 
 function grep_event_images($referer,$xml){
-	$images=grep_event_images_raw($referer, $xml);	
+	$images=grep_event_images_raw($referer, $xml);
+	if ($images == null){
+		return array();
+	}	
 	$result=array();
 	foreach ($images as $src){		
 		$mime=guess_mime_type($src);
@@ -391,7 +414,7 @@ function grep_event_images($referer,$xml){
 function already_imported($event_url){
 
 	// TODO
-	print loc('%method not implemented, yet',array('%method','already_imported'));
+	error_log(loc('%method not implemented, yet',array('%method'=>'already_imported')));
 	return false;
 }
 
@@ -410,15 +433,19 @@ function parserImport($site_data){
 	foreach ($event_pages as $event_url){
 		error_log('parsing '.$event_url);
 		$xml         = load_xml($event_url);
-		$title       = grep_event_title($xml);		
+		$title       = grep_event_title($xml);
+		print $event_url.NL;
 		$description = grep_event_description($xml);
+		if (empty($description)){
+			continue;
+		}
 		$start       = grep_event_start($xml);
 		$end	  	 = grep_event_end($xml);
 		$location    = grep_event_location($xml,$site_data['location']); // fallback		
 		$coords      = grep_event_coords($xml,$site_data['coords']); // fallback
 		$tags		 = grep_event_tags($xml,$site_data['tags']); // merge		
-		$links		 = grep_event_links($xml);
-		$images		 = grep_event_images($event_url,$xml);
+		$links		 = grep_event_links($xml,$event_url);
+		$images		 = grep_event_images($event_url,$xml);		
 		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images,false); // TODO: add params
 		$existing_event = appointment::get_imported($event_url);
 		if ($existing_event != null){			
@@ -432,7 +459,7 @@ function parserImport($site_data){
 			$existing_event->set_coords($coords);
 			foreach ($tags as $tag){
 				$existing_event->add_tag($tag);
-			}
+			}			
 			foreach ($links as $link){
 				$existing_event->add_link($link);
 			}
