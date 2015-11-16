@@ -245,12 +245,18 @@ function grep_event_location($xml,$default=null){
 		}
 	}
 	/* Rosenkeller */
+	if ($default!=null){
+		return $default;
+	}
 	// TODO
 	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_location')));
 	return null;
 }
 
 function grep_event_coords($xml,$default=null){
+	if ($default!=null){
+		return $default;
+	}	
 	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_coords')));
 	return null;
 	// TODO
