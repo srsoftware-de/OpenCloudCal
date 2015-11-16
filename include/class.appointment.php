@@ -22,9 +22,6 @@ class appointment {
 		$instance->title=$title;
 		$instance->description=$description;
 		$instance->start=$start;
-		if ($end==null){
-			$end=$start;
-		}
 		$instance->end=$end;
 		$instance->location=$location;
 		$instance->imported=false;
@@ -715,17 +712,19 @@ class appointment {
 			if (!is_array($tags)){
 				$tags=array($tags);
 			}
-			$sql="SELECT * FROM imported_appointments RIGHT JOIN (appointments NATURAL JOIN appointment_tags NATURAL JOIN tags) ON (appointments.aid=imported_appointments.aid) WHERE end>'$yesterday' AND keyword IN (:tags) ORDER BY start";
+			$sql="SELECT * FROM imported_appointments RIGHT JOIN (appointments NATURAL JOIN appointment_tags NATURAL JOIN tags) ON (appointments.aid=imported_appointments.aid) WHERE (start>'$yesterday' OR end>'$yesterday') AND keyword IN (:tags) ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
+			print_r($sql);
 			$stm=$db->prepare($sql);
 			$stm->bindValue(':tags', reset($tags));
 		} else {
-			$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) WHERE end>'$yesterday' ORDER BY start";
+			$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) WHERE start>'$yesterday' OR end>'$yesterday' ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
+			print_r($sql);
 			$stm=$db->prepare($sql);
 		}
 		if ($limit){

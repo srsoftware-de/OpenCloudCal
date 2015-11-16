@@ -55,6 +55,9 @@ function getTimezoneOffset($timestamp){
 
 function clientTime($timestamp){
 	global $db_time_format;
+	if ($timestamp==null){
+		return null;		
+	}
 	$secs=strtotime($timestamp);
 	return date($db_time_format,$secs+getTimezoneOffset($secs));
 }

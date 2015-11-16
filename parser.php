@@ -252,7 +252,7 @@ function grep_event_coords($xml,$default=null){
 	return loc('%method not implemented, yet',array('%method','grep_event_coords'));
 }
 
-function grep_event_tags($xml,$additional=null){
+function grep_event_tags_raw($xml){
 	/* Rosenkeller */
 	$infos=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
 	foreach ($infos as $info){
@@ -260,8 +260,7 @@ function grep_event_tags($xml,$additional=null){
 			foreach ($info->attributes as $attr){
 				if ($attr->name == 'class'){
 					if (strpos($attr->value, 'fa-music') !==false){
-						$tags=parse_tags($info->nextSibling->wholeText);											
-						return array_merge($tags,$additional);
+						return parse_tags($info->nextSibling->wholeText);
 					}
 				}
 			}
@@ -274,13 +273,17 @@ function grep_event_tags($xml,$additional=null){
 		$text=trim($paragraph->nodeValue);
 		$pos=strpos($text,'Kategorie');
 		if ($pos!==false){
-			$tags=parse_tags(substr($text, $pos+8));
-			return array_merge($tags,$additional);				
+			return parse_tags(substr($text, $pos+8));
 		}
 	}
 	/* Wagner */
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_tags'));
+}
+
+function grep_event_tags($xml, $additional=array()){
+	$additional[]=loc('imported');
+	return array_merge(grep_event_tags_raw($xml),$additional);
 }
 
 function grep_event_links($xml){
