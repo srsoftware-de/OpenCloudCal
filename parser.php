@@ -180,6 +180,7 @@ function grep_event_description($xml){
 }
 
 function grep_event_start($xml){
+	global $db_time_format;
 	/* Rosenkeller */
 	$infos=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
 	foreach ($infos as $info){
@@ -187,7 +188,8 @@ function grep_event_start($xml){
 			foreach ($info->attributes as $attr){
 				if ($attr->name == 'class'){
 					if (strpos($attr->value, 'fa-calendar') !== false){
-						return parser_parse_date($info->nextSibling->wholeText);
+						$starttime=parser_parse_date($info->nextSibling->wholeText);
+						return date($db_time_format,$starttime);
 					}
 				}
 			}
@@ -199,11 +201,12 @@ function grep_event_start($xml){
 	foreach ($paragraphs as $paragraph){
 		$text=trim($paragraph->nodeValue);
 		if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
-			return parser_parse_date($text);
+			$starttime= parser_parse_date($text);
+			return date($db_time_format,$starttime);
 		}
 		if (preg_match('/\d\d.\d\d.\d\d\d\d/',$text)){
-			return parser_parse_date($text);
-			$result['start']=$startdate;
+			$starttime= parser_parse_date($text);
+			return date($db_time_format,$starttime);
 		}
 	}
 	/* Wagner */
@@ -250,7 +253,8 @@ function grep_event_tags($xml,$additional=null){
 			foreach ($info->attributes as $attr){
 				if ($attr->name == 'class'){
 					if (strpos($attr->value, 'fa-music') !==false){
-						return parse_tags($info->nextSibling->wholeText);
+						$tags=parse_tags($info->nextSibling->wholeText);											
+						return array_merge($tags,$additional);
 					}
 				}
 			}
@@ -263,7 +267,8 @@ function grep_event_tags($xml,$additional=null){
 		$text=trim($paragraph->nodeValue);
 		$pos=strpos($text,'Kategorie');
 		if ($pos!==false){
-			return parse_tags(substr($text, $pos+8));
+			$tags=parse_tags(substr($text, $pos+8));
+			return array_merge($tags,$additional);				
 		}
 	}
 	/* Wagner */
@@ -394,7 +399,6 @@ function parserImport($site_data){
 		$tags		 = grep_event_tags($xml,$site_data['tags']); // merge		
 		$links		 = grep_event_links($xml);
 		$images		 = grep_event_images($event_url,$xml);
-		print_r($start);		
 		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images,false); // TODO: add params
 		$existing_event = appointment::get_imported($event_url);
 		if ($existing_event != null){
