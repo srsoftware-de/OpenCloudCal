@@ -181,6 +181,7 @@ function grep_event_description_raw($xml){
 
 function grep_event_description($xml){
 	$raw=grep_event_description_raw($xml);
+	$raw=str_replace(array("\r\n","\r"), "\n", $raw);	
 	$enc=htmlspecialchars_decode($raw);
 	return $enc;
 }
