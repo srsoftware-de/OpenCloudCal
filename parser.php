@@ -279,7 +279,7 @@ function parserImport($import){
 					$attach=parseAttachmentData($attach);
 					if ($attach){
 						$attach->save();
-						$appointment->addAttachment($attach);
+						$appointment->add_attachment($attach);
 					}
 				}
 			}

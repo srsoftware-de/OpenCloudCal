@@ -237,18 +237,8 @@ class appointment {
 		$stm->execute(array(':hash'=>$md5));
 		$results=$stm->fetchAll();
 		if (count($results) < 1){ // not imported, yet
+			$this->add_tag(loc('imported'));
 			$this->save();
-			$this->addTag(loc('imported'));
-			if ($tags!=null && !empty($tags)){
-				foreach ($tags as $tag){
-					$this->addTag(trim($tag));
-				}
-			}
-			if ($links!=null && !empty($links)){
-				foreach ($links as $url){
-					$this->addUrl($url);
-				}
-			}
 			$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
 			$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 			$stm->execute(array(':aid'=>$this->id,':hash'=>$md5));
