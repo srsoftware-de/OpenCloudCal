@@ -391,7 +391,7 @@ function parserImport($site_data){
 		error_log('parsing '.$event_url);
 		$xml         = load_xml($event_url);
 		$title       = grep_event_title($xml);		
-		$description = grep_event_description($xml);
+		$description = htmlspecialchars_decode(grep_event_description($xml));
 		$start       = grep_event_start($xml);
 		$end	  	 = grep_event_end($xml);
 		$location    = grep_event_location($xml,$site_data['location']); // fallback		
