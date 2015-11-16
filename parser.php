@@ -150,7 +150,7 @@ function grep_event_title($xml){
 	return loc('%method not implemented, yet',array('%method','grep_event_title'));
 }
 
-function grep_event_description($xml){
+function grep_event_description_raw($xml){
 	/* Rosenkeller */
 	$divs=$xml->getElementsByTagName('div'); // Suchen aller divs
 	foreach ($divs as $div){
@@ -177,6 +177,12 @@ function grep_event_description($xml){
 	/* Wagner */
 	// TODO
 	return loc('%method not implemented, yet',array('%method','grep_event_description'));
+}
+
+function grep_event_description($xml){
+	$raw=grep_event_description_raw($xml);
+	$enc=htmlspecialchars_decode($raw);
+	return $enc;
 }
 
 function grep_event_start($xml){
@@ -401,7 +407,7 @@ function parserImport($site_data){
 		error_log('parsing '.$event_url);
 		$xml         = load_xml($event_url);
 		$title       = grep_event_title($xml);		
-		$description = htmlspecialchars_decode(grep_event_description($xml));
+		$description = grep_event_description($xml);
 		$start       = grep_event_start($xml);
 		$end	  	 = grep_event_end($xml);
 		$location    = grep_event_location($xml,$site_data['location']); // fallback		
