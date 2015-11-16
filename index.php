@@ -40,11 +40,7 @@ function calciferValue(){
 if (isset($_POST['newappointment'])){
 	$appointment=parseAppointmentData($_POST['newappointment']); // create new appointment
 	if ($appointment){
-		$appointment->save(); // save new appointment
-		$tags=explode(' ',$_POST['newappointment']['tags']);
-		foreach ($tags as $tag){
-			$appointment->addTag($tag); // add tags
-		}
+		$appointment->save(); // save appointment
 	} else { // if appointment data is invalid
 		unset($_POST['nextaction']); // do not add sessions or links
 	}
@@ -65,7 +61,8 @@ if (isset($_POST['newlink'])){
 	if ($link){ // if successfull:
 		$link->save(); // save session
 		$appointment=appointment::load($link->aid);
-		$appointment->addUrl($link);
+		$appointment->add_link($link);
+		$appointment->save();
 	}
 }
 
@@ -75,7 +72,8 @@ if (isset($_POST['newattachment'])){
 	if ($link){ // if successfull:
 		$link->save(); // save session
 		$appointment=appointment::load($link->aid);
-		$appointment->addAttachment($link);
+		$appointment->add_attachment($link);
+		$appointment->save();
 	}
 }
 
@@ -85,11 +83,6 @@ if (isset($_POST['editappointment'])){
 	$appointment=parseAppointmentData($_POST['editappointment']);
 	if ($appointment){
 		$appointment->save();
-		$appointment->removeAllTags();
-		$tags=explode(' ',$_POST['editappointment']['tags']);
-		foreach ($tags as $tag){
-			$appointment->addTag($tag); // add tags
-		}
 	}
 	$appointment->loadRelated();
 }
@@ -114,7 +107,7 @@ if (isset($_POST['deleteattachment'])){
 	$uid=$_POST['deleteattachment'];
 	$aid=$_GET['show'];
 	$appointment=appointment::load($aid);
-	$appointment->removeAttachment((int)$uid);
+	$appointment->remove_attachment((int)$uid);
 }
 
 /* link shall be removed from appointment */
@@ -122,7 +115,7 @@ if (isset($_POST['deletelink'])){
 	$uid=$_POST['deletelink'];
 	$aid=$_GET['show'];
 	$appointment=appointment::load($aid);
-	$appointment->removeUrl((int)$uid);
+	$appointment->remove_link((int)$uid);
 }
 
 

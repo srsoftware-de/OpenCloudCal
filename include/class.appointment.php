@@ -1,18 +1,18 @@
 <?php
 
 class appointment {
-	private $title=NULL;
-	private $description=NULL;
-	private $start=NULL;
-	private $end=NULL;
-	private $location=NULL;
-	private $coords=NULL;
-	private $tags=array();
-	private $links=array();
-	private $attachments=array();
 
 	/* create new appointment object */
 	function __construct(){
+		$this->title=NULL;
+		$this->description=NULL;
+		$this->start=NULL;
+		$this->end=NULL;
+		$this->location=NULL;
+		$this->coords=NULL;
+		$this->tags=array();
+		$this->links=array();
+		$this->attachments=array();
 	}
 
 	/** start and end are expected to be UTC timestamps in the form YYYY-MM-DD hh:mm:ss **/
@@ -28,15 +28,24 @@ class appointment {
 		$instance->location=$location;
 		$instance->imported=false;
 
-		set_coords($coords);
-		foreach ($tags as $tag){
-			$instance->add_tag($tag);
+		$instance->set_coords($coords);
+		if ($tags!=null){
+			if (!is_array($tags)){
+				$tags=explode(' ', $tags);
+			}
+			foreach ($tags as $tag){
+				$instance->add_tag($tag);
+			}
 		}
-		foreach ($links as $link){
-			$instance->add_link($link);
+		if ($links!=null){
+			foreach ($links as $link){
+				$instance->add_link($link);
+			}
 		}
-		foreach ($attachments as $attachment){
-			$instance->add_attachment($attachment);
+		if ($attachments!=null){
+			foreach ($attachments as $attachment){
+				$instance->add_attachment($attachment);
+			}
 		}
 		if ($save){
 			$instance->save();
@@ -55,9 +64,9 @@ class appointment {
 			$c=explode(',',str_replace(' ', '', str_replace(';', ',', $coords)));
 			$c=explode(',',str_replace(' ', '', str_replace(';', ',', $coords)));
 			if (count($c)==2){
-				$instance->coords=array('lat'=>$c[0],'lon'=>$c[1]);
+				$this->coords=array('lat'=>$c[0],'lon'=>$c[1]);
 			} else {
-				$instance->coords=NULL;
+				$this->coords=NULL;
 			}				
 		}
 	}
@@ -108,7 +117,7 @@ class appointment {
 		$start=null;
 		$end=null;
 		$geo=null;
-		$urls=null;
+		$links=null;
 		$location=null;
 		$summary=null;
 		$description=null;
@@ -151,10 +160,10 @@ class appointment {
 			} elseif (startsWith($line,'GEO:')){
 				$geo=str_replace('\;', ';',substr($line,4));
 			} elseif (startsWith($line,'URL:')){
-				if ($urls==null){
-					$urls=array();
+				if ($links==null){
+					$links=array();
 				}
-				$urls[]=substr($line,4) . readMultilineFromIcal($stack);
+				$links[]=substr($line,4) . readMultilineFromIcal($stack);
 			} elseif (startsWith($line,'LOCATION:')){
 				$location=str_replace(array('\,','\n'), array(',',"\n"),substr($line,9) . readMultilineFromIcal($stack));
 			} elseif (startsWith($line,'SUMMARY:')){
@@ -180,8 +189,8 @@ class appointment {
 				if ($end==null){
 					$end=$start;
 				}
-				$app=appointment::create($summary, $description, $start, $end, $location, $geo,false);
-				$app->safeIfNotAlreadyImported($tags,$urls);
+				$app=appointment::create($summary, $description, $start, $end, $location, $geo,null,null,null,false);
+				$app->safeIfNotAlreadyImported($tags,$links);
 
 				return $app;
 			} else {
@@ -216,7 +225,7 @@ class appointment {
 	 
 	/** tries to save the event, if it is not already in the database **/
 	/* soon to be replaced by import */
-	public function safeIfNotAlreadyImported($tags=null,$urls=null){
+	public function safeIfNotAlreadyImported($tags=null,$links=null){
 		global $db;
 		if ($tags!=null && !empty($tags)){ // if the event originates from our calender: do not re-import it
 			if (in_array('OpenCloudCal', $tags)) return false;
@@ -235,8 +244,8 @@ class appointment {
 					$this->addTag(trim($tag));
 				}
 			}
-			if ($urls!=null && !empty($urls)){
-				foreach ($urls as $url){
+			if ($links!=null && !empty($links)){
+				foreach ($links as $url){
 					$this->addUrl($url);
 				}
 			}
@@ -269,7 +278,7 @@ class appointment {
 		$instance=new self();
 		$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) WHERE appointments.aid=$id";
 		foreach ($db->query($sql) as $row){
-			$instance=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false);
+			$instance=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false);
 			$instance->id=$id;
 			if ($row['md5hash']!=null) {
 				$instance->imported=true;
@@ -281,10 +290,10 @@ class appointment {
 
 	/* loads tags, urls and sessions related to the current appointment */
 	function loadRelated(){
-		$this->attachments=$this->getAttachments();
-		$this->urls				=$this->getUrls();
-		$this->tags				=$this->getTags();
-		$this->sessions		=session::loadAll($this->id);
+		$this->attachments=$this->get_attachments();
+		$this->links	  =$this->get_links();
+		$this->tags		  =$this->get_tags();
+		$this->sessions	  =session::loadAll($this->id);
 	}
 
 	function delete($id=false){
@@ -333,7 +342,8 @@ class appointment {
 			$this->id=$db->lastInsertId();
 		}
 		$this->save_tags();
-		$this->save_links(); // attachments are also only links!
+		$this->save_links();
+		$this->save_attachments();
 	}
 
 	function sendToGrical(){
@@ -353,8 +363,8 @@ class appointment {
 			}
 			$text.=PHP_EOL;
 			$text.='urls:'.PHP_EOL;
-			if (isset($this->urls) && !empty($this->urls)){
-				foreach ($this->urls as $url){
+			if (isset($this->links) && !empty($this->links)){
+				foreach ($this->links as $url){
 					$text.='    '.$url->description.' '.$url->address.PHP_EOL;
 				}
 			}
@@ -452,13 +462,13 @@ class appointment {
 			if (isset($this->tags) && !empty($this->tags)){
 				$formfields['tags'].=','.$this->tags(',');
 			}
-			if (isset($this->urls)){
-				if (count($this->urls)==1){ // if we only have one url: post the url directly
-					$urls=$this->urls;
-					$date_url=reset($urls);
+			if (isset($this->links)){
+				if (count($this->links)==1){ // if we only have one url: post the url directly
+					$links=$this->links;
+					$date_url=reset($links);
 					$formfields['url']=$date_url->address;
 				}
-				if (count($this->urls)>1){ // if we only several urls: link to the appointment in OpenCloudCal
+				if (count($this->links)>1){ // if we only several urls: link to the appointment in OpenCloudCal
 					$formfields['url']='http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}?show=$this->id";
 				}
 			}
@@ -546,23 +556,23 @@ class appointment {
 
 	function get_links(){
 		global $db;
-		$urls=array();
+		$links=array();
 		$sql="SELECT uid,description FROM appointment_urls WHERE aid=$this->id";
 		foreach ($db->query($sql) as $row){
 			$url=url::load($row['uid']);
 			if ($url){
 				$url->description=$row['description'];
-				$urls[$url->id]=$url;
+				$links[$url->id]=$url;
 			}
 		}
-		return $urls;
+		return $links;
 	}
 
 	/* Adds a url to the appointment. Both the URL and the assignment between event and URL will not be saved
 	 * before the appointment is saved. */
 	function add_link($link){
 		if ($link instanceof url){
-			$links[]=$url;
+			$this->links[]=$link;
 		} else {
 			$link=url::create($this->id, $link ,'Homepage');
 			$this->add_link($link);
@@ -575,8 +585,7 @@ class appointment {
 		foreach ($this->links as $url){
 			$url->save();
 			$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-			$stm->execute(array(':uid' => $link->id,':aid' => $this->id,':description'=>$link->description));
-			$this->urls[]=$link;
+			$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':description'=>$url->description));
 		}
 	}
 
@@ -586,12 +595,12 @@ class appointment {
 		if ($link instanceof url){
 			$sql="DELETE FROM appointment_urls WHERE uid=$link->id AND aid=$this->id";
 			$db->query($sql);
-			unset($this->urls[$link->id]); // TODO will not work in this way
+			unset($this->links[$link->id]); // TODO will not work in this way
 		} else {
-			if (is_int($url)){
-				$this->remove_link(url::load($url));
+			if (is_int($link)){
+				$this->remove_link(url::load($link));
 			} else {
-				$this->remove_link(url::create($url));
+				$this->remove_link(url::create($link));
 			}
 		}
 	}
@@ -630,13 +639,23 @@ class appointment {
 		if ($url instanceof url){
 			$sql="DELETE FROM appointment_attachments WHERE uid=$url->id AND aid=$this->id";
 			$db->query($sql);
-			unset($this->urls[$url->id]);
+			unset($this->links[$url->id]);
 		} else {
 			if (is_int($url)){
-				$this->removeAttachment(url::load($url));
+				$this->remove_attachment(url::load($url));
 			} else {
-				$this->removeAttachment(url::create($url));
+				$this->remove_attachment(url::create($url));
 			}
+		}
+	}
+	
+	/* saves all links of the appointment */
+	private function save_attachments(){
+		global $db;
+		foreach ($this->attachments as $url){
+			$url->save();
+			$stm=$db->prepare("INSERT INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+			$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':mime'=>$url->description));
 		}
 	}
 	/******** Attachments *****/
@@ -669,7 +688,7 @@ class appointment {
 		$stm->execute();
 		$results=$stm->fetchAll();
 		foreach ($results as $row){
-			$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
+			$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false	);
 			$appointment->id=$row['aid'];
 			if ($row['md5hash']!=null) {
 				$appointment->imported=true;
@@ -710,7 +729,7 @@ class appointment {
 		$stm->execute();
 		$results=$stm->fetchAll();
 		foreach ($results as $row){
-			$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
+			$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false	);
 			$appointment->id=$row['aid'];
 			if ($row['md5hash']!=null) {
 				$appointment->imported=true;

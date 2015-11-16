@@ -144,7 +144,7 @@ function parseAppointmentData($data){
 	}
 	$start=date($db_time_format,$start);
 	$end=date($db_time_format,$end);
-	$app=appointment::create($data['title'],$data['description'],$start,$end,$data['location'],$data['coordinates'],false);
+	$app=appointment::create($data['title'],$data['description'],$start,$end,$data['location'],$data['coordinates'],$data['tags'],null,null,false);
 	if (isset($data['id'])){
 		$app->id=$data['id'];
 	}
