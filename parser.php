@@ -320,7 +320,7 @@ function grep_event_links($xml){
 	return loc('%method not implemented, yet',array('%method','grep_event_links'));
 }
 
-function grep_event_images($referer,$xml){
+function grep_event_images_raw($referer,$xml){
 	$images=$xml->getElementsByTagName('img');
 	$imgs=array();
 	/* Rosenkeller */
@@ -367,6 +367,17 @@ function grep_event_images($referer,$xml){
 	return loc('%method not implemented, yet',array('%method','grep_event_images'));
 }
 
+function grep_event_images($referer,$xml){
+	$images=grep_event_images_raw($referer, $xml);	
+	$result=array();
+	foreach ($images as $src){		
+		$mime=guess_mime_type($src);
+		$image=url::create($src,$mime);
+		$result[]=$image;
+	}
+	return $result;
+}
+
 function already_imported($event_url){
 
 	// TODO
@@ -386,7 +397,6 @@ function parserImport($site_data){
 	}
 	$program_page=find_program_page($site_data['url']); // $url usually specifies the root url of a website
 	$event_pages=find_event_pages($program_page); // the program page usually links to the event pages
-	error_log(print_r($event_pages,true));
 	foreach ($event_pages as $event_url){
 		error_log('parsing '.$event_url);
 		$xml         = load_xml($event_url);
