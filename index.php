@@ -79,7 +79,7 @@ if (isset($_POST['newattachment'])){
 
 
 /* if edited appointment data is provided: save! */
-if (isset($_POST['editappointment'])){
+if (isset($_POST['editappointment'])){	
 	$appointment=parseAppointmentData($_POST['editappointment']);
 	if ($appointment){
 		$appointment->save();

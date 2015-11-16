@@ -155,7 +155,7 @@ function checkImportedAppointmentsTable($db){
 	}
 	if ($results->rowCount()<1){
 		//      echo "table doesn't exist\n";
-		$sql = 'CREATE TABLE imported_appointments (md5hash BINARY(16) PRIMARY KEY, aid INT NOT NULL REFERENCES appointments(aid));';
+		$sql = 'CREATE TABLE imported_appointments (md5hash BINARY(32) PRIMARY KEY, aid INT NOT NULL REFERENCES appointments(aid));';
 		$db->exec($sql);
 		//    } else {
 		//      echo "table exists\n";

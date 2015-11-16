@@ -122,7 +122,7 @@ function parseAppointmentData($data){
     if (isSpam($data)){
     	return false;
     }
-	if (isset($data['timezone']) && array_key_exists($data['timezone'], $countries)){
+    if (isset($data['timezone']) && array_key_exists($data['timezone'], $countries)){
 		$_SESSION['country']=$data['timezone'];
 	}
 	if (empty($data['title'])){
@@ -137,11 +137,9 @@ function parseAppointmentData($data){
 		warn('invalid start date');
 		return false;
 	}
+	
 	$end=parseDateTime($data['end']);
-	if (!$end){
-		warn('invalid end date');
-		return false;
-	}
+	error_log("end: ".$end);
 	if ($end<$start){
 		$end=$start;
 	}

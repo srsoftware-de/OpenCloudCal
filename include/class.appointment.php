@@ -201,8 +201,8 @@ class appointment {
 				if ($end==null){
 					$end=$start;
 				}
-				$app=appointment::create($summary, $description, $start, $end, $location, $geo,null,null,null,false);
-				$app->safeIfNotAlreadyImported($tags,$links);
+				$app=appointment::create($summary, $description, $start, $end, $location, $geo,$tags,$links,null,false);
+				$app->safeIfNotAlreadyImported();
 
 				return $app;
 			} else {
@@ -233,6 +233,19 @@ class appointment {
 			}
 		}
 		return $dummy;
+	}
+	
+	function mark_imported($url){
+		global $db;
+		if (!isset($url) || $url==null || empty($url)){
+			return;
+		}
+		$hash=md5($url);
+		print $url." - ".$hash."<br/>\n";
+		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
+		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+		$stm->execute(array(':aid'=>$this->id,':hash'=>$hash));
+		$this->imported=true;		
 	}
 	 
 	/** tries to save the event, if it is not already in the database **/
