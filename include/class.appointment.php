@@ -241,7 +241,6 @@ class appointment {
 			return;
 		}
 		$hash=md5($url);
-		print $url." - ".$hash."<br/>\n";
 		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
 		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 		$stm->execute(array(':aid'=>$this->id,':hash'=>$hash));
@@ -598,9 +597,10 @@ class appointment {
 	private function save_links(){
 		global $db;
 		foreach ($this->links as $url){
-			$url->save();
-			$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-			$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':description'=>$url->description));
+			if ($url->save()){
+				$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+				$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':description'=>$url->description));
+			}
 		}
 	}
 
@@ -729,7 +729,6 @@ class appointment {
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
-			print_r($sql);
 			$stm=$db->prepare($sql);
 			$stm->bindValue(':tags', reset($tags));
 		} else {
@@ -737,7 +736,6 @@ class appointment {
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
-			print_r($sql);
 			$stm=$db->prepare($sql);
 		}
 		if ($limit){

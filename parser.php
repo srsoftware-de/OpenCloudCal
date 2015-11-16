@@ -431,10 +431,8 @@ function parserImport($site_data){
 	$program_page=find_program_page($site_data['url']); // $url usually specifies the root url of a website
 	$event_pages=find_event_pages($program_page); // the program page usually links to the event pages
 	foreach ($event_pages as $event_url){
-		error_log('parsing '.$event_url);
 		$xml         = load_xml($event_url);
 		$title       = grep_event_title($xml);
-		print $event_url.NL;
 		$description = grep_event_description($xml);
 		if (empty($description)){
 			continue;
@@ -449,8 +447,6 @@ function parserImport($site_data){
 		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images,false); // TODO: add params
 		$existing_event = appointment::get_imported($event_url);
 		if ($existing_event != null){			
-			error_log("appointment has been imported before");
-			// TODO: add all methods below
 			$existing_event->set_title($title);
 			$existing_event->set_description($description);
 			$existing_event->set_start($start);
@@ -468,7 +464,6 @@ function parserImport($site_data){
 			}			
 			$existing_event->save(); 
 		} else {
-			error_log("saving appointment");
 			$event->save(); // TODO: currently does not save tags, links and images
 			$event->mark_imported($event_url);
 		}

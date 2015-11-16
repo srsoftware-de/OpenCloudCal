@@ -19,7 +19,7 @@ class url {
 	function save(){
 		global $db;
 		if (startsWith($this->address, 'javascript')){
-			return;
+			return false;
 		}		
 		$stm=$db->prepare("SELECT * FROM urls WHERE url=?");
 		$stm->execute(array($this->address));
@@ -31,6 +31,7 @@ class url {
 			$stm->execute(array($this->address));
 			$this->id=$db->lastInsertId();
 		}
+		return true;	
 	}
 
 	public static function load($id){
