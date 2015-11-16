@@ -7,11 +7,9 @@ $selected_tags = array();
 if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 	set_time_limit(0);
 	include 'config/autoimport.php';
-	if (isset($parse_import_urls)){
-		foreach ($parse_import_urls as $item){
-			if (is_array($item)){
-				parserImport($item);
-			} else parserImport($item);
+	if (isset($parse_imports)){
+		foreach ($parse_imports as $import){
+			parserImport($import);
 		}
 	}
 	if (isset($ical_import_urls)){

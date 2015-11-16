@@ -239,12 +239,15 @@ function parse_event($page){
 
 
 
-function parserImport($site,$tags=null,$coords=null,$location=null){
-	if (!isset($site) || empty($site)){
+function parserImport($import){
+	if (!isset($import) || empty($import)){
 		warn('You must supply an adress to import from!');
 		return;
 	}
-	$program_page=find_program_page($site);
+	if (!is_array($import)){
+		$import=array('url'=>$import);
+	}
+	$program_page=find_program_page($import['url']);
 	$event_pages=find_event_pages($program_page);
 	$events = array();
 	foreach ($event_pages as $event_page){
@@ -253,14 +256,14 @@ function parserImport($site,$tags=null,$coords=null,$location=null){
 			continue;
 		}
 		if (!isset($event_data['coords']) || $event_data['coords']==null){
-			$event_data['coords']=$coords;
+			$event_data['coords']=$import['coords'];
 		}
 		if (!isset($event_data['location']) || $event_data['location']==null){
-			$event_data['location']=$location;
+			$event_data['location']=$import['location'];
 		}
 		
 		if (isset($tags) && $tags!=null){
-			$event_data['tags']=array_merge($event_data['tags'],$tags);
+			$event_data['tags']=array_merge($event_data['tags'],$import['tags']);
 		}
 		
 		$event_data['text']=htmlspecialchars_decode($event_data['text']	);
