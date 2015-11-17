@@ -21,8 +21,9 @@ function notify($message){
 }
 
 function warn($message){
-	global $warnings;
-	$warnings.='<p>'.loc($message).'</p>'.PHP_EOL;
+	global $warnings;	
+	$warnings.='<p>'.$message.'</p>'.PHP_EOL;
+	error_log($message);
 }
 
 function startsWith($haystack, $needle){
@@ -339,7 +340,6 @@ function importIcal($url,$tags=null){
 	// we don't know the client's timezone
 	// probably we should save all appointments in UTC,
 	// and handle the web interface always in CET/CEST
-	// TODO: this needs to be implemented soon
 	while (!empty($stack)){
 		$line=trim(array_pop($stack));
 		if ($line=='BEGIN:VCALENDAR') {
@@ -354,14 +354,26 @@ function importIcal($url,$tags=null){
 			$timezone=readTimezone($stack);
 		} else if ($line=='BEGIN:VEVENT') {
 			$app=appointment::readFromIcal($stack,$tags,$timezone);
-			//die();
+			if (isset($app->ical_uid)){
+				if (startsWith($app->ical_uid, 'http')){
+					$id=$app->ical_uid;
+				} else {
+					$id=$url.'#'.$app->ical_uid;
+				}				
+			} else {
+				$id=$url;
+			}
+			if ($app instanceof appointment){
+				$app->save_as_imported($id);
+			} else {
+				warn(loc('not an appointment: %content',array('%content'=>print_r($app,true))));
+			}
 		} else if ($line=='END:VCALENDAR') {
 		} else {
-			warn('unknown tag: '. $line);
+			warn(loc('unknown tag: %tag',array('%tag'=>$line)));
 			return false;
 		}
 	}
-	// TODO: code here?
 }
 
 function icalLine($head,$content){

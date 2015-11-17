@@ -450,29 +450,8 @@ function parserImport($site_data){
 		$tags		 = grep_event_tags($xml,$site_data['tags']); // merge		
 		$links		 = grep_event_links($xml,$event_url);
 		$images		 = grep_event_images($event_url,$xml);		
-		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images,false); // TODO: add params
-		$existing_event = appointment::get_imported($event_url);
-		if ($existing_event != null){			
-			$existing_event->set_title($title);
-			$existing_event->set_description($description);
-			$existing_event->set_start($start);
-			$existing_event->set_end($end);
-			$existing_event->set_location($location);
-			$existing_event->set_coords($coords);
-			foreach ($tags as $tag){
-				$existing_event->add_tag($tag);
-			}			
-			foreach ($links as $link){
-				$existing_event->add_link($link);
-			}
-			foreach ($images as $image){
-				$existing_event->add_attachment($image);
-			}			
-			$existing_event->save(); 
-		} else {
-			$event->save(); // TODO: currently does not save tags, links and images
-			$event->mark_imported($event_url);
-		}
+		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images,false);
+		$event->save_as_imported($event_url);
 	}
 }
 

@@ -106,10 +106,8 @@
     <?php echo loc('email - bots only'); ?>
     <input type="text" name="email" />
   </div>
-  <?php if (!$appointment->imported) { ?>
   <button type="submit" name="edit" value="<?php echo $appointment->id; ?>"><?php echo loc('edit'); ?></button>
   <button type="submit" name="clone" value="<?php echo $appointment->id; ?>"><?php echo loc('clone'); ?></button>
-  <?php } /* end if app->imported*/ ?>
   <button type="submit" name="delete" value="<?php echo $appointment->id; ?>"><?php echo loc('delete'); ?></button>
 </form>
 <div id="coordinates">

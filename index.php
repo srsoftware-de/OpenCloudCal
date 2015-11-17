@@ -19,7 +19,7 @@ if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 			} else importIcal($item);
 		}
 	}
-	die();
+	die();	
 } else {
 	include 'templates/head.php';
 }

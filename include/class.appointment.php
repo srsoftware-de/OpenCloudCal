@@ -24,7 +24,6 @@ class appointment {
 		$instance->start=$start;
 		$instance->end=$end;
 		$instance->location=$location;
-		$instance->imported=false;
 
 		$instance->set_coords($coords);
 		if ($tags!=null){
@@ -123,6 +122,38 @@ class appointment {
 		}
 		return false;
 	}
+	
+	function save_as_imported($event_url){
+		$existing_event = appointment::get_imported($event_url);
+		if ($existing_event != null){
+			$existing_event->set_title($this->title);
+			$existing_event->set_description($this->description);
+			$existing_event->set_start($this->start);
+			$existing_event->set_end($this->end);
+			$existing_event->set_location($this->location);
+			$existing_event->set_coords($this->coords);
+			if (is_array($this->tags)){
+				foreach ($this->tags as $tag){
+					$existing_event->add_tag($tag);
+				}
+			}
+			if (is_array($this->links)){
+				foreach ($this->links as $link){
+					$existing_event->add_link($link);
+				}
+			}
+			if (is_array($this->attachments)){
+				foreach ($this->attachments as $attach){
+					$existing_event->add_attachment($attach);
+				}
+			}
+			$existing_event->save();
+			$existing_event->mark_imported($event_url);
+		} else {
+			$this->save();
+			$this->mark_imported($event_url);
+		}
+	}
 
 	/** read an event from an ical file **/
 	public static function readFromIcal(&$stack,$tags=null,$timezone=null){
@@ -147,7 +178,7 @@ class appointment {
 			}
 			$line=trim($line);
 			if (startsWith($line,'UID:')){
-				$foreignId=substr($line,4);
+				$foreignId=substr($line,4).readMultilineFromIcal($stack);
 			} elseif (startsWith($line,'DTSTART:')){
 				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
 			} elseif (startsWith($line,'DTSTART;TZID=Europe/Berlin:')){
@@ -194,6 +225,8 @@ class appointment {
 				// no use for class at the moment
 			} elseif (startsWith($line,'DTSTAMP:')){
 				// no use for ststamp at the moment
+			} elseif (startsWith($line,'RECURRENCE-ID')){
+				// no use for ststamp at the moment				
 			} elseif (startsWith($line,'X-')){
 				// no use for ststamp at the moment
 			} elseif ($line=='END:VEVENT'){
@@ -202,12 +235,10 @@ class appointment {
 					$end=$start;
 				}
 				$app=appointment::create($summary, $description, $start, $end, $location, $geo,$tags,$links,null,false);
-				$app->safeIfNotAlreadyImported();
-
+				$app->ical_uid=$foreignId;
 				return $app;
 			} else {
 				warn('tag unknown to appointment::readFromIcal: '.$line);
-				return false;
 			}
 		}
 	}
@@ -244,59 +275,15 @@ class appointment {
 		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
 		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 		$stm->execute(array(':aid'=>$this->id,':hash'=>$hash));
-		$this->imported=true;		
-	}
-	 
-	/** tries to save the event, if it is not already in the database **/
-	/* soon to be replaced by import */
-	public function safeIfNotAlreadyImported(){
-		global $db;
-		if ($this->tags!=null && !empty($this->tags)){ // if the event originates from our calender: do not re-import it
-			if (in_array('OpenCloudCal', $this->tags)) return false;
-			if (in_array('opencloudcal', $this->tags)) return false;
-		}
-		$md5=md5($this->toVEvent(),TRUE);
-		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
-		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-		$stm->execute(array(':hash'=>$md5));
-		$results=$stm->fetchAll();
-		if (count($results) < 1){ // not imported, yet
-			$this->add_tag(loc('imported'));
-			$this->save();
-			$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
-			$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-			$stm->execute(array(':aid'=>$this->id,':hash'=>$md5));
-			return true;
-		} else { // already imported
-			$keys=array('%title','%id');
-			$values=array($this->title,$results[0]['aid']);
-			warn(str_replace($keys, $values, loc('"%title" already present (<a href="?show=%id">link</a>)!')));
-			return false;
-		}
 	}
 	
-	public function import($event_data,$source_url){
-		if (empty($source_url)) {
-			return;
-		}
-		$existing_event=get_imported_event($source_url);
-		if ($existing_event == null){
-			$new_event=appointment::create($event_data['title'], $event_data['description'], $event_data['start'],$event_data['end'],$event_data['location'],$event_data['coords'],$event_data['tags'],$event_data['links'],$event_data['attachments'],TRUE);
-		} else {
-			$existing_event->update_with($event_data);			
-		}
-	}
-
 	public static function load($id){
 		global $db;
 		$instance=new self();
-		$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) WHERE appointments.aid=$id";
+		$sql="SELECT * FROM appointments WHERE appointments.aid=$id";
 		foreach ($db->query($sql) as $row){
 			$instance=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false);
 			$instance->id=$id;
-			if ($row['md5hash']!=null) {
-				$instance->imported=true;
-			}
 			$instance->loadRelated();
 			return $instance;
 		}
@@ -683,7 +670,7 @@ class appointment {
 			if (!is_array($tags)){
 				$tags=array($tags);
 			}
-			$sql="SELECT * FROM imported_appointments RIGHT JOIN (appointments NATURAL JOIN appointment_tags NATURAL JOIN tags) ON (appointments.aid=imported_appointments.aid) WHERE keyword IN (?) ORDER BY start";
+			$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE keyword IN (?) ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
@@ -691,7 +678,7 @@ class appointment {
 			$stm->bindValue(':tags', reset($tags));
 
 		} else {
-			$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) ORDER BY start";
+			$sql="SELECT * FROM appointments ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
@@ -705,9 +692,6 @@ class appointment {
 		foreach ($results as $row){
 			$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false	);
 			$appointment->id=$row['aid'];
-			if ($row['md5hash']!=null) {
-				$appointment->imported=true;
-			}
 			$appointment->loadRelated();
 			$appointments[$appointment->id]=$appointment;
 		}
@@ -725,14 +709,14 @@ class appointment {
 			if (!is_array($tags)){
 				$tags=array($tags);
 			}
-			$sql="SELECT * FROM imported_appointments RIGHT JOIN (appointments NATURAL JOIN appointment_tags NATURAL JOIN tags) ON (appointments.aid=imported_appointments.aid) WHERE (start>'$yesterday' OR end>'$yesterday') AND keyword IN (:tags) ORDER BY start";
+			$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE (start>'$yesterday' OR end>'$yesterday') AND keyword IN (:tags) ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
 			$stm=$db->prepare($sql);
 			$stm->bindValue(':tags', reset($tags));
 		} else {
-			$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) WHERE start>'$yesterday' OR end>'$yesterday' ORDER BY start";
+			$sql="SELECT * FROM appointments WHERE start>'$yesterday' OR end>'$yesterday' ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
@@ -746,9 +730,6 @@ class appointment {
 		foreach ($results as $row){
 			$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false	);
 			$appointment->id=$row['aid'];
-			if ($row['md5hash']!=null) {
-				$appointment->imported=true;
-			}
 			$appointment->loadRelated();
 			$appointments[$appointment->id]=$appointment;
 		}
