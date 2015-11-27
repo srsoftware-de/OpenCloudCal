@@ -37,7 +37,7 @@ if ($format=='ical') {
 	<?php
 	foreach ($appointments as $app){ ?>
   <tr class="appointment">
-    <td class="datestart"><?php echo clientTime($app->start); ?></th>
+    <td class="datestart"><?php echo clientTime($app->start); ?></td>
     <td class="title"><a href="?show=<?php echo $app->id; ?>"><?php echo $app->title; ?></a></td>
     <td class="location"><?php echo $app->location;
     if ($app->coords){ ?>
@@ -52,10 +52,8 @@ if ($format=='ical') {
 		    <?php echo loc('email - bots only'); ?>
 		    <input type="text" name="email" />
 		  </div>
-          <?php if (!$app->imported) { ?>
 		  <button name="clone" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('clone'); ?></button>
           <button name="edit" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('edit'); ?></button>
-          <?php } /* end if app is imported */ ?>
           <button name="delete" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('delete'); ?></button>
         </form>
       </td>

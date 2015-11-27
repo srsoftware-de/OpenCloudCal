@@ -2,6 +2,7 @@
   // get full path
   define("OCC_ROOT", realpath(dirname(__FILE__)));
   define("CRLF","\r\n");
+  define("NL","\n");
   require 'config/db.php';
   require 'locale/de.php';
   require 'functions.php';

@@ -53,7 +53,7 @@ function find_event_pages($page){
 			$result[]=$href;
 		}
 	}
-	return $result;
+	return array_unique($result);
 }
 
 function extract_date($text){
@@ -81,9 +81,11 @@ function extract_time($text){
 }
 
 function parser_parse_date($text){
-	global $db_time_format;
+	global $db_time_format;	
 	$date=extract_date($text);
+	
 	$time=extract_time($text);
+	
 	$date=date_parse($date.' '.$time);
 	$secs=parseDateTime($date);
 	return $secs;
@@ -101,181 +103,10 @@ function parse_tags($text){
 	return $result;
 }
 
-function parse_event($page){
-	global $db_time_format;
-	$result=array('place'=>null,'text'=>'');
-	$links=array();
-	$links[]=url::create(null, $page,loc('Event page'));
-	$imgs=array();
-
+function load_xml($url){
 	$xml = new DOMDocument();
-	@$xml->loadHTMLFile($page);
-
-	/** Rosenkeller **/
-	$divs=$xml->getElementsByTagName('div'); // Suchen aller divs
-	foreach ($divs as $div){
-		foreach ($div->attributes as $attr){
-			if ($attr->name == 'class' && $attr->value=='event-description'){ // Suchen des Beschreibungstextes
-				$text=trim($div->childNodes->item(0)->nodeValue); // Das "event-description"-div hat mehrere unterlemenete. Eines davon ist der eigentliche Text
-				if (strlen($text)<10){
-					$text=trim($div->childNodes->item(1)->nodeValue);
-				}
-				$result['text']=$text; // wen wir den Text haben: Suche beenden
-				break;
-			}
-		}
-		if (isset($result['text'])){ // wen wir den Text haben: Suche beenden
-			break;
-		}
-	}
-
-	$data=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
-	foreach ($data as $info){
-		if ($info->attributes){
-			foreach ($info->attributes as $attr){
-				if ($attr->name == 'class'){
-					if (strpos($attr->value, 'fa-calendar') !== false){
-						$result['start']=parser_parse_date($info->nextSibling->wholeText);
-						break;
-					}
-					if (strpos($attr->value, 'fa-building') !==false){
-						$result['location']=$info->nextSibling->wholeText;
-						break;
-					}
-					if (strpos($attr->value, 'fa-music') !==false){
-						$result['tags']=parse_tags($info->nextSibling->wholeText);
-						break;
-					}
-					if (strpos($attr->value, 'fa-money') !==false){
-						break;
-					}
-					if (strpos($attr->value, 'fa-globe') !==false){
-						$link=$info->nextSibling;
-						if (!isset($link->tagName)){ // link separated by text: skip to link
-							$link=$link->nextSibling;
-						}
-						if (!isset($link->tagName) || $link->tagName != 'a'){ // still no link found: give up
-							break;
-						}
-						$href=trim($link->getAttribute('href'));
-						$tx=trim($link->nodeValue);
-						$links[]=url::create(null, $href,$tx);
-						break;
-					}
-				}
-			}
-		}
-	}
-	$images=$xml->getElementsByTagName('img');
-	foreach ($images as $image){
-		if ($image->hasAttribute('pagespeed_high_res_src')){
-			$src=$image->getAttribute('pagespeed_high_res_src');
-			if (stripos($src, '://')===false){
-				$src=dirname($page).'/'.$src;
-			}
-			$imgs[]=$src;
-		}
-	}
-	$lis=$xml->getElementsByTagName('li');
-	foreach ($lis as $li){
-		foreach ($li->attributes as $attr){
-			if ($attr->name == 'class' && strpos($attr->value,'active')!==false){
-				$result['title']=trim($li->nodeValue);
-				break;
-			}
-		}
-	}
-	/** Rosenkeller **/
-	/** Wagner **/
-	if (!isset($result['start'])){
-		$headings=$xml->getElementsByTagName('h1');
-		foreach ($headings as $heading){
-			$result['title']=$heading->nodeValue;
-			break;
-		}
-
-
-		$paragraphs=$xml->getElementsByTagName('p');
-		foreach ($paragraphs as $paragraph){
-			$text=trim($paragraph->nodeValue);
-			if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
-				$result['start']=parser_parse_date($text);
-				continue;
-			}
-			$pos=strpos($text,'Kategorie');
-			if ($pos!==false){
-				$result['tags']=parse_tags(substr($text, $pos+8));
-				continue;
-			}
-			if (strpos($text,'comment form')!==false){
-				continue;
-			}
-			$hrefs=$paragraph->getElementsByTagName('a');
-			foreach ($hrefs as $link){
-				$href=trim($link->getAttribute('href'));
-				$mime=guess_mime_type($href);
-				if (startsWith($mime, 'image')){
-					$imgs[]=$href;
-				} else {
-					$tx=trim($link->nodeValue);
-					$links[]=url::create(null, $href,$tx);
-				}
-			}
-			$result['text'].="\n".$text;
-		}
-	}
-	/** Wagner **/
-
-	/** cosmic dawn **/
-	if (!isset($result['start'])){
-		$startdate=0;
-		$paragraphs=$xml->getElementsByTagName('p');
-		foreach ($paragraphs as $paragraph){
-			$text=trim($paragraph->nodeValue);
-			if (preg_match('/\d\d.\d\d.\d\d\d\d/',$text)){
-				$startdate=parser_parse_date($text);
-				$result['start']=$startdate;
-			}
-			if (preg_match('/doors: *(?P<hour>\d\d?)pm/',$text,$hits)){
-				if (isset($result['start'])){
-					$result['start']=$result['start']+3600*(12+$hits['hour']);
-					continue;
-				}
-			}
-			$images=$xml->getElementsByTagName('img');
-		}
-		foreach ($images as $image){
-			$imgs[]=trim($image->baseURI.$image->getAttribute('src'));
-		}		
-		if($startdate!=0 && $startdate==$result['start']){
-			$result['start']=$result['start']+(20*3600); // default start time: 20°°
-		}
-	}
-
-	/** cosmic dawn **/
-
-	if (!isset($result['start'])){
-		return false;
-	}
-
-
-	foreach ($links as $url){
-		$url->save();
-	}
-
-	$starttime=$result['start'];
-	$result['start']=date($db_time_format,$starttime);
-
-	if (!isset($result['end'])){
-		$endtime=$starttime+2*3600; // 2h later
-		$result['end']=date($db_time_format,$endtime);
-	}
-	$result['links']=$links;
-	if (count($imgs)>0){
-		$result['images']=$imgs;
-	}
-
-	return $result;
+	@$xml->loadHTMLFile($url);	
+	return $xml;
 }
 
 function merge_fields(&$target_data,$additional_data,$fields){
@@ -298,38 +129,329 @@ function merge_fields(&$target_data,$additional_data,$fields){
 	}
 }
 
-function parserImport($data){
-	if (!isset($data['url']) || empty($data['url'])){
-		warn('You must supply an url to import from!');
-		return;
-	}
-	$program_page=find_program_page($data['url']);
-	$event_pages=find_event_pages($program_page);
-	$events = array();
-	foreach ($event_pages as $event_page){
-		$event_data=parse_event($event_page);
-		if ($event_data === false){
-			continue;
+function grep_event_title($xml){
+	/* Rosenkeller */
+	$list_elements=$xml->getElementsByTagName('li');
+	foreach ($list_elements as $list_element){
+		foreach ($list_element->attributes as $attribute){
+			if ($attribute->name == 'class' && strpos($attribute->value,'active')!==false){
+				return trim($list_element->nodeValue);
+			}
 		}
-		merge_fields($event_data,$data,array('coords','location','tags'));		
+	}	
+	/* Rosenkeller */
+	/* Wagner */
+	$headings=$xml->getElementsByTagName('h1');
+	foreach ($headings as $heading){
+		return $heading->nodeValue;
+	}
+	/* Wagner  */
+	// TODO
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_title')));
+	return null;
+}
 
-		$event_data['text']=htmlspecialchars_decode($event_data['text']	);
-		$appointment=appointment::create($event_data['title'], $event_data['text'], $event_data['start'], $event_data['end'], $event_data['location'], $event_data['coords'],false);
-		$saved=$appointment->safeIfNotAlreadyImported($event_data['tags'],$event_data['links']);
-		if ($saved){
-			if (isset($event_data['images'])) {
-				foreach ($event_data['images'] as $src){
-					$attach=array();
-					$attach['aid']=$appointment->id;
-					$attach['url']=$src;
-					$attach=parseAttachmentData($attach);
-					if ($attach){
-						$attach->save();
-						$appointment->addAttachment($attach);
+function grep_event_description_raw($xml){
+	/* Rosenkeller */
+	$divs=$xml->getElementsByTagName('div'); // Suchen aller divs
+	foreach ($divs as $div){
+		foreach ($div->attributes as $attr){
+			if ($attr->name == 'class' && $attr->value=='event-description'){ // Suchen des Beschreibungstextes
+				$text=trim($div->childNodes->item(0)->nodeValue); // Das "event-description"-div hat mehrere unterlemenete. Eines davon ist der eigentliche Text
+				if (strlen($text)<10){
+					return trim($div->childNodes->item(1)->nodeValue);
+				}
+				return $text; // wen wir den Text haben: Suche beenden
+			}
+		}
+	}	
+	/* Rosenkeller */
+	/* Wagner */
+	$paragraphs=$xml->getElementsByTagName('p');
+	$text='';
+	foreach ($paragraphs as $paragraph){		
+		$text.=trim($paragraph->nodeValue)."\n";
+	}
+	if (strlen($text) > 0){
+		return $text;
+	}
+	/* Wagner */
+	// TODO
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_description')));
+	return null;	
+}
+
+function grep_event_description($xml){
+	$raw=grep_event_description_raw($xml);
+	$raw=str_replace(array("\r\n","\r"), "\n", $raw);	
+	$enc=htmlspecialchars_decode($raw);
+	return $enc;
+}
+
+function grep_event_start($xml){
+	global $db_time_format;
+	/* Rosenkeller */
+	$infos=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
+	foreach ($infos as $info){
+		if ($info->attributes){
+			foreach ($info->attributes as $attr){
+				if ($attr->name == 'class'){
+					if (strpos($attr->value, 'fa-calendar') !== false){
+						$starttime=parser_parse_date($info->nextSibling->wholeText);
+						return date($db_time_format,$starttime);
 					}
 				}
 			}
 		}
+	}
+	/* Rosenkeller */
+	/* Wagner */
+	$paragraphs=$xml->getElementsByTagName('p');
+	foreach ($paragraphs as $paragraph){
+		$text=trim($paragraph->nodeValue);
+		if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
+			$starttime= parser_parse_date($text);
+			return date($db_time_format,$starttime);
+		}
+		if (preg_match('/\d\d.\d\d.\d\d\d\d/',$text)){
+			$starttime= parser_parse_date($text);
+			return date($db_time_format,$starttime);
+		}
+	}
+	/* Wagner */
+	// TODO
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_start')));
+	return null;
+}
+
+function grep_event_end($xml){
+	return null;
+	// TODO
+	return loc('%method not implemented, yet',array('%method'=>'grep_event_end'));
+}
+
+function grep_event_location($xml,$default=null){
+	/* Rosenkeller */
+	$infos=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
+	foreach ($infos as $info){
+		if ($info->attributes){
+			foreach ($info->attributes as $attr){
+				if ($attr->name == 'class'){
+					if (strpos($attr->value, 'fa-building') !==false){
+						return $info->nextSibling->wholeText;
+					}
+				}
+			}
+		}
+	}
+	/* Rosenkeller */
+	if ($default!=null){
+		return $default;
+	}
+	// TODO
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_location')));
+	return null;
+}
+
+function grep_event_coords($xml,$default=null){
+	if ($default!=null){
+		return $default;
+	}	
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_coords')));
+	return null;
+	// TODO
+}
+
+function grep_event_tags_raw($xml){
+	/* Rosenkeller */
+	$infos=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
+	foreach ($infos as $info){
+		if ($info->attributes){
+			foreach ($info->attributes as $attr){
+				if ($attr->name == 'class'){
+					if (strpos($attr->value, 'fa-music') !==false){
+						return parse_tags($info->nextSibling->wholeText);
+					}
+				}
+			}
+		}
+	}
+	/* Rosenkeller */
+	/* Wagner */
+	$paragraphs=$xml->getElementsByTagName('p');
+	foreach ($paragraphs as $paragraph){
+		$text=trim($paragraph->nodeValue);
+		$pos=strpos($text,'Kategorie');
+		if ($pos!==false){
+			return parse_tags(substr($text, $pos+8));
+		}
+	}
+	/* Wagner */
+	
+
+	// TODO
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_tags')));
+	return null;
+}
+
+function grep_event_tags($xml, $additional=array()){
+	if ($additional==null){
+		$additional=array();
+	}
+	$additional[]=loc('imported');
+	
+	$tags=grep_event_tags_raw($xml);
+	if ($tags==null){
+		return $additional;
+	}
+	return array_merge($tags,$additional);
+}
+
+function grep_event_links($xml,$url=null){
+	$links=array();
+	if ($url!=null){
+		$url=url::create($url,loc('event page'));
+		$links[]=$url;
+	}
+	$infos=$xml->getElementsByTagName('i'); // weitere Informationen abrufen
+	foreach ($infos as $info){
+		if ($info->attributes){
+			foreach ($info->attributes as $attr){
+				if ($attr->name == 'class'){
+					if (strpos($attr->value, 'fa-globe') !==false){						
+						$link=$info->nextSibling;						
+						if (!isset($link->tagName)){ // link separated by text: skip to link
+							$link=$link->nextSibling;
+						}
+						if (!isset($link->tagName) || $link->tagName != 'a'){ // still no link found: give up
+							break;
+						}
+						$href=trim($link->getAttribute('href'));
+						$tx=trim($link->nodeValue);
+						$links[]=url::create($href,$tx);
+					}
+				}
+			}
+		}
+	}
+	
+	
+	$paragraphs=$xml->getElementsByTagName('p');
+	foreach ($paragraphs as $paragraph){
+		$hrefs=$paragraph->getElementsByTagName('a');
+		foreach ($hrefs as $link){
+			$href=trim($link->getAttribute('href'));
+			$mime=guess_mime_type($href);
+			if (!startsWith($mime, 'image')){
+				$tx=trim($link->nodeValue);
+				$links[]=url::create($href,$tx);
+			}
+		}
+	}
+	if (!empty($links))	{
+		return $links;
+	}	
+	// TODO
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_links')));
+	return array();
+}
+
+function grep_event_images_raw($referer,$xml){
+	$images=$xml->getElementsByTagName('img');
+	$imgs=array();
+	/* Rosenkeller */
+	foreach ($images as $image){
+		if ($image->hasAttribute('pagespeed_high_res_src')){
+			$src=$image->getAttribute('pagespeed_high_res_src');
+			if (stripos($src, '://')===false){
+				$src=dirname($referer).'/'.$src;
+			}
+			$imgs[]=$src;
+		}
+	}
+	if (!empty($imgs)){
+		return $imgs;
+	}
+	/* Rosenkeller */
+	/* Wagner */
+	$paragraphs=$xml->getElementsByTagName('p');
+	foreach ($paragraphs as $paragraph){
+		$hrefs=$paragraph->getElementsByTagName('a');
+		foreach ($hrefs as $link){
+			$href=trim($link->getAttribute('href'));
+			$mime=guess_mime_type($href);
+			if (startsWith($mime, 'image')){
+				$imgs[]=$href;
+			}
+		}
+	}
+	if (!empty($imgs)){
+		return $imgs;
+	}
+	/* Wagner */
+	
+	$images=$xml->getElementsByTagName('img');
+	foreach ($images as $image){
+		$imgs[]=trim($image->baseURI.$image->getAttribute('src'));
+	}
+	if (!empty($imgs)){
+		return $imgs;
+	}
+	
+	// TODO
+	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_images')));
+	return null;
+}
+
+function grep_event_images($referer,$xml){
+	$images=grep_event_images_raw($referer, $xml);
+	if ($images == null){
+		return array();
+	}	
+	$result=array();
+	foreach ($images as $src){		
+		$mime=guess_mime_type($src);
+		$image=url::create($src,$mime);
+		$result[]=$image;
+	}
+	return $result;
+}
+
+function already_imported($event_url){
+
+	// TODO
+	error_log(loc('%method not implemented, yet',array('%method'=>'already_imported')));
+	return false;
+}
+
+
+
+function parserImport($site_data){
+	if (!is_array($site_data)){
+		$site_data=array('url'=>$site_data);
+	}
+	if (!isset($site_data['url']) || empty($site_data['url'])){
+		warn('You must supply an url to import from!');
+		return;
+	}
+	$program_page=find_program_page($site_data['url']); // $url usually specifies the root url of a website
+	$event_pages=find_event_pages($program_page); // the program page usually links to the event pages
+	foreach ($event_pages as $event_url){
+		$xml         = load_xml($event_url);
+		$title       = grep_event_title($xml);
+		$description = grep_event_description($xml);
+		if (empty($description)){
+			continue;
+		}
+		$start       = grep_event_start($xml);
+		$end	  	 = grep_event_end($xml);
+		$location    = grep_event_location($xml,$site_data['location']); // fallback		
+		$coords      = grep_event_coords($xml,$site_data['coords']); // fallback
+		$tags		 = grep_event_tags($xml,$site_data['tags']); // merge		
+		$links		 = grep_event_links($xml,$event_url);
+		$images		 = grep_event_images($event_url,$xml);		
+		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images,false);
+		$event->save_as_imported($event_url);
 	}
 }
 

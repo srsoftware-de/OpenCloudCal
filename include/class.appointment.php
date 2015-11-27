@@ -3,37 +3,108 @@
 class appointment {
 
 	/* create new appointment object */
-	/* TODO: load tags, urls and sessions */
 	function __construct(){
-		$urls=array();
-		$sessions=array();
+		$this->id=NULL;
+		$this->title=NULL;
+		$this->description=NULL;
+		$this->start=NULL;
+		$this->end=NULL;
+		$this->location=NULL;
+		$this->coords=NULL;
+		$this->tags=array();
+		$this->links=array();
+		$this->attachments=array();
 	}
 
-	/* start and end are expected to be UTC timestamps in the form YYYY-MM-DD hh:mm:ss */
-	public static function create($title,$description,$start, $end,$location,$coords,$save=true){
+	/** start and end are expected to be UTC timestamps in the form YYYY-MM-DD hh:mm:ss **/
+	public static function create($title, $description, $start, $end=null, $location=null, $coords=null, $tags=null, $links=null, $attachments=null,$save=true){
 		$instance=new self();
 		$instance->title=$title;
 		$instance->description=$description;
 		$instance->start=$start;
-		if ($end==null){
-			$end=$start;
-		}
 		$instance->end=$end;
 		$instance->location=$location;
-		$instance->imported=false;
 
-		$c=explode(',',str_replace(' ', '', str_replace(';', ',', $coords)));
-		if (count($c)==2){
-			$instance->coords=array('lat'=>$c[0],'lon'=>$c[1]);
-		} else {
-			$instance->coords=false;
+		$instance->set_coords($coords);
+		if ($tags!=null){
+			if (!is_array($tags)){
+				$tags=explode(' ', $tags);
+			}
+			foreach ($tags as $tag){
+				$instance->add_tag($tag);
+			}
+		}
+		if ($links!=null){
+			foreach ($links as $link){
+				$instance->add_link($link);
+			}
+		}
+		if ($attachments!=null){
+			foreach ($attachments as $attachment){
+				$instance->add_attachment($attachment);
+			}
 		}
 		if ($save){
 			$instance->save();
 		}
 		return $instance;
 	}
+	
+	public static function get_imported($url){
+		global $db;
+		$url_hash=md5($url);
+		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
+		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+		$stm->execute(array(':hash'=>$url_hash));
+		$results=$stm->fetchAll();
+		if (count($results) < 1){ // not imported, yet
+			return null;
+		} else { // already imported
+			$aid=$results[0]['aid'];
+			return appointment::load($aid);
+		}
+	}
+	
+	/** sets the coordinates of this event **/
+	function set_coords($coords){
+		if ($coords==NULL){
+			$this->coords=NULL;
+		} elseif (is_array($coords)){
+			$this->coords=$coords;
+		} else { // if coords given as string => convert to array
+			$c=explode(',',str_replace(' ', '', str_replace(';', ',', $coords)));
+			$c=explode(',',str_replace(' ', '', str_replace(';', ',', $coords)));
+			if (count($c)==2){
+				$this->coords=array('lat'=>$c[0],'lon'=>$c[1]);
+			} else {
+				$this->coords=NULL;
+			}				
+		}
+	}
+	
+	function set_title($title){
+		$this->title=$title;
+	}
 
+	function set_description($description){
+		$this->description=$description;
+	}
+	
+	function set_start($start){
+		if ($this->end == $this->start){
+			$this->end=$start;
+		}
+		$this->start=$start;
+	}
+	
+	function set_end($end){
+		$this->end=$end;
+	}
+	
+	function set_location($loc){
+		$this->location=$loc;
+	}
+	/** create links for tags of this event **/
 	function tagLinks(){
 		$result="";
 		if (isset($this->tags)){
@@ -44,18 +115,52 @@ class appointment {
 		return $result;
 	}
 
+	/** create map link for this event **/
 	function mapLink(){
 		if ($this->coords){
 			return 'http://www.openstreetmap.org/?mlat='.$this->coords['lat'].'&mlon='.$this->coords['lon'].'&zoom=15';
 		}
 		return false;
 	}
+	
+	function save_as_imported($event_url){
+		$existing_event = appointment::get_imported($event_url);
+		if ($existing_event != null){
+			$existing_event->set_title($this->title);
+			$existing_event->set_description($this->description);
+			$existing_event->set_start($this->start);
+			$existing_event->set_end($this->end);
+			$existing_event->set_location($this->location);
+			$existing_event->set_coords($this->coords);
+			if (is_array($this->tags)){
+				foreach ($this->tags as $tag){
+					$existing_event->add_tag($tag);
+				}
+			}
+			if (is_array($this->links)){
+				foreach ($this->links as $link){
+					$existing_event->add_link($link);
+				}
+			}
+			if (is_array($this->attachments)){
+				foreach ($this->attachments as $attach){
+					$existing_event->add_attachment($attach);
+				}
+			}
+			$existing_event->save();
+			$existing_event->mark_imported($event_url);
+		} else {
+			$this->save();
+			$this->mark_imported($event_url);
+		}
+	}
 
+	/** read an event from an ical file **/
 	public static function readFromIcal(&$stack,$tags=null,$timezone=null){
 		$start=null;
 		$end=null;
 		$geo=null;
-		$urls=null;
+		$links=null;
 		$location=null;
 		$summary=null;
 		$description=null;
@@ -73,7 +178,7 @@ class appointment {
 			}
 			$line=trim($line);
 			if (startsWith($line,'UID:')){
-				$foreignId=substr($line,4);
+				$foreignId=substr($line,4).readMultilineFromIcal($stack);
 			} elseif (startsWith($line,'DTSTART:')){
 				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
 			} elseif (startsWith($line,'DTSTART;TZID=Europe/Berlin:')){
@@ -98,10 +203,10 @@ class appointment {
 			} elseif (startsWith($line,'GEO:')){
 				$geo=str_replace('\;', ';',substr($line,4));
 			} elseif (startsWith($line,'URL:')){
-				if ($urls==null){
-					$urls=array();
+				if ($links==null){
+					$links=array();
 				}
-				$urls[]=substr($line,4) . readMultilineFromIcal($stack);
+				$links[]=substr($line,4) . readMultilineFromIcal($stack);
 			} elseif (startsWith($line,'LOCATION:')){
 				$location=str_replace(array('\,','\n'), array(',',"\n"),substr($line,9) . readMultilineFromIcal($stack));
 			} elseif (startsWith($line,'SUMMARY:')){
@@ -120,6 +225,8 @@ class appointment {
 				// no use for class at the moment
 			} elseif (startsWith($line,'DTSTAMP:')){
 				// no use for ststamp at the moment
+			} elseif (startsWith($line,'RECURRENCE-ID')){
+				// no use for ststamp at the moment				
 			} elseif (startsWith($line,'X-')){
 				// no use for ststamp at the moment
 			} elseif ($line=='END:VEVENT'){
@@ -127,17 +234,16 @@ class appointment {
 				if ($end==null){
 					$end=$start;
 				}
-				$app=appointment::create($summary, $description, $start, $end, $location, $geo,false);
-				$app->safeIfNotAlreadyImported($tags,$urls);
-
+				$app=appointment::create($summary, $description, $start, $end, $location, $geo,$tags,$links,null,false);
+				$app->ical_uid=$foreignId;
 				return $app;
 			} else {
 				warn('tag unknown to appointment::readFromIcal: '.$line);
-				return false;
 			}
 		}
 	}
 	 
+	/** convert an RFC 2445 formatted time string to a UTC timestamp **/
 	static function convertRFC2445DateTimeToUTCtimestamp($datetime,$timezone=null){
 		global $db_time_format;
 		if (substr($datetime,-1)=='Z'){
@@ -159,53 +265,25 @@ class appointment {
 		}
 		return $dummy;
 	}
-	 
-	public function safeIfNotAlreadyImported($tags=null,$urls=null){
+	
+	function mark_imported($url){
 		global $db;
-		if ($tags!=null && !empty($tags)){
-			if (in_array('OpenCloudCal', $tags)) return false;
-			if (in_array('opencloudcal', $tags)) return false;
+		if (!isset($url) || $url==null || empty($url)){
+			return;
 		}
-		$md5=md5($this->toVEvent(),TRUE);
-		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
+		$hash=md5($url);
+		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
 		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-		$stm->execute(array(':hash'=>$md5));
-		$results=$stm->fetchAll();
-		if (count($results) < 1){
-			$this->save();
-			$this->addTag(loc('imported'));
-			if ($tags!=null && !empty($tags)){
-				foreach ($tags as $tag){
-					$this->addTag(trim($tag));
-				}
-			}
-			if ($urls!=null && !empty($urls)){
-				foreach ($urls as $url){
-					$this->addUrl($url);
-				}
-			}
-			$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
-			$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-			$stm->execute(array(':aid'=>$this->id,':hash'=>$md5));
-			return true;
-		} else {
-			$keys=array('%title','%id');
-			$values=array($this->title,$results[0]['aid']);
-			warn(str_replace($keys, $values, loc('"%title" already present (<a href="?show=%id">link</a>)!')));
-			return false;
-		}
+		$stm->execute(array(':aid'=>$this->id,':hash'=>$hash));
 	}
-
+	
 	public static function load($id){
 		global $db;
 		$instance=new self();
-		$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) WHERE appointments.aid=$id";
+		$sql="SELECT * FROM appointments WHERE appointments.aid=$id";
 		foreach ($db->query($sql) as $row){
-			$instance=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false);
+			$instance=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false);
 			$instance->id=$id;
-			if ($row['md5hash']!=null) {
-				$instance->imported=true;
-			}
 			$instance->loadRelated();
 			return $instance;
 		}
@@ -213,10 +291,10 @@ class appointment {
 
 	/* loads tags, urls and sessions related to the current appointment */
 	function loadRelated(){
-		$this->attachments=$this->getAttachments();
-		$this->urls				=$this->getUrls();
-		$this->tags				=$this->getTags();
-		$this->sessions		=session::loadAll($this->id);
+		$this->attachments=$this->get_attachments();
+		$this->links	  =$this->get_links();
+		$this->tags		  =$this->get_tags();
+		$this->sessions	  =session::loadAll($this->id);
 	}
 
 	function delete($id=false){
@@ -264,6 +342,9 @@ class appointment {
 			$stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':location' => $this->location,':coords' => $coords));
 			$this->id=$db->lastInsertId();
 		}
+		$this->save_tags();
+		$this->save_links();
+		$this->save_attachments();
 	}
 
 	function sendToGrical(){
@@ -283,8 +364,8 @@ class appointment {
 			}
 			$text.=PHP_EOL;
 			$text.='urls:'.PHP_EOL;
-			if (isset($this->urls) && !empty($this->urls)){
-				foreach ($this->urls as $url){
+			if (isset($this->links) && !empty($this->links)){
+				foreach ($this->links as $url){
 					$text.='    '.$url->description.' '.$url->address.PHP_EOL;
 				}
 			}
@@ -382,13 +463,13 @@ class appointment {
 			if (isset($this->tags) && !empty($this->tags)){
 				$formfields['tags'].=','.$this->tags(',');
 			}
-			if (isset($this->urls)){
-				if (count($this->urls)==1){ // if we only have one url: post the url directly
-					$urls=$this->urls;
-					$date_url=reset($urls);
+			if (isset($this->links)){
+				if (count($this->links)==1){ // if we only have one url: post the url directly
+					$links=$this->links;
+					$date_url=reset($links);
 					$formfields['url']=$date_url->address;
 				}
-				if (count($this->urls)>1){ // if we only several urls: link to the appointment in OpenCloudCal
+				if (count($this->links)>1){ // if we only several urls: link to the appointment in OpenCloudCal
 					$formfields['url']='http'.(isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}?show=$this->id";
 				}
 			}
@@ -418,7 +499,7 @@ class appointment {
 
 	/******* TAGS ****************/
 
-	function getTags(){
+	function get_tags(){
 		global $db;
 		$tags=array();
 		$sql="SELECT tid FROM appointment_tags WHERE aid=$this->id";
@@ -429,27 +510,32 @@ class appointment {
 		return $tags;
 	}
 
-	/* adds a tag to the appointment */
-	function addTag($tag){
-		global $db;
-		if ($tag instanceof tag){
-			$sql="INSERT INTO appointment_tags (tid,aid) VALUES ($tag->id, $this->id)";
-			$db->query($sql);
-			$this->tags[$tag->id]=$tag;
+	/* Adds a tag to the appointment. While the tag is instantly created in the database,
+	 * the assignment will not be saved before $this->save() is called. */
+	function add_tag($tag){
+		if ($tag instanceof $tag){
+			$this->tags[]=$tag;
 		} else {
-			if (empty($tag)){
-				return;
-			}
-			$this->addTag(tag::create($tag));
+			$this->add_tag(tag::create($tag));
 		}
+	}
+	
+	/* save all tags belonging to event */
+	private function save_tags(){
+		global $db;
+		foreach ($this->tags as $tag){
+			$sql="INSERT INTO appointment_tags (tid,aid) VALUES ($tag->id, $this->id)";
+			$db->query($sql);				
+		}		
 	}
 
 	/* remove tag from appointment */
-	function removeTag($tag){
+	function remove_tag($tag){
 		global $db;
 		if ($tag instanceof tag){
 			$sql="DELETE FROM appointment_tags WHERE tid=$tag->id AND aid=$this->id";
 			$db->query($sql);
+		
 			unset($this->tags[$tag->id]);
 		} else {
 			if (is_int($tag)){
@@ -460,80 +546,82 @@ class appointment {
 		}
 	}
 
-	function removeAllTags(){
+	function remove_all_tags(){
 		global $db;
 		$sql="DELETE FROM appointment_tags WHERE aid=$this->id";
 		$db->query($sql);
 	}
 
 	/****** TAGS **************/
-	/****** URLS **************/
+	/****** LINKS **************/
 
-	function getUrls(){
+	function get_links(){
 		global $db;
-		$urls=array();
+		$links=array();
 		$sql="SELECT uid,description FROM appointment_urls WHERE aid=$this->id";
 		foreach ($db->query($sql) as $row){
 			$url=url::load($row['uid']);
 			if ($url){
 				$url->description=$row['description'];
-				$urls[$url->id]=$url;
+				$links[$url->id]=$url;
 			}
 		}
-		return $urls;
+		return $links;
 	}
 
-	/* adds a url to the appointment */
-	function addUrl($url){
-		global $db;
-		if ($url instanceof url){
-			if (!isset($url->id) || $url->id == null){
-				return;
-			}
-			$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-			$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':description'=>$url->description));
-			$this->urls[$url->id]=$url;
+	/* Adds a url to the appointment. Both the URL and the assignment between event and URL will not be saved
+	 * before the appointment is saved. */
+	function add_link($link){
+		if ($link instanceof url){
+			$this->links[]=$link;
 		} else {
-			$url=url::create($this->id, $url ,'Homepage');
-			$url->save();
-			$this->addUrl($url);
+			$link=url::create($link ,'Homepage');
+			$this->add_link($link);
+		}
+	}
+	
+	/* saves all links of the appointment */
+	private function save_links(){
+		global $db;
+		foreach ($this->links as $url){
+			if ($url->save()){
+				$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+				$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':description'=>$url->description));
+			}
 		}
 	}
 
 	/* remove url from appointment */
-	function removeUrl($url){
+	function remove_link($link){
 		global $db;
-		if ($url instanceof url){
-			$sql="DELETE FROM appointment_urls WHERE uid=$url->id AND aid=$this->id";
+		if ($link instanceof url){
+			$sql="DELETE FROM appointment_urls WHERE uid=$link->id AND aid=$this->id";
 			$db->query($sql);
-			unset($this->urls[$url->id]);
+			unset($this->links[$link->id]); // TODO will not work in this way
 		} else {
-			if (is_int($url)){
-				$this->removeUrl(url::load($url));
+			if (is_int($link)){
+				$this->remove_link(url::load($link));
 			} else {
-				$this->removeUrl(url::create($url));
+				$this->remove_link(url::create($link));
 			}
 		}
 	}
 
-	/********* URLs ***********/
+	/********* LINKS ***********/
 	/******** Attachments *****/
 
 	/* adds an attachment to the appointment */
-	function addAttachment($attachment){
+	function add_attachment($attachment){
 		global $db;
 		if ($attachment instanceof url){
-			$stm=$db->prepare("INSERT INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-			$stm->execute(array(':uid' => $attachment->id,':aid' => $this->id,':mime'=>$attachment->description));
-			$this->urls[$attachment->id]=$attachment;
+			$this->attachments[]=$attachment;
 		} else {
-			$attachment=url::create($this->id, $attachment ,'Attachment');
-			$attachment->save();
-			$this->addUrl($attachment);
+			$attachment=url::create($attachment ,'Attachment');
+			$this->add_link($attachment);
 		}
 	}
-
-	function getAttachments(){
+	
+	function get_attachments(){
 		global $db;
 		$urls=array();
 		$sql="SELECT uid,mime FROM appointment_attachments WHERE aid=$this->id";
@@ -548,18 +636,28 @@ class appointment {
 	}
 
 	/* remove attachment from appointment */
-	function removeAttachment($url){
+	function remove_attachment($url){
 		global $db;
 		if ($url instanceof url){
 			$sql="DELETE FROM appointment_attachments WHERE uid=$url->id AND aid=$this->id";
 			$db->query($sql);
-			unset($this->urls[$url->id]);
+			unset($this->links[$url->id]);
 		} else {
 			if (is_int($url)){
-				$this->removeAttachment(url::load($url));
+				$this->remove_attachment(url::load($url));
 			} else {
-				$this->removeAttachment(url::create($url));
+				$this->remove_attachment(url::create($url));
 			}
+		}
+	}
+	
+	/* saves all links of the appointment */
+	private function save_attachments(){
+		global $db;
+		foreach ($this->attachments as $url){
+			$url->save();
+			$stm=$db->prepare("INSERT INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+			$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':mime'=>$url->description));
 		}
 	}
 	/******** Attachments *****/
@@ -572,7 +670,7 @@ class appointment {
 			if (!is_array($tags)){
 				$tags=array($tags);
 			}
-			$sql="SELECT * FROM imported_appointments RIGHT JOIN (appointments NATURAL JOIN appointment_tags NATURAL JOIN tags) ON (appointments.aid=imported_appointments.aid) WHERE keyword IN (?) ORDER BY start";
+			$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE keyword IN (?) ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
@@ -580,7 +678,7 @@ class appointment {
 			$stm->bindValue(':tags', reset($tags));
 
 		} else {
-			$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) ORDER BY start";
+			$sql="SELECT * FROM appointments ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
@@ -592,11 +690,8 @@ class appointment {
 		$stm->execute();
 		$results=$stm->fetchAll();
 		foreach ($results as $row){
-			$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
+			$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false	);
 			$appointment->id=$row['aid'];
-			if ($row['md5hash']!=null) {
-				$appointment->imported=true;
-			}
 			$appointment->loadRelated();
 			$appointments[$appointment->id]=$appointment;
 		}
@@ -614,14 +709,14 @@ class appointment {
 			if (!is_array($tags)){
 				$tags=array($tags);
 			}
-			$sql="SELECT * FROM imported_appointments RIGHT JOIN (appointments NATURAL JOIN appointment_tags NATURAL JOIN tags) ON (appointments.aid=imported_appointments.aid) WHERE end>'$yesterday' AND keyword IN (:tags) ORDER BY start";
+			$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE (start>'$yesterday' OR end>'$yesterday') AND keyword IN (:tags) ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
 			$stm=$db->prepare($sql);
 			$stm->bindValue(':tags', reset($tags));
 		} else {
-			$sql="SELECT * FROM imported_appointments RIGHT JOIN appointments ON (appointments.aid=imported_appointments.aid) WHERE end>'$yesterday' ORDER BY start";
+			$sql="SELECT * FROM appointments WHERE start>'$yesterday' OR end>'$yesterday' ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
@@ -633,11 +728,8 @@ class appointment {
 		$stm->execute();
 		$results=$stm->fetchAll();
 		foreach ($results as $row){
-			$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],false	);
+			$appointment=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false	);
 			$appointment->id=$row['aid'];
-			if ($row['md5hash']!=null) {
-				$appointment->imported=true;
-			}
 			$appointment->loadRelated();
 			$appointments[$appointment->id]=$appointment;
 		}

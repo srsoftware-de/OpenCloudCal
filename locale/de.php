@@ -26,6 +26,7 @@ $locale=array(
 		'end date (optional)' => 'Enddatum (optional)',
 		'End date' => 'Enddatum',
 		'end time' => 'Endzeit',
+		'event page' => 'Event-Seite',
 		'Germany' => 'Deutschland',
 		'Handling of timezone "%tz" currently not implemented!' => 'Verarbeitung der Zeitzone "%tz" noch nicht implementiert',
 		'iCal address' => 'iCal-Adresse',
