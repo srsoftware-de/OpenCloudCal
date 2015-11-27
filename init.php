@@ -2,6 +2,7 @@
   // get full path
   define("OCC_ROOT", realpath(dirname(__FILE__)));
   define("CRLF","\r\n");
+  define("NL","\n");
   require 'config/db.php';
   require 'locale/de.php';
   require 'functions.php';
@@ -53,8 +54,8 @@
   
   if (isset($_GET['format'])){
   	if ($_GET['format']=='ical'){
-  		//header('Content-type: text/calendar; charset=utf-8');
-  		//header('Content-Disposition: inline; filename=calendar.ics');
+  		header('Content-type: text/calendar; charset=utf-8');
+  		header('Content-Disposition: inline; filename=calendar.ics');
   		$format='ical';
   	}
   	if ($_GET['format']=='webdav'){

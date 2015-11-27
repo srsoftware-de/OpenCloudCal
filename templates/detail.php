@@ -49,7 +49,7 @@
 
 
 
-	if (isset($appointment->urls) && count($appointment->urls)>0){ ?>
+	if (isset($appointment->links) && count($appointment->links)>0){ ?>
 		<div id="links">
 		<h3><?php echo loc('Links'); ?></h3>
 		<table class="links">
@@ -58,7 +58,7 @@
 		  <th class="address"><?php echo loc('Address'); ?></th>
 		  <th class="actions"><?php echo loc('Actions'); ?></th>
 		</tr>
-<?php foreach ($appointment->urls as $url){ ?>
+<?php foreach ($appointment->links as $url){ ?>
 			<tr class="link">
 			  <td class="description"><a href="<?php echo $url->address; ?>"><?php echo $url->description; ?></a></td>
 			  <td class="address"><a href="<?php echo $url->address; ?>"><?php echo $url->address; ?></a></td>
@@ -106,10 +106,8 @@
     <?php echo loc('email - bots only'); ?>
     <input type="text" name="email" />
   </div>
-  <?php if (!$appointment->imported) { ?>
   <button type="submit" name="edit" value="<?php echo $appointment->id; ?>"><?php echo loc('edit'); ?></button>
   <button type="submit" name="clone" value="<?php echo $appointment->id; ?>"><?php echo loc('clone'); ?></button>
-  <?php } /* end if app->imported*/ ?>
   <button type="submit" name="delete" value="<?php echo $appointment->id; ?>"><?php echo loc('delete'); ?></button>
 </form>
 <div id="coordinates">

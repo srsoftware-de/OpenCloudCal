@@ -30,8 +30,8 @@
   	</div>
   	<div id="coordinates">
     	<?php echo loc('coordinates').'<input type="text" id="coords" name="editappointment[coordinates]"';
-  			if ($appointment){
-  		  	echo ' value="'.implode(', ',$appointment->coords).'"';
+  			if ($appointment && isset($appointment->coords)){
+  		  		echo ' value="'.implode(', ',$appointment->coords).'"';
   			}
   			echo '/>'; ?> 
   	</div>

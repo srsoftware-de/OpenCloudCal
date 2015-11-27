@@ -1,12 +1,18 @@
 <?php
 
 /***** very basic functions ******/
-function loc($text){
+function loc($text,$replacements=null){
 	global $locale;
+	$message=$text;	
 	if (isset($locale) && array_key_exists($text,$locale)){
-		return $locale[$text];
+		$message=$locale[$text];
 	}
-	return $text;
+	if (is_array($replacements)){
+		foreach ($replacements as $key => $val){
+			$message=str_replace($key, $val, $message);
+		}
+	}
+	return $message;
 }
 
 function notify($message){
@@ -15,8 +21,9 @@ function notify($message){
 }
 
 function warn($message){
-	global $warnings;
-	$warnings.='<p>'.loc($message).'</p>'.PHP_EOL;
+	global $warnings;	
+	$warnings.='<p>'.$message.'</p>'.PHP_EOL;
+	error_log($message);
 }
 
 function startsWith($haystack, $needle){
@@ -49,6 +56,9 @@ function getTimezoneOffset($timestamp){
 
 function clientTime($timestamp){
 	global $db_time_format;
+	if ($timestamp==null){
+		return null;		
+	}
 	$secs=strtotime($timestamp);
 	return date($db_time_format,$secs+getTimezoneOffset($secs));
 }
@@ -72,7 +82,7 @@ function parseDateTime($array){
 		return false;
 	}
 
-	$d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];
+	$d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];	
 	$secs=strtotime($d_string);
 
 	if (isset($array['hour'])){
@@ -113,7 +123,7 @@ function parseAppointmentData($data){
     if (isSpam($data)){
     	return false;
     }
-	if (isset($data['timezone']) && array_key_exists($data['timezone'], $countries)){
+    if (isset($data['timezone']) && array_key_exists($data['timezone'], $countries)){
 		$_SESSION['country']=$data['timezone'];
 	}
 	if (empty($data['title'])){
@@ -128,17 +138,14 @@ function parseAppointmentData($data){
 		warn('invalid start date');
 		return false;
 	}
+	
 	$end=parseDateTime($data['end']);
-	if (!$end){
-		warn('invalid end date');
-		return false;
-	}
 	if ($end<$start){
 		$end=$start;
 	}
 	$start=date($db_time_format,$start);
 	$end=date($db_time_format,$end);
-	$app=appointment::create($data['title'],$data['description'],$start,$end,$data['location'],$data['coordinates'],false);
+	$app=appointment::create($data['title'],$data['description'],$start,$end,$data['location'],$data['coordinates'],$data['tags'],null,null,false);
 	if (isset($data['id'])){
 		$app->id=$data['id'];
 	}
@@ -197,7 +204,7 @@ function parseLinkData($data){
 	if (!strpos($url,':')){
 		$url='http://'.$url;
 	}
-	$url=url::create($data['aid'],$url,$data['description']);
+	$url=url::create($url,$data['description']);
 	return $url;
 }
 
@@ -222,7 +229,7 @@ function parseAttachmentData($data){
 	if (empty($data['mime'])){
 		$data['mime'] = guess_mime_type($url);
 	}	
-	$url=url::create($data['aid'],$url,$data['mime']);
+	$url=url::create($url,$data['mime']);
 	return $url;
 }
 
@@ -333,7 +340,6 @@ function importIcal($url,$tags=null){
 	// we don't know the client's timezone
 	// probably we should save all appointments in UTC,
 	// and handle the web interface always in CET/CEST
-	// TODO: this needs to be implemented soon
 	while (!empty($stack)){
 		$line=trim(array_pop($stack));
 		if ($line=='BEGIN:VCALENDAR') {
@@ -348,14 +354,26 @@ function importIcal($url,$tags=null){
 			$timezone=readTimezone($stack);
 		} else if ($line=='BEGIN:VEVENT') {
 			$app=appointment::readFromIcal($stack,$tags,$timezone);
-			//die();
+			if (isset($app->ical_uid)){
+				if (startsWith($app->ical_uid, 'http')){
+					$id=$app->ical_uid;
+				} else {
+					$id=$url.'#'.$app->ical_uid;
+				}				
+			} else {
+				$id=$url;
+			}
+			if ($app instanceof appointment){
+				$app->save_as_imported($id);
+			} else {
+				warn(loc('not an appointment: %content',array('%content'=>print_r($app,true))));
+			}
 		} else if ($line=='END:VCALENDAR') {
 		} else {
-			warn('unknown tag: '. $line);
+			warn(loc('unknown tag: %tag',array('%tag'=>$line)));
 			return false;
 		}
 	}
-	// TODO: code here?
 }
 
 function icalLine($head,$content){

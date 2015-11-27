@@ -5,12 +5,11 @@ require 'init.php';
 $selected_tags = array();
 
 if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
+	set_time_limit(0);
 	include 'config/autoimport.php';
-	if (isset($parse_import_urls)){
-		foreach ($parse_import_urls as $item){
-			if (is_array($item)){
-				parserImport($item['url'],$item['tag'],$item['coords'],$item['location']);
-			} else parserImport($item);
+	if (isset($parse_imports)){
+		foreach ($parse_imports as $import){
+			parserImport($import);
 		}
 	}
 	if (isset($ical_import_urls)){
@@ -20,7 +19,7 @@ if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 			} else importIcal($item);
 		}
 	}
-	die();
+	die();	
 } else {
 	include 'templates/head.php';
 }
@@ -41,11 +40,7 @@ function calciferValue(){
 if (isset($_POST['newappointment'])){
 	$appointment=parseAppointmentData($_POST['newappointment']); // create new appointment
 	if ($appointment){
-		$appointment->save(); // save new appointment
-		$tags=explode(' ',$_POST['newappointment']['tags']);
-		foreach ($tags as $tag){
-			$appointment->addTag($tag); // add tags
-		}
+		$appointment->save(); // save appointment
 	} else { // if appointment data is invalid
 		unset($_POST['nextaction']); // do not add sessions or links
 	}
@@ -66,7 +61,8 @@ if (isset($_POST['newlink'])){
 	if ($link){ // if successfull:
 		$link->save(); // save session
 		$appointment=appointment::load($link->aid);
-		$appointment->addUrl($link);
+		$appointment->add_link($link);
+		$appointment->save();
 	}
 }
 
@@ -76,21 +72,17 @@ if (isset($_POST['newattachment'])){
 	if ($link){ // if successfull:
 		$link->save(); // save session
 		$appointment=appointment::load($link->aid);
-		$appointment->addAttachment($link);
+		$appointment->add_attachment($link);
+		$appointment->save();
 	}
 }
 
 
 /* if edited appointment data is provided: save! */
-if (isset($_POST['editappointment'])){
+if (isset($_POST['editappointment'])){	
 	$appointment=parseAppointmentData($_POST['editappointment']);
 	if ($appointment){
 		$appointment->save();
-		$appointment->removeAllTags();
-		$tags=explode(' ',$_POST['editappointment']['tags']);
-		foreach ($tags as $tag){
-			$appointment->addTag($tag); // add tags
-		}
 	}
 	$appointment->loadRelated();
 }
@@ -115,7 +107,7 @@ if (isset($_POST['deleteattachment'])){
 	$uid=$_POST['deleteattachment'];
 	$aid=$_GET['show'];
 	$appointment=appointment::load($aid);
-	$appointment->removeAttachment((int)$uid);
+	$appointment->remove_attachment((int)$uid);
 }
 
 /* link shall be removed from appointment */
@@ -123,7 +115,7 @@ if (isset($_POST['deletelink'])){
 	$uid=$_POST['deletelink'];
 	$aid=$_GET['show'];
 	$appointment=appointment::load($aid);
-	$appointment->removeUrl((int)$uid);
+	$appointment->remove_link((int)$uid);
 }
 
 
