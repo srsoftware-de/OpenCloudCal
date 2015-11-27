@@ -168,6 +168,7 @@ class appointment {
 		if ($tags==null){
 			$tags=array();
 		}
+		$tags[]=loc('imported');
 		if (!is_array($tags)){
 			$tags=array($tags);
 		}
@@ -234,6 +235,7 @@ class appointment {
 				if ($end==null){
 					$end=$start;
 				}
+				if (in_array('opencloudcal', $tags)) return null; // do not re-import events
 				$app=appointment::create($summary, $description, $start, $end, $location, $geo,$tags,$links,null,false);
 				$app->ical_uid=$foreignId;
 				return $app;
