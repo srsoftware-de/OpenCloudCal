@@ -1,3 +1,4 @@
 *.dia~
 reply.html
 config/db.php
+*.autosave
