@@ -64,7 +64,7 @@ if (isset($_POST['newlink'])){
 	$link=parseLinkData($_POST['newlink']); // try to create link
 	if ($link){ // if successfull:
 		$link->save(); // save session
-		$appointment=appointment::load($link->aid);
+		$appointment=appointment::load($_POST['newlink']['aid']);
 		$appointment->add_link($link);
 		$appointment->save();
 	}
@@ -75,7 +75,7 @@ if (isset($_POST['newattachment'])){
 	$link=parseAttachmentData($_POST['newattachment']); // try to create link
 	if ($link){ // if successfull:
 		$link->save(); // save session
-		$appointment=appointment::load($link->aid);
+		$appointment=appointment::load($_POST['newlink']['aid']);
 		$appointment->add_attachment($link);
 		$appointment->save();
 	}
