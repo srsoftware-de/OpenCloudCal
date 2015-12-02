@@ -287,6 +287,7 @@ class appointment {
 		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
 		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 		$stm->execute(array(':aid'=>$this->id,':hash'=>$hash));
+		print 'INSERT INTO imported_appointments (aid,md5hash) VALUES ('.$this->id.','.$hash.')'.NL;
 	}
 	
 	public static function load($id){
