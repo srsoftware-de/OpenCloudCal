@@ -124,7 +124,14 @@ class appointment {
 	}
 	
 	function save_as_imported($event_url){
+		if (!isset($event_url) || $event_url==null || empty($event_url)){
+			return;
+		}
+		
 		$existing_event = appointment::get_imported($event_url);
+		print $event_url.NL;
+		print_r($existing_event);
+		print NL;
 		if ($existing_event != null){
 			$existing_event->set_title($this->title);
 			$existing_event->set_description($this->description);
