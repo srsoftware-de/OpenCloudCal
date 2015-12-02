@@ -4,6 +4,10 @@ require 'init.php';
 
 $selected_tags = array();
 
+if (isset($_GET['clear_imported']) && $_GET['clear_imported']=='true'){
+	clear_imported($db);
+}
+
 if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 	set_time_limit(0);
 	include 'config/autoimport.php';
