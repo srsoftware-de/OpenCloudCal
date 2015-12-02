@@ -129,10 +129,7 @@ class appointment {
 		}
 		
 		$existing_event = appointment::get_imported($event_url);
-		print $event_url.NL;
-		print substr(print_r($existing_event,true),0,50).NL;
 		if ($existing_event != null){
-			print 'updating'.NL;
 			$existing_event->set_title($this->title);
 			$existing_event->set_description($this->description);
 			$existing_event->set_start($this->start);
@@ -157,12 +154,9 @@ class appointment {
 			$existing_event->save();
 			$existing_event->mark_imported($event_url);
 		} else {
-			print 'new event'.NL;
 			$this->save();
 			$this->mark_imported($event_url);
 		}
-		print NL;
-		flush();
 	}
 
 	/** read an event from an ical file **/
@@ -287,7 +281,6 @@ class appointment {
 		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
 		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 		$stm->execute(array(':aid'=>$this->id,':hash'=>$hash));
-		print 'INSERT INTO imported_appointments (aid,md5hash) VALUES ('.$this->id.','.$hash.')'.NL;
 	}
 	
 	public static function load($id){

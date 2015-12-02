@@ -178,3 +178,45 @@ function checkTables($db){
 		echo $pdoex->getMessage();
 	}
 }
+
+function clear_imported($db){
+	$stm=$db->prepare('SELECT aid FROM imported_appointments');
+	$aids=array();
+	if ($stm->execute()){
+		$results=$stm->fetchAll();
+		foreach ($results as $r){
+			$aids[]=$r['aid'];
+		}
+	}
+	$stm=$db->prepare('SELECT aid FROM appointment_tags NATURAL JOIN tags WHERE keyword = :key');
+	if ($stm->execute(array(':key'=>loc('imported')))){
+		$results=$stm->fetchAll();
+		foreach ($results as $r){
+			$aids[]=$r['aid'];
+		}			
+	}
+	$aids=array_unique($aids,SORT_NUMERIC);
+	sort($aids);
+	$aid_string = implode(', ', $aids);
+	
+	$stm=$db->prepare('DELETE FROM appointment_tags WHERE aid IN ('.$aid_string.')');
+	$stm->execute();
+	
+	$stm=$db->prepare('DELETE FROM appointment_attachments WHERE aid IN ('.$aid_string.')');
+	$stm->execute();
+	
+	$stm=$db->prepare('DELETE FROM appointment_urls WHERE aid IN ('.$aid_string.')');
+	$stm->execute();
+	
+	$stm=$db->prepare('DELETE FROM sessoins WHERE aid IN ('.$aid_string.')');
+	$stm->execute();
+	
+	$stm=$db->prepare('DELETE FROM appointments WHERE aid IN ('.$aid_string.')');
+	$stm->execute();
+	
+	$stm=$db->prepare('DELETE FROM appointments WHERE aid NOT IN (SELECT DISTINCT aid FROM appointment_tags)');
+	$stm->execute(); // remove untagged appointments
+	
+	$stm=$db->prepare('DROP TABLE imported_appointments');
+	$stm->execute();
+}
