@@ -1,5 +1,18 @@
 <?php
 
+$months = array(
+		'Januar'=>'01',
+		'Februar'=>'02',
+		'März'=>'03',
+		'April'=>'04',
+		'Mai'=>'05',
+		'Juni'=>'06',
+		'Juli'=>'07',
+		'August'=>'08',
+		'September'=>'09',
+		'Oktober'=>'10',
+		'November'=>'11',
+		'Dezember'=>'12');
 
 function find_program_page($site){
 	$xml = new DOMDocument();
@@ -42,13 +55,29 @@ function find_program_page($site){
 function find_event_pages($page){
 	$xml = new DOMDocument();
 	@$xml->loadHTMLFile($page);
+	
+	/* if the page sets a link base, use it */
+	$bases = $xml->getElementsByTagName('base');
+	foreach ($bases as $b){
+		$base=$b->baseURI;
+	}
+	/* if no link base set: derive from url */
+	if (empty($base)){
+		$base=dirname(page);		
+	}
 	$links = $xml->getElementsByTagName('a');
 	$result=array();
-	foreach ($links as $link){
+	foreach ($links as $link){		
 		$href=$link->getAttribute('href');
-		if (stripos($href,'event')!== false){
-			if (stripos($href, '://')===false){
-				$href=dirname($page).'/'.$href;
+		if (stripos($href,'event')!== false){ // link contains "event"
+			if (stripos($href, '://')===false){ // link is relative
+				$href=$base.'/'.$href;
+			}
+			if (strpos($href, 'no_cache') !== false){
+				continue; // workaround for kassablanca page
+			}
+			if (strpos($href,$base)===false){
+				continue; // skip external links
 			}
 			$result[]=$href;
 		}
@@ -130,6 +159,19 @@ function merge_fields(&$target_data,$additional_data,$fields){
 }
 
 function grep_event_title($xml){
+	
+	/* Kassablanca */
+	$divs=$xml->getElementsByTagName('div');
+	$heading='';
+	foreach ($divs as $div){
+		foreach ($div->attributes as $attribute){
+			if ($attribute->name == 'class' && $attribute->value=='headline'){
+				return trim($div->nodeValue);
+			}
+		}	
+	}
+	/* Kassablanca */
+	
 	/* Rosenkeller */
 	$list_elements=$xml->getElementsByTagName('li');
 	foreach ($list_elements as $list_element){
@@ -214,11 +256,46 @@ function grep_event_start($xml){
 			return date($db_time_format,$starttime);
 		}
 		if (preg_match('/\d\d.\d\d.\d\d\d\d/',$text)){
-			$starttime= parser_parse_date($text);
+			$starttime= parser_parse_date($text);			
 			return date($db_time_format,$starttime);
 		}
 	}
 	/* Wagner */
+	
+	/* Kassablanca */
+	$divs=$xml->getElementsByTagName('div');
+	$heading='';
+	global $months,$now_secs;
+	$dayOfMonth=null;
+	$month=null;
+	$time=null;
+	foreach ($divs as $div){
+		foreach ($div->attributes as $attribute){
+			if ($attribute->name == 'class'){
+				if ($attribute->value=='date1'){
+					$dayOfMonth=substr($div->nodeValue,-2);
+				}
+				if ($attribute->value=='date2'){
+					$month=$div->nodeValue;
+					$month=$months[$month];
+					
+				}				
+				if ($attribute->value=='time2'){
+					$time=substr($div->nodeValue,-5);					
+				}
+			}
+			if ($dayOfMonth!=null && $month != null && $time != null){
+				$str=date('Y').'-'.$month.'-'.$dayOfMonth.' '.$time; // use current year
+				$start=parseDateTime(date_parse($str)); // calculate timetamp (seconds)
+				if (time() > $start){ // if date is in the past: use next year
+					$str=(date('Y')+1).'-'.$month.'-'.$dayOfMonth.' '.$time;
+					$start=parseDateTime(date_parse($str));
+				}
+				return date($db_time_format,$start);
+			}
+		}	
+	}
+	/* Kassablanca */
 	// TODO
 	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_start')));
 	return null;
@@ -282,12 +359,34 @@ function grep_event_tags_raw($xml){
 	foreach ($paragraphs as $paragraph){
 		$text=trim($paragraph->nodeValue);
 		$pos=strpos($text,'Kategorie');
-		if ($pos!==false){
+		if ($pos!==false && $pos==0){
 			return parse_tags(substr($text, $pos+8));
 		}
 	}
 	/* Wagner */
 	
+	
+	/* Kassablanca */
+	$divs=$xml->getElementsByTagName('div'); // weitere Informationen abrufen
+	$tags=array();
+	foreach ($divs as $div){
+		if ($div->attributes){
+			foreach ($div->attributes as $attr){
+				if ($attr->name == 'class'){
+					if (strpos($attr->value, 'theme') !==false){
+						$tags=array_merge(parse_tags($div->nodeValue),$tags);
+					}
+					if (strpos($attr->value, 'category') !==false){
+						$tags=array_merge(parse_tags($div->nodeValue),$tags);
+					}	
+				}
+			}
+		}
+	}
+	if (!empty($tags)){
+		return $tags;
+	}
+	/* Kassablanca */
 
 	// TODO
 	error_log(loc('%method not implemented, yet',array('%method'=>'grep_event_tags')));
@@ -409,10 +508,15 @@ function grep_event_images($referer,$xml){
 		return array();
 	}	
 	$result=array();
-	foreach ($images as $src){		
+	foreach ($images as $src){
+		if (strpos($src, '/fileadmin/')!== false){
+			continue; // fix for numerous images in kassablanca pages
+		}		
 		$mime=guess_mime_type($src);
 		$image=url::create($src,$mime);
-		$result[]=$image;
+		if ($mime != 'unknown'){
+			$result[]=$image;
+		}
 	}
 	return $result;
 }
@@ -439,7 +543,7 @@ function parserImport($site_data){
 	foreach ($event_pages as $event_url){
 		$xml         = load_xml($event_url);
 		$title       = grep_event_title($xml);
-		$description = grep_event_description($xml);
+		$description = grep_event_description($xml);		
 		if (empty($description)){
 			continue;
 		}
@@ -447,9 +551,9 @@ function parserImport($site_data){
 		$end	  	 = grep_event_end($xml);
 		$location    = grep_event_location($xml,$site_data['location']); // fallback		
 		$coords      = grep_event_coords($xml,$site_data['coords']); // fallback
-		$tags		 = grep_event_tags($xml,$site_data['tags']); // merge		
-		$links		 = grep_event_links($xml,$event_url);
-		$images		 = grep_event_images($event_url,$xml);		
+		$tags		 = grep_event_tags($xml,$site_data['tags']); // merge
+		$links		 = grep_event_links($xml,$event_url);		
+		$images		 = grep_event_images($event_url,$xml);
 		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images,false);
 		$event->save_as_imported($event_url);
 	}
