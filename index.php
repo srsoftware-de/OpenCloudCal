@@ -75,7 +75,7 @@ if (isset($_POST['newattachment'])){
 	$link=parseAttachmentData($_POST['newattachment']); // try to create link
 	if ($link){ // if successfull:
 		$link->save(); // save session
-		$appointment=appointment::load($_POST['newlink']['aid']);
+		$appointment=appointment::load($_POST['newattachment']['aid']);
 		$appointment->add_attachment($link);
 		$appointment->save();
 	}
