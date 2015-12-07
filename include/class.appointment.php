@@ -762,7 +762,9 @@ class appointment {
 		$result.=icalLine('CLASS','PUBLIC');
 		$result.=icalLine('DESCRIPTION',$this->description);
 		$result.=icalLine('DTSTAMP',str_replace(array('-',' ',':'),array('','T',''),$this->start).'Z');
-		$result.=icalLine('GEO',$this->coords['lat'].';'.$this->coords['lon']);
+		if ($this->coords !=null){
+			$result.=icalLine('GEO',$this->coords['lat'].';'.$this->coords['lon']);
+		}
 		$result.=icalLine('LOCATION',$this->location);
 		$result.=icalLine('SUMMARY',$this->title);
 		if (isset($this->id) && $this->id != null){
@@ -773,7 +775,9 @@ class appointment {
 				$result.=icalLine('ATTACH;FMTTYPE='.$attachment->description,$attachment->address);
 			}
 		}
-		$result.=icalLine('DTEND',str_replace(array('-',' ',':'),array('','T',''),$this->end).'Z');
+		if ($this->end != null){
+			$result.=icalLine('DTEND',str_replace(array('-',' ',':'),array('','T',''),$this->end).'Z');
+		}
 		$result.=icalLine('END','VEVENT');
 		return $result;
 		
