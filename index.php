@@ -97,7 +97,7 @@ if (isset($_POST['icalimporturl'])){
 
 /* if a tag is provided: use it */
 if (isset($_GET['tag'])){
-	$selected_tags[]=$_GET['tag'];
+	$selected_tags=explode(' ', $_GET['tag']);
 }
 
 /* session shall be deleted. */
@@ -146,13 +146,15 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	$appointment=appointment::load($app_id);
 	unset($appointment->id);
 	$appointment->save();
-	foreach ($appointment->urls as $url){
-		$url->aid=$appointment->id;
-		$appointment->addUrl($url);
+	foreach ($appointment->links as $link){
+		$link->aid=$appointment->id;
+		$appointment->add_link($url);
 	}
+	$selected_tags=array();
 	foreach ($appointment->tags as $tag){
 		$tag->aid=$appointment->id;
-		$appointment->addTag($tag);
+		$appointment->add_tag($tag);
+		$selected_tags[]=$tag->text;
 	}
 	$appointments = appointment::loadCurrent($selected_tags);
 	include 'templates/editdateform.php';

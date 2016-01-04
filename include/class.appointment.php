@@ -715,12 +715,24 @@ class appointment {
 			if (!is_array($tags)){
 				$tags=array($tags);
 			}
-			$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE (start>'$yesterday' OR end>'$yesterday') AND keyword IN (:tags) ORDER BY start";
+			$sql="SELECT *
+				  FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags
+				  WHERE (start>'$yesterday' OR end>'$yesterday')
+				  AND keyword IN (";
+			$sql.=':tag'.implode(', :tag',array_keys($tags));
+			/* array( [0] => a, [1] => b, [2] => c ) wird zu ':tag'.0.', :tag'.1.', :tag'.2 = ':tag0, :tag1, :tag2' */
+			$sql.=")
+				  GROUP BY aid
+				  HAVING COUNT(DISTINCT tid) = :count
+				  ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
 			$stm=$db->prepare($sql);
-			$stm->bindValue(':tags', reset($tags));
+			foreach ($tags as $key => $tag){
+				$stm->bindValue(':tag'.$key, $tag);
+			}
+			$stm->bindValue(':count', count($tags));
 		} else {
 			$sql="SELECT * FROM appointments WHERE start>'$yesterday' OR end>'$yesterday' ORDER BY start";
 			if ($limit){
