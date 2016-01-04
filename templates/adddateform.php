@@ -23,6 +23,12 @@ include 'forms.php';
 			<?php echo loc('description'); ?>
 			<textarea name="newappointment[description]"></textarea>
 		</div>
+		<div class="start">
+			<?php echo loc('start date'); datepicker('newappointment[start]'); echo loc('start time'); timepicker('newappointment[start]',date($db_time_format)); ?>
+		</div>
+		<div class="end">
+			<?php echo loc('end date (optional)'); datepicker('newappointment[end]'); echo loc('end time'); timepicker('newappointment[end]') ?>
+		</div>
 		<div id="tags">
 			<?php echo loc('tags'); ?>
 			<?php echo '<input type="text" name="newappointment[tags]" ';
@@ -36,18 +42,9 @@ include 'forms.php';
 			}
 			echo '/>'; ?>
 		</div>
-
 	</div>
 	<div class="right">
 		<?php include 'openlayers.php'; ?>
-		<div class="start">
-			<?php echo loc('start date'); datepicker('newappointment[start]'); echo loc('start time'); timepicker('newappointment[start]',date($db_time_format)); ?>
-		</div>
-		<div class="end">
-			<?php echo loc('end date (optional)'); datepicker('newappointment[end]'); echo loc('end time'); timepicker('newappointment[end]') ?>
-		</div>
-	</div>
-	<div class="submit">
 			<div class="choice">
 		  	<input type="radio" id="addsession" name="nextaction" value="addsession" />
 		  	<label for="addsession">
@@ -78,8 +75,11 @@ include 'forms.php';
 					<?php echo loc('Send this appointment to calcifer, too.').'*'; ?>
 				</label>
 			</div>
-  		<?php echo '<input type="submit" value="'.loc('create new appointment').'"/>&nbsp;';
-  		echo '<span class="note">'.loc('* You should complete your appointment with all sessions and links, before submitting to calcifer or grical!').'</span><br/>'.PHP_EOL; ?> 
+			
+		</div>
+	<div class="submit">
+  		<?php echo '<span class="note">'.loc('* You should complete your appointment with all sessions and links, before submitting to calcifer or grical!').'</span><br/>'.PHP_EOL; ?> 
+		<?php echo '<input type="submit" value="'.loc('create new appointment').'"/>&nbsp;'; ?>
 		
 	</div>
 </form>

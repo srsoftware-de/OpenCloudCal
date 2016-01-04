@@ -48,7 +48,7 @@ form #location{
 	background-color: #ddffdd;
 }
 .left,.right{
-	width: 50%;
+	min-width: 200px;
 	float: left;
 }
 h2.overview{
@@ -140,7 +140,6 @@ tr.session td{
 	padding: 5px;
 }
 .right{
-	text-align: right;
 	right: 0;
 }
 .options{
