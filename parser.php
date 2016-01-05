@@ -63,7 +63,7 @@ function find_event_pages($page){
 	}
 	/* if no link base set: derive from url */
 	if (empty($base)){
-		$base=dirname(page);		
+		$base=dirname($page);		
 	}
 	$links = $xml->getElementsByTagName('a');
 	$result=array();
@@ -547,13 +547,14 @@ function parserImport($site_data){
 		if (empty($description)){
 			continue;
 		}
+		echo $event_url;
 		$start       = grep_event_start($xml);
 		$end	  	 = grep_event_end($xml);
 		$location    = grep_event_location($xml,$site_data['location']); // fallback		
 		$coords      = grep_event_coords($xml,$site_data['coords']); // fallback
 		$tags		 = grep_event_tags($xml,$site_data['tags']); // merge
 		$links		 = grep_event_links($xml,$event_url);		
-		$images		 = grep_event_images($event_url,$xml);
+		$images		 = grep_event_images($event_url,$xml);		
 		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images,false);
 		$event->save_as_imported($event_url);
 	}
