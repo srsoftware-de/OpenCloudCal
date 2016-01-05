@@ -547,7 +547,6 @@ function parserImport($site_data){
 		if (empty($description)){
 			continue;
 		}
-		echo $event_url;
 		$start       = grep_event_start($xml);
 		$end	  	 = grep_event_end($xml);
 		$location    = grep_event_location($xml,$site_data['location']); // fallback		
