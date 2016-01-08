@@ -240,6 +240,17 @@ class appointment {
 				$mime = guess_mime_type($address);				
 				$url = url::create($address,$mime);
 				$attachments[]=$url;
+			} elseif (startsWith($line, 'ATTACH:http')){
+				$pos=strpos($line, ':');
+				$address=substr($line, $pos+1);
+				$pos=strpos($address,' ');
+				$attachment_description=null;
+				if ($pos !== false){
+					$attachment_description = substr($address,$pos+1);
+					$address=substr($address,0,$pos);
+				}
+				$url = url::create($address,$attachment_description);				
+				$links[]=$url;
 			} elseif ($line=='END:VEVENT'){
 				// create appointment, do not save it, return it.
 				if ($end==null){
