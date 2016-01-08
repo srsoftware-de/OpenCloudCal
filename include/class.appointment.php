@@ -804,6 +804,15 @@ class appointment {
 				$result.=icalLine('ATTACH;FMTTYPE='.$attachment->description,$attachment->address);
 			}
 		}
+		if (isset($this->links) && is_array($this->links)){
+			foreach ($this->links as $link){
+				if ($link instanceof url){
+					$result.=icalLine('ATTACH',$link->address.' '.$link->description);
+				} else {
+					$result.=icalLine('ATTACH',$link);
+				}
+			}
+		}		
 		if ($this->end != null){
 			$result.=icalLine('DTEND',str_replace(array('-',' ',':'),array('','T',''),$this->end).'Z');
 		}
