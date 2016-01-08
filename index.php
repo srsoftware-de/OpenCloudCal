@@ -93,6 +93,8 @@ if (isset($_POST['editappointment'])){
 
 if (isset($_POST['icalimporturl'])){
 	importIcal($_POST['icalimporturl']);
+} elseif (isset($_GET['icalimporturl'])){
+		importIcal($_GET['icalimporturl']);
 }
 
 /* if a tag is provided: use it */
