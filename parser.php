@@ -491,7 +491,11 @@ function grep_event_images_raw($referer,$xml){
 	
 	$images=$xml->getElementsByTagName('img');
 	foreach ($images as $image){
-		$imgs[]=trim($image->baseURI.$image->getAttribute('src'));
+		$src=trim($image->baseURI.$image->getAttribute('src'));
+		if (stripos($src, '://')===false){
+			$src=dirname($referer).'/'.$src;
+		}
+		$imgs[]=$src;
 	}
 	if (!empty($imgs)){
 		return $imgs;
