@@ -234,13 +234,19 @@ class appointment {
 				// no use for ststamp at the moment				
 			} elseif (startsWith($line,'X-')){
 				// no use for ststamp at the moment
+			} elseif (startsWith($line, 'ATTACH;FMTTYPE=image')){
+				$pos=strpos($line, ':');
+				$address=substr($line, $pos+1);
+				$mime = guess_mime_type($address);				
+				$url = url::create($address,$mime);
+				$attachments[]=$url;
 			} elseif ($line=='END:VEVENT'){
 				// create appointment, do not save it, return it.
 				if ($end==null){
 					$end=$start;
 				}
 				if (in_array('opencloudcal', $tags)) return null; // do not re-import events
-				$app=appointment::create($summary, $description, $start, $end, $location, $geo,$tags,$links,null,false);
+				$app=appointment::create($summary, $description, $start, $end, $location, $geo,$tags,$links,$attachments,false);
 				$app->ical_uid=$foreignId;
 				return $app;
 			} else {
