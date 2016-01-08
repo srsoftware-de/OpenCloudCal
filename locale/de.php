@@ -53,6 +53,7 @@ $locale=array(
 		'start time' => 'Startzeit',
 		'tags' => 'Schlüsselworte/Tags',
 		'Tags' => 'Schlüsselworte/Tags',
+		'The following events are gathered automatically and publicly editable. We assume no liability for any contents of linked websites.' => 'Die nachfolgenden Events werden automatisch gesammelt und sind bearbeitbar. Wir übernehmen keine Haftung für Inhalte verlinkter Websites.',
 		'timezone' => 'Zeitzone',
 		'title' => 'Titel',
 		'Title' => 'Titel',

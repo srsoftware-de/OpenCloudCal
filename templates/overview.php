@@ -25,6 +25,9 @@ if ($format=='ical') {
 	<button name="limit" value="10">10</button> |	
 	<button name="past" value="true"><?php echo loc('show previous events')?></button>
 </form>
+<div class="disclaimer">
+<?php echo loc('The following events are gathered automatically and publicly editable. We assume no liability for any contents of linked websites.'); ?>
+</div>
 <table class="appointments">
 	<tr class="appointment">
 		<th class="datestart"><?php echo loc('Start date'); ?></th>

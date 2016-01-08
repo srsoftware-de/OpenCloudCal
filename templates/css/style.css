@@ -72,8 +72,10 @@ td.description{
 .end{
 	margin-top: 10px;
 }
-.submit{
+.disclaimer{
+	font-size: 12px;
 	clear: both;
+	padding-left: 5px;
 }
 .submit .choice{
 	display: block;
@@ -157,6 +159,7 @@ tr.session td{
 .attachment img{
 	max-width: 256px;
 }
-.endfloat{
+.endfloat,
+.submit{
 	clear: both;
 }
