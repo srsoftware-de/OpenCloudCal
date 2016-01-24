@@ -782,6 +782,16 @@ class appointment {
 		}
 		return implode($separator, $res);
 	}
+	
+	// appends link title as get parameter to url
+	function urlWithTitle($url){
+		$address=$url->address;
+		if (empty($url->description)) return urlencode($address);
+		if (strpos($address, '?') !==false){
+			return replace_spaces($address.'&title-description='.$url->description);
+		}
+		return replace_spaces($address.'?title-description='.$url->description);
+	}
 
 	function toVEvent(){
 		$result = icalLine('BEGIN','VEVENT');
@@ -805,15 +815,15 @@ class appointment {
 		}
 		if (isset($this->attachments) && is_array($this->attachments)){
 			foreach ($this->attachments as $attachment){
-				$result.=icalLine('ATTACH;FMTTYPE='.$attachment->description,$attachment->address);
+				$result.=icalLine('ATTACH;FMTTYPE='.$attachment->description,replace_spaces($attachment->address));
 			}
 		}
 		if (isset($this->links) && is_array($this->links)){
 			foreach ($this->links as $link){
 				if ($link instanceof url){
-					$result.=icalLine('ATTACH',$link->address.' '.$link->description);
+					$result.=icalLine('ATTACH',$this->urlWithTitle($link));
 				} else {
-					$result.=icalLine('ATTACH',$link);
+					$result.=icalLine('ATTACH',replace_spaces($link));
 				}
 			}
 		}		

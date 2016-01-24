@@ -381,3 +381,7 @@ function icalLine($head,$content){
 	$content=str_replace($line_breaks,'\n',$content);
 	return wordwrap($head.':'.$content,75,CRLF.' ',true).CRLF;
 }
+
+function replace_spaces($text){
+	return str_replace(' ', '%20', $text);
+}
