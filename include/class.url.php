@@ -39,11 +39,14 @@ class url {
 		$stm=$db->prepare("SELECT url FROM urls WHERE uid=?");
 		$stm->execute(array($id));
 		$results=$stm->fetchAll();
-		if ($results){
+		if ($results){			
 			$instance=new self();
 			$row=$results[0];
 			$instance->id=$id;
 			$instance->address=$row['url'];
+			if (empty($instance->address)){
+				return false;
+			}
 			$instance->description=null;
 			return $instance;
 		}

@@ -440,6 +440,9 @@ function grep_event_links($xml,$url=null){
 		$hrefs=$paragraph->getElementsByTagName('a');
 		foreach ($hrefs as $link){
 			$href=trim($link->getAttribute('href'));
+			if (empty($href)){
+				continue;
+			}
 			$mime=guess_mime_type($href);
 			if (!startsWith($mime, 'image')){
 				$tx=trim($link->nodeValue);
@@ -513,6 +516,9 @@ function grep_event_images($referer,$xml){
 	}	
 	$result=array();
 	foreach ($images as $src){
+		if (empty($src)){
+			continue;
+		}
 		if (strpos($src, '/fileadmin/')!== false){
 			continue; // fix for numerous images in kassablanca pages
 		}		
