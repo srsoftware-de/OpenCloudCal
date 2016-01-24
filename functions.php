@@ -382,6 +382,10 @@ function icalLine($head,$content){
 	return wordwrap($head.':'.$content,75,CRLF.' ',true).CRLF;
 }
 
-function replace_spaces($text){
+function replace_spaces($text){	
 	return str_replace(' ', '%20', $text);
+}
+
+function fixUnicode($text){
+	return mb_convert_encoding($text, "ISO-8859-1", "UTF-8");
 }

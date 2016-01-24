@@ -9,6 +9,8 @@
   require 'parser.php';
   require 'db_functions.php';
   
+  ini_set('mbstring.substitute_character', "none");
+  
   session_start();
 
   if (isset($_SESSION) && !isset($_SESSION['country'])){
