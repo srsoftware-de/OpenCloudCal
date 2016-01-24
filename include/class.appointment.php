@@ -786,7 +786,7 @@ class appointment {
 	// appends link title as get parameter to url
 	function urlWithTitle($url){
 		$address=$url->address;
-		if (empty($url->description)) return urlencode($address);
+		if (empty($url->description)) return $address;
 		if (strpos($address, '?') !==false){
 			return replace_spaces($address.'&title-description='.$url->description);
 		}
@@ -821,9 +821,9 @@ class appointment {
 		if (isset($this->links) && is_array($this->links)){
 			foreach ($this->links as $link){
 				if ($link instanceof url){
-					$result.=icalLine('ATTACH',$this->urlWithTitle($link));
+					$result.=icalLine('ATTACH',fixUnicode($this->urlWithTitle($link)));
 				} else {
-					$result.=icalLine('ATTACH',replace_spaces($link));
+					$result.=icalLine('ATTACH',fixUnicode(replace_spaces($link)));
 				}
 			}
 		}		
