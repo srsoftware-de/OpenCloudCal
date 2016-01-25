@@ -787,10 +787,10 @@ class appointment {
 	function urlWithTitle($url){
 		$address=$url->address;
 		if (empty($url->description)) return $address;
-		if (strpos($address, '?') !==false){
-			return replace_spaces($address.'&title-description='.$url->description);
+		if (strpos($address, '#') !==false){
+			return replace_spaces($address.','.$url->description);
 		}
-		return replace_spaces($address.'?title-description='.$url->description);
+		return replace_spaces($address.'#'.$url->description);
 	}
 
 	function toVEvent(){
@@ -821,9 +821,9 @@ class appointment {
 		if (isset($this->links) && is_array($this->links)){
 			foreach ($this->links as $link){
 				if ($link instanceof url){
-					$result.=icalLine('ATTACH',fixUnicode($this->urlWithTitle($link)));
+					$result.=icalLine('ATTACH',$this->urlWithTitle($link));
 				} else {
-					$result.=icalLine('ATTACH',fixUnicode(replace_spaces($link)));
+					$result.=icalLine('ATTACH',replace_spaces($link));
 				}
 			}
 		}		

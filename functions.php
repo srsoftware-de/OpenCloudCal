@@ -376,16 +376,36 @@ function importIcal($url,$tags=null){
 	}
 }
 
+function utf8_wordwrap($str, $width, $break, $cut = false) {
+	if (!$cut) {
+		$regexp = '#^(?:[\x00-\x7F]|[\xC0-\xFF][\x80-\xBF]+){'.$width.',}\b#U';
+	} else {
+		$regexp = '#^(?:[\x00-\x7F]|[\xC0-\xFF][\x80-\xBF]+){'.$width.'}#';
+	}
+	if (function_exists('mb_strlen')) {
+		$str_len = mb_strlen($str,'UTF-8');
+	} else {
+		$str_len = preg_match_all('/[\x00-\x7F\xC0-\xFD]/', $str, $var_empty);
+	}
+	$while_what = ceil($str_len / $width);
+	$i = 1;
+	$return = '';
+	while ($i < $while_what) {
+		preg_match($regexp, $str,$matches);
+		$string = $matches[0];
+		$return .= $string.$break;
+		$str = substr($str, strlen($string));
+		$i++;
+	}
+	return $return.$str;
+}
+
 function icalLine($head,$content){
 	$line_breaks=array("\r\n","\n", "\r");
 	$content=str_replace($line_breaks,'\n',$content);
-	return wordwrap($head.':'.$content,75,CRLF.' ',true).CRLF;
+	return utf8_wordwrap($head.':'.$content,75,CRLF.' ',true).CRLF;
 }
 
 function replace_spaces($text){	
-	return str_replace(' ', '%20', $text);
-}
-
-function fixUnicode($text){
-	return mb_convert_encoding($text, "ISO-8859-1", "UTF-8");
+	return str_replace(' ', '+', $text);
 }
