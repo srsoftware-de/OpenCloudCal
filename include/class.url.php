@@ -7,7 +7,6 @@ class url {
 
 	public static function create($address,$description=null){
 		$instance=new self();
-		$address=fixUnicode($address);
 		if ($description==null){
 			$instance->description=$address;
 		} else {

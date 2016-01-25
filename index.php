@@ -2,7 +2,6 @@
 
 require 'init.php';
 
-$selected_tags = array();
 
 if (isset($_GET['clear_imported']) && $_GET['clear_imported']=='true'){
 	clear_imported($db);
@@ -97,10 +96,7 @@ if (isset($_POST['icalimporturl'])){
 		importIcal($_GET['icalimporturl']);
 }
 
-/* if a tag is provided: use it */
-if (isset($_GET['tag'])){
-	$selected_tags=explode(' ', $_GET['tag']);
-}
+
 
 /* session shall be deleted. */
 if (isset($_POST['deletesession'])){
@@ -222,8 +218,8 @@ if (!isset($_POST['nextaction'])){
 }
 
 
-if (isset($_SESSION['debug']) && $_SESSION['debug']=='true'){
-	echo "<textarea>";
+if (($format!='ical') && isset($_SESSION['debug']) && $_SESSION['debug']=='true'){
+	echo '<div class="debug"><textarea>';
 	print_r($_POST);
 	echo "</textarea>";
 	if (isset($appointments)){
@@ -236,6 +232,7 @@ if (isset($_SESSION['debug']) && $_SESSION['debug']=='true'){
 		print_r($appointment);
 		echo "</textarea>";
 	}
+	echo '</div>';
 }
 
 include 'templates/bottom.php';

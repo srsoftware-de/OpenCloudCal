@@ -55,6 +55,7 @@ if ($format=='ical') {
 		    <?php echo loc('email - bots only'); ?>
 		    <input type="text" name="email" />
 		  </div>
+		  <button name="ical" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('iCal'); ?></button>
 		  <button name="clone" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('clone'); ?></button>
           <button name="edit" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('edit'); ?></button>
           <button name="delete" value="<?php echo $app->id; ?>" type="submit"><?php echo loc('delete'); ?></button>

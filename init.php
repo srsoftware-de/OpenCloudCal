@@ -54,16 +54,36 @@
   $format='html';
   $limit=null;
   
+  $selected_tags = array();  
+  if (isset($_GET['tag'])){
+  	$selected_tags=explode(' ', $_GET['tag']);
+  }
+  
+  if (isset($_POST['ical']) && is_numeric($_POST['ical'])){
+  	$_GET['show']=$_POST['ical'];
+  	$_GET['format']='ical';
+  }
+  
+  
   if (isset($_GET['format'])){
   	if ($_GET['format']=='ical'){
+  		$filename='opencloudcal_all';
+  		if (!empty($selected_tags)){
+  			$filename=implode('+', $selected_tags);
+  		}
+  		if (!empty($_GET['show'])){
+  			$filename='opencloudcal-'.$_GET['show'];
+  		}
+  		
   		header('Content-type: text/calendar; charset=utf-8');
-  		header('Content-Disposition: inline; filename=calendar.ics');
+  		header('Content-Disposition: inline; filename='.$filename.'.ics');
   		$format='ical';
   	}
   	if ($_GET['format']=='webdav'){
   		$format='webdav';
   	}
-  }
+  }  
+
   
   if (isset($_GET['limit'])){
   	$limit=(int)$_GET['limit'];
