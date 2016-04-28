@@ -21,18 +21,17 @@ class WagnerVerein{
 			}
 		}
 		
-		
-		print_r($event_pages); die();
 		foreach ($event_pages as $page){
-			self::read_event(self::$base_url . $page);
+			self::read_event($page);
 		}
 	}
 	
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
 		
-		$title = self::read_title($xml);
+		$title = self::read_title($xml);		
 		$description = self::read_description($xml);
+		die();
 		$start = self::date(self::read_info($xml,'fa-calendar'));
 		$location = self::read_info($xml,'fa-building');
 		
@@ -66,23 +65,32 @@ class WagnerVerein{
 	}
 	
 	private static function read_title($xml){
-		$title_container = $xml->getElementById('page-title');
-		$list_elements = $title_container->getElementsByTagName('li');		
-		foreach ($list_elements as $list_element){
-			if ($list_element->getAttribute('class') == 'active'){
-				return trim($list_element->nodeValue);
-			}
+		$headings = $xml->getElementsByTagName('h1');		
+		foreach ($headings as $heading){
+			return trim($heading->nodeValue);
 		}
 		return null;		
 	}
 	
 	private static function read_description($xml){
-		$wrapper = $xml->getElementById('wrapper');
-		$paragraphs = $wrapper->getElementsByTagName('p');				
-		foreach ($paragraphs as $paragraph){
-			return trim($paragraph->nodeValue);
+		$articles = $xml->getElementsByTagName('article');
+		$description = '';		
+		foreach ($articles as $article){
+			$paragraphs = $article->getElementsByTagName('p');
+			$first=true;
+			foreach ($paragraphs as $paragraph){
+				if ($first){
+					$first = false;
+					continue;
+				}				
+				$text = trim($paragraph->textContent);
+				if (!empty($text)) {
+					if ($text == 'Sorry, the comment form is closed at this time.') continue;
+					$description .= str_replace('€Kategorie', "€\nKategorie", $text) . NL;
+				}
+			}
 		}
-		return null;
+		return $description;
 	}
 	
 	private static function read_info($xml,$key){
