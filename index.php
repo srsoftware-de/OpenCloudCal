@@ -9,6 +9,11 @@ if (isset($_GET['clear_imported']) && $_GET['clear_imported']=='true'){
 
 if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 	set_time_limit(0);
+	
+	Rosenkeller::read_events();
+	
+	die();
+	
 	include 'config/autoimport.php';
 	if (isset($parse_imports)){
 		foreach ($parse_imports as $import){
