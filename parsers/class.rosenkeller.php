@@ -19,6 +19,26 @@ class Rosenkeller{
 	}
 	
 	public static function read_event($source_url){
-		print $source_url.NL;
+		$xml = load_xml($source_url);
+		
+		$title = read_title($xml);
+		$description = read_description($xml);
+		$event = Event::create($title, $description, $start);
+
+	}
+	
+	public static function read_title($xml){
+		$title_container = $xml->getElementById('page-title');
+		$list_elements = $title_container->getElementsByTagName('li');		
+		foreach ($list_elements as $list_element){
+			if ($list_element->getAttribute('class') == 'active'){
+				return $list_element->nodeValue;
+			}
+		}
+		return null;		
+	}
+	
+	public static function read_description($xml){
+		
 	}
 }
