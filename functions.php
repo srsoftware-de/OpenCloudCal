@@ -145,7 +145,7 @@ function parseAppointmentData($data){
 	}
 	$start=date($db_time_format,$start);
 	$end=date($db_time_format,$end);
-	$app=appointment::create($data['title'],$data['description'],$start,$end,$data['location'],$data['coordinates'],$data['tags'],null,null,false);
+	$app=Event::create($data['title'],$data['description'],$start,$end,$data['location'],$data['coordinates'],$data['tags'],null,null,false);
 	if (isset($data['id'])){
 		$app->id=$data['id'];
 	}
@@ -353,7 +353,7 @@ function importIcal($url,$tags=null){
 		} else if ($line=='BEGIN:VTIMEZONE') {
 			$timezone=readTimezone($stack);
 		} else if ($line=='BEGIN:VEVENT') {
-			$app=appointment::readFromIcal($stack,$tags,$timezone);
+			$app=Event::readFromIcal($stack,$tags,$timezone);
 			if (isset($app->ical_uid)){
 				if (startsWith($app->ical_uid, 'http')){
 					$id=$app->ical_uid;

@@ -564,7 +564,7 @@ function parserImport($site_data){
 		$tags		 = grep_event_tags($xml,$site_data['tags']); // merge
 		$links		 = grep_event_links($xml,$event_url);		
 		$images		 = grep_event_images($event_url,$xml);		
-		$event = appointment::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images,false);
+		$event = Event::create($title, $description, $start, $end, $location, $coords, $tags, $links, $images,false);
 		$event->mark_imported($event_url);
 	}
 }

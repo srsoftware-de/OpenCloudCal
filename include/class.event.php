@@ -1,6 +1,6 @@
 <?php
 
-class appointment {
+class Event {
 
 	/* create new appointment object */
 	function __construct(){
@@ -62,7 +62,7 @@ class appointment {
 			return null;
 		} else { // already imported
 			$aid=$results[0]['aid'];
-			$appointment = appointment::load($aid);
+			$appointment = Event::load($aid);
 			return $appointment;
 		}
 	}
@@ -151,9 +151,9 @@ class appointment {
 			if (startsWith($line,'UID:')){
 				$foreignId=substr($line,4).readMultilineFromIcal($stack);
 			} elseif (startsWith($line,'DTSTART:')){
-				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
+				$start=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
 			} elseif (startsWith($line,'DTSTART;TZID=Europe/Berlin:')){
-				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 27),$timezone);
+				$start=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 27),$timezone);
 			} elseif (startsWith($line,'CREATED:')){
 			} elseif (startsWith($line,'SEQUENCE:')){
 			} elseif (startsWith($line,'STATUS:')){
@@ -164,13 +164,13 @@ class appointment {
 			} elseif (startsWith($line,'TRANSP:')){
 			} elseif (startsWith($line,'LAST-MODIFIED:')){
 			} elseif (startsWith($line,'DTSTART;VALUE=DATE:')){
-				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 19).'T000000',$timezone);
+				$start=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 19).'T000000',$timezone);
 			} elseif (startsWith($line,'DTEND:')){
-				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 6), $timezone);
+				$end=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 6), $timezone);
 			} elseif (startsWith($line,'DTEND;TZID=Europe/Berlin:')){
-				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 25), $timezone);
+				$end=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 25), $timezone);
 			} elseif (startsWith($line,'DTEND;VALUE=DATE:')){
-				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 17).'T235959',$timezone);
+				$end=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 17).'T235959',$timezone);
 			} elseif (startsWith($line,'GEO:')){
 				$geo=str_replace('\;', ';',substr($line,4));
 			} elseif (startsWith($line,'URL:')){
@@ -227,11 +227,11 @@ class appointment {
 					$end=$start;
 				}
 				if (in_array('opencloudcal', $tags)) return null; // do not re-import events
-				$app=appointment::create($summary, $description, $start, $end, $location, $geo,$tags,$links,$attachments,false);
+				$app=Event::create($summary, $description, $start, $end, $location, $geo,$tags,$links,$attachments,false);
 				$app->ical_uid=$foreignId;
 				return $app;
 			} else {
-				warn('tag unknown to appointment::readFromIcal: '.$line);
+				warn('tag unknown to Event::readFromIcal: '.$line);
 			}
 		}
 	}
