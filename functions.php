@@ -409,3 +409,9 @@ function icalLine($head,$content){
 function replace_spaces($text){	
 	return str_replace(' ', '+', $text);
 }
+
+function load_xml($url){
+	$xml = new DOMDocument();
+	@$xml->loadHTMLFile($url);
+	return $xml;
+}

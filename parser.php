@@ -132,12 +132,6 @@ function parse_tags($text){
 	return $result;
 }
 
-function load_xml($url){
-	$xml = new DOMDocument();
-	@$xml->loadHTMLFile($url);	
-	return $xml;
-}
-
 function merge_fields(&$target_data,$additional_data,$fields){
 	foreach ($fields as $field){
 		if (isset($target_data[$field])){
