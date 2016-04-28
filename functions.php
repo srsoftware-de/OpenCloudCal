@@ -415,3 +415,27 @@ function load_xml($url){
 	@$xml->loadHTMLFile($url);
 	return $xml;
 }
+
+function extract_date($text){
+	preg_match('/\d?\d\.\d?\d\.\d\d\d\d/', $text, $matches);
+	if (count($matches)>0){
+		$date=$matches[0];
+		return $date;
+	} else {
+		preg_match('/\d?\d\.\d?\d\./', $text, $matches);
+		if (count($matches)>0){
+			$date=$matches[0].date("Y");
+			return $date;
+		}
+	}
+	return '';
+}
+
+function extract_time($text){
+	preg_match('/\d?\d:\d?\d/', $text, $matches);
+	if (count($matches)>0){
+		$time=$matches[0];
+		return $time;
+	}
+	return '';
+}

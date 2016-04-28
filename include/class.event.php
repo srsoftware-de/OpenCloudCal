@@ -502,6 +502,7 @@ class Event {
 		if ($tag instanceof $tag){
 			$this->tags[]=$tag;
 		} else {
+			if (strlen($tag)<2) return;
 			$this->add_tag(tag::create($tag));
 		}
 	}
