@@ -12,7 +12,8 @@ if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 	
 	//Rosenkeller::read_events();
 	//WagnerVerein::read_events();
-	CosmicDawn::read_events();
+	//CosmicDawn::read_events();
+	Kassablanca::read_events();
 	die();
 	
 	include 'config/autoimport.php';
