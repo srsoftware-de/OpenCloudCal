@@ -364,7 +364,7 @@ function importIcal($url,$tags=null){
 				$id=$url;
 			}
 			if ($app instanceof appointment){
-				$app->save_as_imported($id);
+				$app->mark_imported($url);
 			} else {
 				warn(loc('not an appointment: %content',array('%content'=>print_r($app,true))));
 			}
