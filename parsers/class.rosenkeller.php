@@ -15,7 +15,6 @@ class Rosenkeller{
 		}
 		foreach ($event_pages as $page => $dummy){
 			self::read_event(self::$base_url . $page);
-		//	break; // TODO: remove
 		}
 	}
 	
@@ -33,11 +32,27 @@ class Rosenkeller{
 		}
 		
 		$tags = self::read_tags($xml);
+
 		$links = self::read_links($xml);
 		$attachments = self::read_attachments($xml);
-		print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
-		//$event = Event::create($title, $description, $start, null, $location, $coords,$tags,$links);
-
+		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
+		$event = Event::get_imported($source_url);
+		if ($event == null){
+			//print 'creating new event for '.$source_url.NL;
+			$event = Event::create($title, $description, $start, null, $location, $coords,$tags,$links,$attachments,false);
+			$event->mark_imported($source_url);
+		} else {
+			//print 'updating event for '.$source_url.NL;
+			$event->set_title($title);
+			$event->set_description($description);
+			$event->set_start($start);
+			$event->set_location($location);
+			$event->set_coords($coords);
+			foreach ($tags as $tag) $event->add_tag($tag);
+			foreach ($links as $link) $event->add_link($link);
+			foreach ($attachments as $attachment) $event->add_attachment($attachment);
+			$event->save();
+		}
 	}
 	
 	private static function read_title($xml){
@@ -108,7 +123,6 @@ class Rosenkeller{
 			$attachments[] = url::create($address,$mime);
 			
 		}
-		if (empty($attachments)) return null;
 		return $attachments;
 	}
 	
@@ -121,7 +135,6 @@ class Rosenkeller{
 				$links[] = url::create($anchor->getAttribute('href'),trim($anchor->nodeValue)); 
 			}
 		}
-		if (empty($links)) return null;
 		return $links;
 	}
 	
