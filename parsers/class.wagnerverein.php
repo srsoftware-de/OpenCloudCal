@@ -2,7 +2,7 @@
 class WagnerVerein{
 	private static $base_url = 'http://www.wagnerverein-jena.de/';
 	private static $event_list_page = '?page_id=52';
-	
+
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
 		$tables = $xml->getElementsByTagName('table');
@@ -20,30 +20,25 @@ class WagnerVerein{
 				break;
 			}
 		}
-		
+
 		foreach ($event_pages as $page){
 			self::read_event($page);
 		}
 	}
-	
+
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
-		
-		$title = self::read_title($xml);		
-		$description = self::read_description($xml);
-		die();
-		$start = self::date(self::read_info($xml,'fa-calendar'));
-		$location = self::read_info($xml,'fa-building');
-		
-		$coords = null;		
-		if (strtoupper($location) == 'ROSENKELLER'){
-			$coords = '50.929463, 11.584644';
-		}
-		
-		$tags = self::read_tags($xml);
 
+		$title = self::read_title($xml);
+		$description = self::read_description($xml);
+		$start = self::date(self::read_start($xml));
+		$location = 'Café Wagner, Wagnergasse 26, 07743 Jena';
+
+		$coords = '50.931251, 11.580310';
+
+		$tags = self::read_tags($xml);
 		$links = self::read_links($xml);
-		$attachments = self::read_attachments($xml);
+		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event == null){
@@ -63,18 +58,18 @@ class WagnerVerein{
 			$event->save();
 		}
 	}
-	
+
 	private static function read_title($xml){
-		$headings = $xml->getElementsByTagName('h1');		
+		$headings = $xml->getElementsByTagName('h1');
 		foreach ($headings as $heading){
 			return trim($heading->nodeValue);
 		}
-		return null;		
+		return null;
 	}
-	
+
 	private static function read_description($xml){
 		$articles = $xml->getElementsByTagName('article');
-		$description = '';		
+		$description = '';
 		foreach ($articles as $article){
 			$paragraphs = $article->getElementsByTagName('p');
 			$first=true;
@@ -82,7 +77,7 @@ class WagnerVerein{
 				if ($first){
 					$first = false;
 					continue;
-				}				
+				}
 				$text = trim($paragraph->textContent);
 				if (!empty($text)) {
 					if ($text == 'Sorry, the comment form is closed at this time.') continue;
@@ -92,76 +87,82 @@ class WagnerVerein{
 		}
 		return $description;
 	}
-	
-	private static function read_info($xml,$key){
-		$wrapper = $xml->getElementById('wrapper');
-		$paragraphs = $wrapper->getElementsByTagName('p');
-		foreach ($paragraphs as $paragraph){
-			$infos = $paragraph->getElementsByTagName('i');
-			if ($infos->length > 0){
-				$return = false;				
-				foreach ($paragraph->childNodes as $child){
-					if ($child instanceof DOMElement){
-						$class = $child->getAttribute('class');
-						if (strpos($class,$key)!==false){
-							return trim($child->nextSibling->wholeText);
-						}						
-					}
+
+	private static function read_start($xml){
+		global $db_time_format;
+		$articles = $xml->getElementsByTagName('article');
+		$description = '';
+		foreach ($articles as $article){
+			$paragraphs = $article->getElementsByTagName('p');
+			foreach ($paragraphs as $paragraph){
+				$text = trim($paragraph->textContent);
+				if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
+					return $text;
+				}
+				if (preg_match('/\d\d.\d\d.\d\d\d\d/',$text)){
+					return $text;
 				}
 			}
 		}
 		return null;
 	}
-	
+
 	private static function read_tags($xml){
-		$wrapper = $xml->getElementById('wrapper');
-		$headlines = $wrapper->getElementsByTagName('h3');
-		foreach ($headlines as $headline){
-			$text = $headline->nodeValue;
-			$text = str_replace('HIP HOP', 'HIP-HOP', $text);
-			$tags = explode(' ', $text);
-			break;						
+		global $db_time_format;
+		$articles = $xml->getElementsByTagName('article');
+		$description = '';
+		foreach ($articles as $article){
+			$paragraphs = $article->getElementsByTagName('p');
+			foreach ($paragraphs as $paragraph){
+				$text = trim($paragraph->textContent);
+				$pos = strpos($text, 'Kategorie:');
+				if ($pos!==false) {
+					return array('CafeWagner','Jena',substr($text, $pos+11));
+				}
+			}
 		}
-		$tags[] = self::read_info($xml, 'fa-music');
-		$tags[] = 'Rosenkeller';
-		$final_tags = array();
-		foreach ($tags as $tag){
-			if (strlen($tag)>2) $final_tags[]=$tag;
-		}
-		return array_unique($final_tags);
+		return array('CafeWagner','Jena');
 	}
-	
-	private static function read_attachments($xml){
-		$wrapper = $xml->getElementById('wrapper');
-		$images = $wrapper->getElementsByTagName('img');
-		$attachments = array();
-		foreach ($images as $image){
-			$address = self::$base_url.$image->getAttribute('pagespeed_high_res_src');
-			$mime = guess_mime_type($address);
-			$attachments[] = url::create($address,$mime);
-			
-		}
-		return $attachments;
-	}
-	
+
 	private static function read_links($xml){
-		$wrapper = $xml->getElementById('wrapper');
-		$anchors = $wrapper->getElementsByTagName('a');
+		$articles = $xml->getElementsByTagName('article');
 		$links = array();
-		foreach ($anchors as $anchor){
-			if ($anchor->hasAttribute('href')){
-				$links[] = url::create($anchor->getAttribute('href'),trim($anchor->nodeValue)); 
+		foreach ($articles as $article){			
+			$anchors = $article->getElementsByTagName('a');
+			foreach ($anchors as $anchor){
+				if ($anchor->hasAttribute('href')){
+					$address = $anchor->getAttribute('href');
+					if (strpos(guess_mime_type($address),'image')===false){
+						$links[] = url::create($address,trim($anchor->nodeValue));
+					}
+				}
 			}
 		}
 		return $links;
 	}
-	
+
+	private static function read_images($xml){
+		$articles = $xml->getElementsByTagName('article');
+		$attachments = array();
+		foreach ($articles as $article){
+			$images = $article->getElementsByTagName('img');
+			foreach ($images as $image){
+				$address = $image->getAttribute('src');
+				$mime = guess_mime_type($address);
+				$attachments[] = url::create($address,$mime);
+			}
+		}
+		return $attachments;
+	}
+
+
+
 	private static function date($text){
 		global $db_time_format;
-		$date=extract_date($text);	
-		$time=extract_time($text);	
+		$date=extract_date($text);
+		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);		
+		return date($db_time_format,$secs);
 	}
 }

@@ -90,7 +90,6 @@ function find_event_pages($page){
 function parser_parse_date($text){
 	global $db_time_format;	
 	$date=extract_date($text);
-	
 	$time=extract_time($text);
 	
 	$date=date_parse($date.' '.$time);

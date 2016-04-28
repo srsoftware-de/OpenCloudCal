@@ -106,6 +106,7 @@ class Rosenkeller{
 		}
 		$tags[] = self::read_info($xml, 'fa-music');
 		$tags[] = 'Rosenkeller';
+		$tags[] = 'Jena';
 		$final_tags = array();
 		foreach ($tags as $tag){
 			if (strlen($tag)>2) $final_tags[]=$tag;
