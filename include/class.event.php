@@ -243,14 +243,20 @@ class Event {
 					$app->set_end($end);
 					$app->set_location($location);
 					$app->set_coords($geo);
-					foreach ($tags as $tag){
-						$app->add_tag($tag);
+					if (is_array($tags)){
+						foreach ($tags as $tag){
+							$app->add_tag($tag);
+						}
 					}
-					foreach ($links as $link){
-						$app->add_link($link);
+					if (is_array($links)){
+						foreach ($links as $link){
+							$app->add_link($link);
+						}
 					}
-					foreach ($attachments as $attachment){
-						$app->add_attachment($attachment);
+					if (is_array($attachments)){
+						foreach ($attachments as $attachment){
+							$app->add_attachment($attachment);
+						}
 					}
 				} else {
 					$app=Event::create($summary, $description, $start, $end, $location, $geo,$tags,$links,$attachments,false);
