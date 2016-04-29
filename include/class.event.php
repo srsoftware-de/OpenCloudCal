@@ -135,6 +135,7 @@ class Event {
 		$summary=null;
 		$description=null;
 		$foreignId=null;
+		$attachments=null;
 		if ($tags==null){
 			$tags=array();
 		}

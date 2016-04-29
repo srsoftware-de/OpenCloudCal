@@ -363,10 +363,10 @@ function importIcal($url,$tags=null){
 			} else {
 				$id=$url;
 			}
-			if ($app instanceof appointment){
+			if ($app instanceof Event){
 				$app->mark_imported($url);
 			} else {
-				warn(loc('not an appointment: %content',array('%content'=>print_r($app,true))));
+				warn(loc('not an event: %content',array('%content'=>print_r($app,true))));
 			}
 		} else if ($line=='END:VCALENDAR') {
 		} else {
