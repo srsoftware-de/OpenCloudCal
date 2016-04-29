@@ -364,7 +364,7 @@ function importIcal($url,$tags=null){
 				$id=$url;
 			}
 			if ($app instanceof Event){
-				$app->mark_imported($url);
+				$app->mark_imported($id);
 			} else {
 				warn(loc('not an event: %content',array('%content'=>print_r($app,true))));
 			}
