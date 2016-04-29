@@ -83,7 +83,7 @@ class FromHell{
 			if ($div->hasAttribute('class')){
 				$class = $div->getAttribute('class');
 				if (strpos($class,'views-field-body')!==false || strpos($class,'views-field-field-shuttle-service')!==false){
-					$description .= trim($div->nodeValue).NL;
+					$description .= trim(str_replace('Sonstige Informationen:','',$div->nodeValue)).NL;
 				}
 			}
 		}
