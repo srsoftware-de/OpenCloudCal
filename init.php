@@ -6,7 +6,6 @@
   require 'config/db.php';
   require 'locale/de.php';
   require 'functions.php';
-  require 'parser.php';
   require 'db_functions.php';
   
   ini_set('mbstring.substitute_character', "none");

@@ -499,7 +499,7 @@ class Event {
 	/* Adds a tag to the appointment. While the tag is instantly created in the database,
 	 * the assignment will not be saved before $this->save() is called. */
 	function add_tag($tag){
-		if ($tag instanceof $tag){
+		if ($tag instanceof tag){
 			$this->tags[]=$tag;
 		} else {
 			if (strlen($tag)<2) return;
