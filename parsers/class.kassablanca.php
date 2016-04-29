@@ -40,16 +40,12 @@ class Kassablanca{
 		$title = self::read_title($xml);
 		$description = self::read_description($xml);
 		$start=self::date(self::read_start($xml));
-		print $start.NL; die();
-		return;
 		$location = self::read_location($xml);
 		$coords = null;		
-		if (stripos($location, 'Kulturbahnhof') !== false){
-			$coords = '50.93658, 11.59266';
+		if (stripos($location, 'Kassablanca') !== false){
+			$coords = '50.920, 11.578';
 		}
-		
 		$tags = self::read_tags($xml);
-
 		$links = self::read_links($xml);
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
@@ -128,49 +124,74 @@ class Kassablanca{
 	}
 	
 	private static function read_location($xml){
-		$container = $xml->getElementById('container');
-		$paragraphs = $container->getElementsByTagName('p');
-		$location = 'Kulturbahnhof, Spitzweidenweg 26, 07743 Jena';
-		foreach ($paragraphs as $paragraph){
-			$text = trim($paragraph->nodeValue);
-			$pos = stripos($text, 'Location:');
-			if ($pos !== false){
-				$location = trim(substr($text, $pos+9));
-			}
-		}
+		$location = 'Kassablanca, Felsenkellerstr. 13a, 07745 Jena';
 		return $location;
 	}
 	
-	private static function read_tags($xml){
-		$tags = array('Kulturbahnhof', 'CosmicDawn', 'Jena');
-		return $tags;
+	private static function read_tags($xml){	
+		$contentleft = $xml->getElementById('contentleft');
+		$divs = $contentleft->getElementsByTagName('div');
+		$tags = array('Kassablanca','Jena');
+		foreach ($divs as $div){
+			if ($div->hasAttribute('class')){
+				$class = trim($div->getAttribute('class'));				
+				if (stripos($class, 'category')!==false){
+					$tags = array_merge($tags,explode(' ', trim($div->nodeValue)));
+					continue;	
+				}
+				if (stripos($class, 'subheadline')!==false){
+					$line = trim($div->nodeValue);
+					if (substr($line, -1,1) == ':') $line=trim(substr($line, 0,-1));
+					$tags = array_merge($tags,explode(' ', $line));
+					continue;						
+				}			
+			}
+		}
+		$final_tags = array();
+		foreach ($tags as $tag){
+			if (strlen($tag)>2) $final_tags[]=$tag;
+		}
+		return array_unique($final_tags);
 	}
 	
 	private static function read_links($xml){
-		$container = $xml->getElementById('container');
-		$anchors = $container->getElementsByTagName('a');
+		$contentleft = $xml->getElementById('contentleft');		
+		$anchors = $contentleft->getElementsByTagName('a');
 		$links = array();
 		foreach ($anchors as $anchor){
 			if ($anchor->hasAttribute('href')){
+				$address = $anchor->getAttribute('href');
+				if (strpos($address,'javascript')!==false) continue;
+				if (strpos(guess_mime_type($address),'image')!==false) continue; // skip images
 				$text = trim($anchor->nodeValue);
-				if ($text == 'Zurück') continue;
 				$links[] = url::create($anchor->getAttribute('href'),$text);
 			}
-		}		
+		}
 		return $links;
 	}
 	
 	private static function read_images($xml){
-		$wrapper = $xml->getElementById('container');
-		$images = $wrapper->getElementsByTagName('img');
-		$attachments = array();
-		foreach ($images as $image){
+		$contentleft = $xml->getElementById('contentleft');
+		$imgs = $contentleft->getElementsByTagName('img');
+		$images = array();
+		foreach ($imgs as $image){
 			$address = self::$base_url.$image->getAttribute('src');
 			$mime = guess_mime_type($address);
-			$attachments[] = url::create($address,$mime);
-			
+			$images[] = url::create($address,$mime);
+			break; // use only first image, the others are referenced by hyperlinks			
 		}
-		return $attachments;
+		$anchors = $contentleft->getElementsByTagName('a');
+		foreach ($anchors as $anchor){
+			if ($anchor->hasAttribute('href')){
+				$address = $anchor->getAttribute('href');
+				if (strpos($address,'javascript')!==false) continue;
+				$mime = guess_mime_type($address);
+				if (strpos($mime,'image')!==false){
+					$images[] = url::create(self::$base_url.$address,$mime);
+				}
+			}
+		}
+		return $images;
 	}
 	
 	private static function date($text){
