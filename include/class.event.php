@@ -1,6 +1,6 @@
 <?php
 
-class appointment {
+class Event {
 
 	/* create new appointment object */
 	function __construct(){
@@ -14,6 +14,7 @@ class appointment {
 		$this->tags=array();
 		$this->links=array();
 		$this->attachments=array();
+		$this->import_src_url_hash=NULL;
 	}
 
 	/** start and end are expected to be UTC timestamps in the form YYYY-MM-DD hh:mm:ss **/
@@ -50,9 +51,9 @@ class appointment {
 		return $instance;
 	}
 	
-	public static function get_imported($url){
+	public static function get_imported($import_src_url){
 		global $db;
-		$url_hash=md5($url);
+		$url_hash=md5($import_src_url);
 		$sql = 'SELECT aid FROM imported_appointments WHERE md5hash =:hash';
 		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 		$stm->execute(array(':hash'=>$url_hash));
@@ -61,7 +62,8 @@ class appointment {
 			return null;
 		} else { // already imported
 			$aid=$results[0]['aid'];
-			return appointment::load($aid);
+			$appointment = Event::load($aid);
+			return $appointment;
 		}
 	}
 	
@@ -123,42 +125,6 @@ class appointment {
 		return false;
 	}
 	
-	function save_as_imported($event_url){
-		if (!isset($event_url) || $event_url==null || empty($event_url)){
-			return;
-		}
-		
-		$existing_event = appointment::get_imported($event_url);
-		if ($existing_event != null){
-			$existing_event->set_title($this->title);
-			$existing_event->set_description($this->description);
-			$existing_event->set_start($this->start);
-			$existing_event->set_end($this->end);
-			$existing_event->set_location($this->location);
-			$existing_event->set_coords($this->coords);
-			if (is_array($this->tags)){
-				foreach ($this->tags as $tag){
-					$existing_event->add_tag($tag);
-				}
-			}
-			if (is_array($this->links)){
-				foreach ($this->links as $link){
-					$existing_event->add_link($link);
-				}
-			}
-			if (is_array($this->attachments)){
-				foreach ($this->attachments as $attach){
-					$existing_event->add_attachment($attach);
-				}
-			}
-			$existing_event->save();
-			$existing_event->mark_imported($event_url);
-		} else {
-			$this->save();
-			$this->mark_imported($event_url);
-		}
-	}
-
 	/** read an event from an ical file **/
 	public static function readFromIcal(&$stack,$tags=null,$timezone=null){
 		$start=null;
@@ -169,6 +135,7 @@ class appointment {
 		$summary=null;
 		$description=null;
 		$foreignId=null;
+		$attachments=null;
 		if ($tags==null){
 			$tags=array();
 		}
@@ -185,9 +152,9 @@ class appointment {
 			if (startsWith($line,'UID:')){
 				$foreignId=substr($line,4).readMultilineFromIcal($stack);
 			} elseif (startsWith($line,'DTSTART:')){
-				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
+				$start=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
 			} elseif (startsWith($line,'DTSTART;TZID=Europe/Berlin:')){
-				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 27),$timezone);
+				$start=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 27),$timezone);
 			} elseif (startsWith($line,'CREATED:')){
 			} elseif (startsWith($line,'SEQUENCE:')){
 			} elseif (startsWith($line,'STATUS:')){
@@ -198,13 +165,13 @@ class appointment {
 			} elseif (startsWith($line,'TRANSP:')){
 			} elseif (startsWith($line,'LAST-MODIFIED:')){
 			} elseif (startsWith($line,'DTSTART;VALUE=DATE:')){
-				$start=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 19).'T000000',$timezone);
+				$start=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 19).'T000000',$timezone);
 			} elseif (startsWith($line,'DTEND:')){
-				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 6), $timezone);
+				$end=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 6), $timezone);
 			} elseif (startsWith($line,'DTEND;TZID=Europe/Berlin:')){
-				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 25), $timezone);
+				$end=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 25), $timezone);
 			} elseif (startsWith($line,'DTEND;VALUE=DATE:')){
-				$end=appointment::convertRFC2445DateTimeToUTCtimestamp(substr($line, 17).'T235959',$timezone);
+				$end=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 17).'T235959',$timezone);
 			} elseif (startsWith($line,'GEO:')){
 				$geo=str_replace('\;', ';',substr($line,4));
 			} elseif (startsWith($line,'URL:')){
@@ -261,11 +228,11 @@ class appointment {
 					$end=$start;
 				}
 				if (in_array('opencloudcal', $tags)) return null; // do not re-import events
-				$app=appointment::create($summary, $description, $start, $end, $location, $geo,$tags,$links,$attachments,false);
+				$app=Event::create($summary, $description, $start, $end, $location, $geo,$tags,$links,$attachments,false);
 				$app->ical_uid=$foreignId;
 				return $app;
 			} else {
-				warn('tag unknown to appointment::readFromIcal: '.$line);
+				warn('tag unknown to Event::readFromIcal: '.$line);
 			}
 		}
 	}
@@ -293,35 +260,22 @@ class appointment {
 		return $dummy;
 	}
 	
-	function mark_imported($url){
+	function mark_imported($import_src_url){
 		global $db;
-		if (!isset($url) || $url==null || empty($url)){
+		if (!isset($import_src_url) || $import_src_url==null || empty($import_src_url)){
 			return;
 		}
-		$hash=md5($url);
-		$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
-		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-		$stm->execute(array(':aid'=>$this->id,':hash'=>$hash));
+		$this->import_src_url_hash=md5($import_src_url);
+		$this->save();		
 	}
 	
-	public static function load($id){
-		global $db;
-		$instance=new self();
-		$sql="SELECT * FROM appointments WHERE appointments.aid=$id";
-		foreach ($db->query($sql) as $row){
-			$instance=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false);
-			$instance->id=$id;
-			$instance->loadRelated();
-			return $instance;
-		}
-	}
-
 	/* loads tags, urls and sessions related to the current appointment */
 	function loadRelated(){
-		$this->attachments=$this->get_attachments();
-		$this->links	  =$this->get_links();
-		$this->tags		  =$this->get_tags();
-		$this->sessions	  =session::loadAll($this->id);
+		$this->attachments			= $this->get_attachments();
+		$this->links	  			= $this->get_links();
+		$this->tags		  			= $this->get_tags();
+		$this->import_src_url_hash	= $this->get_import_src_url_hash();
+		$this->sessions				= session::loadAll($this->id);
 	}
 
 	function delete($id=false){
@@ -372,6 +326,12 @@ class appointment {
 		$this->save_tags();
 		$this->save_links();
 		$this->save_attachments();
+		
+		if ($this->import_src_url_hash != null){
+			$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
+			$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+			$stm->execute(array(':aid'=>$this->id,':hash'=>$this->import_src_url_hash));
+		}		
 	}
 
 	function sendToGrical(){
@@ -540,9 +500,10 @@ class appointment {
 	/* Adds a tag to the appointment. While the tag is instantly created in the database,
 	 * the assignment will not be saved before $this->save() is called. */
 	function add_tag($tag){
-		if ($tag instanceof $tag){
+		if ($tag instanceof tag){
 			$this->tags[]=$tag;
 		} else {
+			if (strlen($tag)<2) return;
 			$this->add_tag(tag::create($tag));
 		}
 	}
@@ -687,7 +648,20 @@ class appointment {
 			$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':mime'=>$url->description));
 		}
 	}
-	/******** Attachments *****/
+	/******************...Attachments */
+	
+	public static function load($id){
+		global $db;
+		$instance=new self();
+		$sql="SELECT * FROM appointments WHERE appointments.aid=$id";
+		foreach ($db->query($sql) as $row){
+			$instance=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false);
+			$instance->id=$id;			
+			$instance->loadRelated();
+			return $instance;
+		}
+	}
+	
 	/* loading all appointments */
 	public static function loadAll($tags=null){
 		global $db,$limit;
@@ -834,6 +808,16 @@ class appointment {
 		return $result;
 		
 		
+	}
+	
+	function get_import_src_url_hash(){
+		global $db;
+		$hash = null;		
+		$sql="SELECT md5hash FROM imported_appointments WHERE aid=$this->id";
+		foreach ($db->query($sql) as $row){
+			$hash = $row['md5hash'];
+		}
+		return $hash;
 	}
 }
 ?>

@@ -145,7 +145,7 @@ function parseAppointmentData($data){
 	}
 	$start=date($db_time_format,$start);
 	$end=date($db_time_format,$end);
-	$app=appointment::create($data['title'],$data['description'],$start,$end,$data['location'],$data['coordinates'],$data['tags'],null,null,false);
+	$app=Event::create($data['title'],$data['description'],$start,$end,$data['location'],$data['coordinates'],$data['tags'],null,null,false);
 	if (isset($data['id'])){
 		$app->id=$data['id'];
 	}
@@ -353,7 +353,7 @@ function importIcal($url,$tags=null){
 		} else if ($line=='BEGIN:VTIMEZONE') {
 			$timezone=readTimezone($stack);
 		} else if ($line=='BEGIN:VEVENT') {
-			$app=appointment::readFromIcal($stack,$tags,$timezone);
+			$app=Event::readFromIcal($stack,$tags,$timezone);
 			if (isset($app->ical_uid)){
 				if (startsWith($app->ical_uid, 'http')){
 					$id=$app->ical_uid;
@@ -363,10 +363,10 @@ function importIcal($url,$tags=null){
 			} else {
 				$id=$url;
 			}
-			if ($app instanceof appointment){
-				$app->save_as_imported($id);
+			if ($app instanceof Event){
+				$app->mark_imported($url);
 			} else {
-				warn(loc('not an appointment: %content',array('%content'=>print_r($app,true))));
+				warn(loc('not an event: %content',array('%content'=>print_r($app,true))));
 			}
 		} else if ($line=='END:VCALENDAR') {
 		} else {
@@ -408,4 +408,34 @@ function icalLine($head,$content){
 
 function replace_spaces($text){	
 	return str_replace(' ', '+', $text);
+}
+
+function load_xml($url){
+	$xml = new DOMDocument();
+	@$xml->loadHTMLFile($url);
+	return $xml;
+}
+
+function extract_date($text){
+	preg_match('/\d?\d\.\d?\d\.\d\d\d\d/', $text, $matches);
+	if (count($matches)>0){
+		$date=$matches[0];
+		return $date;
+	} else {
+		preg_match('/\d?\d\.\d?\d\./', $text, $matches);
+		if (count($matches)>0){
+			$date=$matches[0].date("Y");
+			return $date;
+		}
+	}
+	return '';
+}
+
+function extract_time($text){
+	preg_match('/\d?\d:\d?\d/', $text, $matches);
+	if (count($matches)>0){
+		$time=$matches[0];
+		return $time;
+	}
+	return '';
 }

@@ -9,12 +9,13 @@ if (isset($_GET['clear_imported']) && $_GET['clear_imported']=='true'){
 
 if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 	set_time_limit(0);
+	
+	Rosenkeller::read_events();
+	WagnerVerein::read_events();
+	CosmicDawn::read_events();
+	Kassablanca::read_events();
+	
 	include 'config/autoimport.php';
-	if (isset($parse_imports)){
-		foreach ($parse_imports as $import){
-			parserImport($import);
-		}
-	}
 	if (isset($ical_import_urls)){
 		foreach ($ical_import_urls as $item){
 			if (is_array($item)){
@@ -54,7 +55,7 @@ if (isset($_POST['newsession'])){
 	$session=parseSessionData($_POST['newsession']); // try to create session
 	if ($session){ // if successfull:
 		$session->save(); // save session
-		$appointment=appointment::load($session->aid);
+		$appointment=Event::load($session->aid);
 	}
 }
 
@@ -63,7 +64,7 @@ if (isset($_POST['newlink'])){
 	$link=parseLinkData($_POST['newlink']); // try to create link
 	if ($link){ // if successfull:
 		$link->save(); // save session
-		$appointment=appointment::load($_POST['newlink']['aid']);
+		$appointment=Event::load($_POST['newlink']['aid']);
 		$appointment->add_link($link);
 		$appointment->save();
 	}
@@ -74,7 +75,7 @@ if (isset($_POST['newattachment'])){
 	$link=parseAttachmentData($_POST['newattachment']); // try to create link
 	if ($link){ // if successfull:
 		$link->save(); // save session
-		$appointment=appointment::load($_POST['newattachment']['aid']);
+		$appointment=Event::load($_POST['newattachment']['aid']);
 		$appointment->add_attachment($link);
 		$appointment->save();
 	}
@@ -108,7 +109,7 @@ if (isset($_POST['deletesession'])){
 if (isset($_POST['deleteattachment'])){
 	$uid=$_POST['deleteattachment'];
 	$aid=$_GET['show'];
-	$appointment=appointment::load($aid);
+	$appointment=Event::load($aid);
 	$appointment->remove_attachment((int)$uid);
 }
 
@@ -116,7 +117,7 @@ if (isset($_POST['deleteattachment'])){
 if (isset($_POST['deletelink'])){
 	$uid=$_POST['deletelink'];
 	$aid=$_GET['show'];
-	$appointment=appointment::load($aid);
+	$appointment=Event::load($aid);
 	$appointment->remove_link((int)$uid);
 }
 
@@ -135,13 +136,13 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 
 } else if (isset($_GET['show'])){
 	$app_id=$_GET['show'];
-	$appointment=appointment::load($app_id);
+	$appointment=Event::load($app_id);
 	include 'templates/detail.php';
 
 } else if (isset($_POST['clone'])) {
 	if (isSpam($_POST)) die;
 	$app_id=$_POST['clone'];
-	$appointment=appointment::load($app_id);
+	$appointment=Event::load($app_id);
 	unset($appointment->id);
 	$appointment->save();
 	foreach ($appointment->links as $link){
@@ -154,14 +155,14 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 		$appointment->add_tag($tag);
 		$selected_tags[]=$tag->text;
 	}
-	$appointments = appointment::loadCurrent($selected_tags);
+	$appointments = Event::loadCurrent($selected_tags);
 	include 'templates/editdateform.php';
 	include 'templates/overview.php';
 
 } else if (isset($_POST['edit'])) {
 	if (isSpam($_POST)) die;
 	$app_id=$_POST['edit'];
-	$appointment=appointment::load($app_id);
+	$appointment=Event::load($app_id);
 	include 'templates/editdateform.php';
 	include 'templates/detail.php';
 
@@ -170,7 +171,7 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	if ($import=='ical'){
 		include 'templates/icalimport.php';
 	}
-	$appointments = appointment::loadCurrent($selected_tags);
+	$appointments = Event::loadCurrent($selected_tags);
 	include 'templates/overview.php';
 
 } else if (isset($_POST['delete'])){
@@ -178,23 +179,23 @@ if (isset($_POST['nextaction']) && $_POST['nextaction']=='addsession'){
 	$app_id=$_POST['delete'];
 	if (isset($_POST['confirm'])){
 		if ($_POST['confirm']=='yes'){
-			$appointment=appointment::delete($app_id);
+			$appointment=Event::delete($app_id);
 		}
-		$appointments = appointment::loadCurrent($selected_tags);
+		$appointments = Event::loadCurrent($selected_tags);
 		include 'templates/adddateform.php';
 		include 'templates/overview.php';
 	} else {
-		$appointment=appointment::load($app_id);
+		$appointment=Event::load($app_id);
 		include 'templates/confirmdelete.php';
 		include 'templates/detail.php';
 	}
 
 } else if (isset($_GET['past'])){
-	$appointments = appointment::loadAll($selected_tags);
+	$appointments = Event::loadAll($selected_tags);
 	include 'templates/adddateform.php';
 	include 'templates/overview.php';
 } else {
-	$appointments = appointment::loadCurrent($selected_tags);
+	$appointments = Event::loadCurrent($selected_tags);
 	include 'templates/adddateform.php';
 	include 'templates/overview.php';
 }

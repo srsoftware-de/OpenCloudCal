@@ -6,7 +6,6 @@
   require 'config/db.php';
   require 'locale/de.php';
   require 'functions.php';
-  require 'parser.php';
   require 'db_functions.php';
   
   ini_set('mbstring.substitute_character', "none");
@@ -29,13 +28,18 @@
   }
   
   function occ_autoload($class_name) {
-    $path = OCC_ROOT . "/include/class." . $class_name . ".php";
 //    echo "occ_autoload called for $class_name\n";
+    $path = OCC_ROOT . "/include/class." . strtolower($class_name) . ".php";
     if (file_exists($path)) {
       require_once($path);
-    } else {
-      return false;
-    }
+      return;
+    }       	
+    $path = OCC_ROOT . "/parsers/class." . strtolower($class_name) . ".php";
+    if (file_exists($path)) {
+      require_once($path);
+      return;
+    }       	
+    return false;
   }
 
   $warnings = "";
