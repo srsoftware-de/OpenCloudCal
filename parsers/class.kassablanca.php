@@ -3,6 +3,20 @@ class Kassablanca{
 	private static $base_url = 'http://www.kassablanca.de/';
 	private static $event_list_page = 'programm/aktuell';
 	
+	private static $months = array(
+			'Januar'=>'01',
+			'Februar'=>'02',
+			'März'=>'03',
+			'April'=>'04',
+			'Mai'=>'05',
+			'Juni'=>'06',
+			'Juli'=>'07',
+			'August'=>'08',
+			'September'=>'09',
+			'Oktober'=>'10',
+			'November'=>'11',
+			'Dezember'=>'12');
+	
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
 		$tables = $xml->getElementsByTagName('table');
@@ -23,10 +37,11 @@ class Kassablanca{
 	
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
-		
 		$title = self::read_title($xml);
 		$description = self::read_description($xml);
 		$start=self::date(self::read_start($xml));
+		print $start.NL; die();
+		return;
 		$location = self::read_location($xml);
 		$coords = null;		
 		if (stripos($location, 'Kulturbahnhof') !== false){
@@ -58,66 +73,58 @@ class Kassablanca{
 	}
 	
 	private static function read_title($xml){
-		$title_container = $xml->getElementById('container');
-		$headlines = $title_container->getElementsByTagName('h1');		
-		foreach ($headlines as $headline){
-			return trim($headline->nodeValue);
+		$contentleft = $xml->getElementById('contentleft');
+		$divs = $contentleft->getElementsByTagName('div');
+		foreach ($divs as $div){
+			if ($div->hasAttribute('class') && $div->getAttribute('class')=='headline'){
+				return trim($div->nodeValue);
+			}
 		}
 		return null;		
 	}
 	
 	private static function read_description($xml){
-		$container = $xml->getElementById('container');		
-		$paragraphs = $container->getElementsByTagName('p');
-		$description = '';				
-		foreach ($paragraphs as $paragraph){
-			if ($paragraph->hasAttribute('class')){
-				$class = $paragraph->getAttribute('class');
-				if ($class == 'info') continue;
-				if ($class == 'back') continue;
+		$contentleft = $xml->getElementById('contentleft');
+		$divs = $contentleft->getElementsByTagName('div');
+		$description = '';
+		foreach ($divs as $div){
+			if ($div->hasAttribute('class')){
+				$class = trim($div->getAttribute('class'));				
+				if (stripos($class, 'description')!==false){
+					$description .= trim($div->nodeValue);	
+				}				
 			}
-			$description .= trim($paragraph->nodeValue).NL;
 		}
 		return $description;
 	}
 	
 	private static function read_start($xml){
-		$container = $xml->getElementById('container');		
-		$paragraphs = $container->getElementsByTagName('p');
-		$date = null;	
-		$time = null;			
-		foreach ($paragraphs as $paragraph){
-			$text = trim($paragraph->nodeValue);
-			if ($paragraph->hasAttribute('class') && $paragraph->getAttribute('class') == 'info') {
-				$date = substr($text,0,10);
-				continue;
+		$tables = $xml->getElementsByTagName('table');
+		$day = null;
+		$month = null;
+		$time = null;
+		foreach ($tables as $table){
+			$divs = $table->getElementsByTagName('div');
+			foreach ($divs as $div){
+				if ($div->hasAttribute('class')){
+					$text = $div->nodeValue;
+					$class = $div->getAttribute('class');
+					if ($class == 'date1'){
+						$day = trim(substr($text,-2,2));
+						continue;
+					}
+					if ($class == 'date2'){
+						$month = self::$months[$text];
+						continue;
+					}
+					if ($class == 'time2'){
+						$time = trim(substr($text,-5,5));
+						continue;
+					}
+				}
 			}
-			$pos = strpos($text, 'show:');
-			if ($time == null && $pos!==false){
-				$time = trim(substr($text,$pos+5));
-				continue;				
-			}
-			$pos = strpos($text, 'Start:');
-			if ($time == null && $pos!==false){
-				$keys = array('ca.','Uhr');
-				$time = trim(str_replace($keys, '', trim(substr($text,$pos+6))));
-				continue;
-			}
-			$pos = strpos($text, 'doors:');
-			if ($time == null && $pos!==false){
-				$time = trim(substr($text,$pos+6));
-				continue;
-			}
-				
 		}
-		$pos=strpos($time,'pm');
-		if ($pos!==false){
-			$time = trim(substr($time,0,$pos));
-			$time = (12+(int)$time).':00';
-		}
-		if ($time == null) $time = '21:00';
-		if ($date == null) return null;		
-		return $date.' '.$time;
+		return $day.'.'.$month.'. '.$time;
 	}
 	
 	private static function read_location($xml){
