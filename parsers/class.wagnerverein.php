@@ -37,7 +37,7 @@ class WagnerVerein{
 		$coords = '50.931251, 11.580310';
 
 		$tags = self::read_tags($xml);
-		$links = self::read_links($xml);
+		$links = self::read_links($xml,$source_url);		
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
@@ -124,9 +124,10 @@ class WagnerVerein{
 		return array('CafeWagner','Jena');
 	}
 
-	private static function read_links($xml){
+	private static function read_links($xml,$source_url){
 		$articles = $xml->getElementsByTagName('article');
-		$links = array();
+		$url = url::create($source_url,loc('event page'));	
+		$links = array($url,);
 		foreach ($articles as $article){			
 			$anchors = $article->getElementsByTagName('a');
 			foreach ($anchors as $anchor){

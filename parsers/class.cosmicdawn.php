@@ -32,7 +32,7 @@ class CosmicDawn{
 		
 		$tags = self::read_tags($xml);
 
-		$links = self::read_links($xml);
+		$links = self::read_links($xml,$source_url);
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
@@ -136,10 +136,12 @@ class CosmicDawn{
 		return $tags;
 	}
 	
-	private static function read_links($xml){
+	private static function read_links($xml,$source_url){
 		$container = $xml->getElementById('container');
 		$anchors = $container->getElementsByTagName('a');
-		$links = array();
+		$url = url::create($source_url,loc('event page'));	
+		$links = array($url,);	
+		
 		foreach ($anchors as $anchor){
 			if ($anchor->hasAttribute('href')){
 				$text = trim($anchor->nodeValue);
