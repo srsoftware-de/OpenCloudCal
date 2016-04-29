@@ -230,7 +230,7 @@ class Event {
 					if (startsWith($foreignId, 'http')){
 						$id=$foreignId;
 					} else {
-						$id=$url.'#'.$foreignId;
+						$id=$source_url.'#'.$foreignId;
 					}
 				} else {
 					$id=$source_url;
