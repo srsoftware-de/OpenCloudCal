@@ -126,7 +126,7 @@ class Event {
 	}
 	
 	/** read an event from an ical file **/
-	public static function readFromIcal(&$stack,$tags=null,$timezone=null){
+	public static function readFromIcal(&$stack,$tags=null,$timezone=null,$source_url=null){
 		$start=null;
 		$end=null;
 		$geo=null;
@@ -224,12 +224,39 @@ class Event {
 				}
 			} elseif ($line=='END:VEVENT'){
 				// create appointment, do not save it, return it.
-				if ($end==null){
-					$end=$start;
-				}
 				if (in_array('opencloudcal', $tags)) return null; // do not re-import events
-				$app=Event::create($summary, $description, $start, $end, $location, $geo,$tags,$links,$attachments,false);
-				$app->ical_uid=$foreignId;
+				
+				if ($foreignId != null){
+					if (startsWith($foreignId, 'http')){
+						$id=$foreignId;
+					} else {
+						$id=$url.'#'.$foreignId;
+					}
+				} else {
+					$id=$source_url;
+				}
+				$app = Event::get_imported($id);
+				if ($app != null){
+					$app->set_title($summary);
+					$app->set_description($description);
+					$app->set_start($start);
+					$app->set_end($end);
+					$app->set_location($location);
+					$app->set_coords($geo);
+					foreach ($tags as $tag){
+						$app->add_tag($tag);
+					}
+					foreach ($links as $link){
+						$app->add_link($link);
+					}
+					foreach ($attachments as $attachment){
+						$app->add_attachment($attachment);
+					}
+				} else {
+					$app=Event::create($summary, $description, $start, $end, $location, $geo,$tags,$links,$attachments,false);
+				}
+				$app->mark_imported($id);
+				print 'saved event.'.NL;
 				return $app;
 			} else {
 				warn('tag unknown to Event::readFromIcal: '.$line);

@@ -353,21 +353,7 @@ function importIcal($url,$tags=null){
 		} else if ($line=='BEGIN:VTIMEZONE') {
 			$timezone=readTimezone($stack);
 		} else if ($line=='BEGIN:VEVENT') {
-			$app=Event::readFromIcal($stack,$tags,$timezone);
-			if (isset($app->ical_uid)){
-				if (startsWith($app->ical_uid, 'http')){
-					$id=$app->ical_uid;
-				} else {
-					$id=$url.'#'.$app->ical_uid;
-				}				
-			} else {
-				$id=$url;
-			}
-			if ($app instanceof Event){
-				$app->mark_imported($id);
-			} else {
-				warn(loc('not an event: %content',array('%content'=>print_r($app,true))));
-			}
+			Event::readFromIcal($stack,$tags,$timezone,$url);
 		} else if ($line=='END:VCALENDAR') {
 		} else {
 			warn(loc('unknown tag: %tag',array('%tag'=>$line)));
