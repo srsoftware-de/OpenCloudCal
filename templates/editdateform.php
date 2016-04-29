@@ -4,7 +4,6 @@
   	$appointment=false;
   }
 ?>
-
 <form class="adddate" method="POST" action="?show=<?php echo $appointment->id; ?>">
   <?php if ($appointment){
   	echo '<input type="hidden" name="editappointment[id]" value="'.$appointment->id.'" />'; 
@@ -13,7 +12,7 @@
   	<div id="title">
     	<?php echo loc('title').'<input type="text" name="editappointment[title]"';
   			if ($appointment){
-  		  	echo ' value="'.$appointment->title.'"';
+  		  	echo ' value="'.htmlspecialchars($appointment->title).'"';
   			}
   			echo '/>'; ?> 
   	</div>
@@ -24,7 +23,7 @@
   	<div id="location">
     	<?php echo loc('location').'<input type="text" name="editappointment[location]"';
   			if ($appointment){
-  		  	echo ' value="'.$appointment->location.'"';
+  		  	echo ' value="'.htmlspecialchars($appointment->location).'"';
   			}
   			echo '/>'; ?> 
   	</div>
