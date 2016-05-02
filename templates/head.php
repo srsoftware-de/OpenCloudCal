@@ -17,7 +17,7 @@
 <html>
   <head>
     <meta charset="utf-8"/>
-    <title>OpenCloudCal</title>
+    <title><?php if (!empty($selected_tags)){ print loc('#tags-Events at OpenCloudCal',array('#tags'=>implode(' & ', $selected_tags))); } else { print 'OpenCloudCal'; } ?></title>
     <link type="text/css" rel="stylesheet" media="all" href="templates/css/style.css" />
    </head>
  <body>

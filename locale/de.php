@@ -10,6 +10,7 @@ $locale=array(
 		'Address' => 'Adresse',
 		'appointment overview' => 'Terminübersicht',
 		'Appointment sent to #service.'=>'Termin wurde bei #service eingetragen.',
+		'#tags-Events at OpenCloudCal' => '#tags-Termine bei OpenCloudCal',
 		'attachments' => 'Anhänge',
 		'Back to overview' => 'Zurück zur Übersicht',
 		'change' => 'wechseln',
