@@ -704,7 +704,7 @@ class Event {
 			if (!is_array($tags)){
 				$tags=array($tags);
 			}
-			$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE keyword IN (?) ORDER BY start";
+			$sql="SELECT * FROM appointments NATURAL JOIN appointment_tags NATURAL JOIN tags WHERE keyword IN (:tags) ORDER BY start";
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
