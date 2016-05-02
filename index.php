@@ -9,8 +9,7 @@ if (isset($_GET['clear_imported']) && $_GET['clear_imported']=='true'){
 
 if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 	set_time_limit(0);
-	
-	SevenGera::read_events();die();
+	SevenGera::read_events();
 	Wotufa::read_events();
 	FromHell::read_events();
 	Rosenkeller::read_events();
