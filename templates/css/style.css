@@ -49,6 +49,7 @@ form.adddate:hover{
 	max-height: none;
 }
 form.adddate,
+form.editdate,
 form.addsession,
 form.addlink,
 form.timezone,
