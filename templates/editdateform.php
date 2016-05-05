@@ -4,7 +4,7 @@
   	$appointment=false;
   }
 ?>
-<form class="adddate" method="POST" action="?show=<?php echo $appointment->id; ?>">
+<form class="editdate" method="POST" action="?show=<?php echo $appointment->id; ?>">
   <?php if ($appointment){
   	echo '<input type="hidden" name="editappointment[id]" value="'.$appointment->id.'" />'; 
   }?>
