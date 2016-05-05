@@ -117,7 +117,10 @@ class WagnerVerein{
 				$text = trim($paragraph->textContent);
 				$pos = strpos($text, 'Kategorie:');
 				if ($pos!==false) {
-					return array('CafeWagner','Jena',substr($text, $pos+11));
+					$tags = explode(' ',substr($text, $pos+11));
+					$tags[] = 'CafeWagner';
+					$tags[] = 'Jena';
+					return $tags;
 				}
 			}
 		}
