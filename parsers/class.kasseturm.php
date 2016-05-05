@@ -90,6 +90,9 @@ class KasseTurm{
 			if ($anchor->hasAttribute('href')){
 				$address = $anchor->getAttribute('href');
 				if (strpos($address, 'mailto')!==false) continue;
+				if (strpos($address, '://')===false){
+					$address = self::$base_url.'/'.$address;
+				}
 				$text = trim($anchor->nodeValue);
 				$link = url::create($address,$text);
 				$links[] = $link;
