@@ -2,14 +2,21 @@
 include 'forms.php';
 ?>
 <form class="adddate" method="POST">
-	<div class="left">
+	<h2>Neuen Termin anlegen</h2>
+	<div class="left">		
 		<div id="title">
 			<?php echo loc('title'); ?>
-			<input type="text" name="newappointment[title]" />
+			<input type="text" name="newappointment[title]" />			
 		</div>
 		<div id="email">
 			<?php echo loc('email - bots only'); ?>
 			<input type="text" name="newappointment[email]" />
+		</div>
+		<div class="start">
+			<?php echo loc('start date'); datepicker('newappointment[start]'); echo loc('start time'); timepicker('newappointment[start]',date($db_time_format)); ?>
+		</div>
+		<div class="end">
+			<?php echo loc('end date (optional)'); datepicker('newappointment[end]'); echo loc('end time'); timepicker('newappointment[end]') ?>
 		</div>
 		<div id="location">
 			<?php echo loc('location'); ?>
@@ -23,12 +30,7 @@ include 'forms.php';
 			<?php echo loc('description'); ?>
 			<textarea name="newappointment[description]"></textarea>
 		</div>
-		<div class="start">
-			<?php echo loc('start date'); datepicker('newappointment[start]'); echo loc('start time'); timepicker('newappointment[start]',date($db_time_format)); ?>
-		</div>
-		<div class="end">
-			<?php echo loc('end date (optional)'); datepicker('newappointment[end]'); echo loc('end time'); timepicker('newappointment[end]') ?>
-		</div>
+
 		<div id="tags">
 			<?php echo loc('tags'); ?>
 			<?php echo '<input type="text" name="newappointment[tags]" ';
