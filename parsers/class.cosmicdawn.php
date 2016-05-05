@@ -132,7 +132,7 @@ class CosmicDawn{
 	}
 	
 	private static function read_tags($xml){
-		$tags = array('Kulturbahnhof', 'CosmicDawn', 'Jena');
+		$tags = array('Kulturbahnhof', 'CosmicDawn', 'Jena','Konzert');
 		return $tags;
 	}
 	
