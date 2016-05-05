@@ -9,7 +9,7 @@ if (isset($_GET['clear_imported']) && $_GET['clear_imported']=='true'){
 
 if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 	set_time_limit(0);
-	KasseTurm::read_events(); die();
+	KasseTurm::read_events();
 	SevenGera::read_events();
 	Wotufa::read_events();
 	FromHell::read_events();
