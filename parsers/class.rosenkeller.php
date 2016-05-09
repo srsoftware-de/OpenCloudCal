@@ -100,6 +100,7 @@ class Rosenkeller{
 		$headlines = $wrapper->getElementsByTagName('h3');
 		foreach ($headlines as $headline){
 			$text = $headline->nodeValue;
+			$text = str_replace(array('!',','), '', $text);
 			$text = str_replace('HIP HOP', 'HIP-HOP', $text);
 			$tags = explode(' ', $text);
 			break;						
@@ -119,9 +120,19 @@ class Rosenkeller{
 		$images = $wrapper->getElementsByTagName('img');
 		$attachments = array();
 		foreach ($images as $image){
-			$address = self::$base_url.$image->getAttribute('pagespeed_high_res_src');
-			$mime = guess_mime_type($address);
-			$attachments[] = url::create($address,$mime);
+			if ($image->hasAttribute('data-pagespeed-high-res-src')){
+				$address = self::$base_url.$image->getAttribute('data-pagespeed-high-res-src');
+				$mime = guess_mime_type($address);
+				$attachments[] = url::create($address,$mime);
+			} else if ($image->hasAttribute('pagespeed_high_res_src')){
+				$address = self::$base_url.$image->getAttribute('pagespeed_high_res_src');
+				$mime = guess_mime_type($address);
+				$attachments[] = url::create($address,$mime);
+			} else if ($image->hasAttribute('src')){
+				$address = self::$base_url.$image->getAttribute('src');
+				$mime = guess_mime_type($address);
+				$attachments[] = url::create($address,$mime);
+			}
 			
 		}
 		return $attachments;
