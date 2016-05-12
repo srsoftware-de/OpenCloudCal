@@ -110,6 +110,7 @@
   <button type="submit" name="clone" value="<?php echo $appointment->id; ?>"><?php echo loc('clone'); ?></button>
   <button type="submit" name="delete" value="<?php echo $appointment->id; ?>"><?php echo loc('delete'); ?></button>
 </form>
+<?php if ($appointment->coords != null) {?>
 <div id="coordinates">
 	<h3><?php echo loc('Map'); ?></h3>
 	<?php
@@ -134,6 +135,7 @@
 	<?php }
 	?>
 </div>
+<?php } // if coords != null?>
 <div class="bottomline right">
 <a class="button" href="?show=<?php echo $appointment->id; ?>&format=ical">iCal</a>
 </div>
