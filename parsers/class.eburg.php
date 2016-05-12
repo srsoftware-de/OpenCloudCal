@@ -209,7 +209,10 @@ class EBurg{
 		$images = array();
 		$divs = $content->getElementsByTagName('div');
 		foreach ($divs as $div){
-			if (!$div->hasAttribute('class') || $div->getAttribute('class')!= 'gallery-row') continue;
+			$good = false;
+			if ($div->hasAttribute('id') && strpos($div->getAttribute('id'),'attachment')) $good=true;
+			if ($div->hasAttribute('class') && $div->getAttribute('class')== 'gallery-row') $good = true;
+			if (!$good) continue;
 			$imgs = $div->getElementsByTagName('img');
 			foreach ($imgs as $img){
 				if ($img->hasAttribute('data-large-file')){
