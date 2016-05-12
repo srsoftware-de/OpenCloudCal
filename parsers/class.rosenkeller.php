@@ -100,7 +100,7 @@ class Rosenkeller{
 		$headlines = $wrapper->getElementsByTagName('h3');
 		foreach ($headlines as $headline){
 			$text = $headline->nodeValue;
-			$text = str_replace(array('!',','), '', $text);
+			$text = str_replace(array('!',',','+'), '', $text);
 			$text = str_replace('HIP HOP', 'HIP-HOP', $text);
 			$tags = explode(' ', $text);
 			break;						

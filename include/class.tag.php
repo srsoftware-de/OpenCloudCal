@@ -7,6 +7,8 @@
 
     public static function create($tag){
       global $db;
+      $tag = trim($tag);
+      if (strlen($tag)<2) return null;
       $instance=new self();
       $stm=$db->prepare("SELECT * FROM tags WHERE keyword=?");
       $stm->execute(array($tag));
