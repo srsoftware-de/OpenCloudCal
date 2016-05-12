@@ -68,7 +68,6 @@ class EBurg{
 		$tags = self::read_tags($xml);
 		$links = self::read_links($xml,$source_url);		
 		$attachments = self::read_images($xml);
-		die(print_r($attachments,true));
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event == null){
@@ -171,7 +170,7 @@ class EBurg{
 			$pos = strpos($tags, ':');
 			if ($pos !== false) $tags=trim(substr($tags, $pos+1));
 			$tags=str_replace(' ', '', $tags);
-			return $explode(' ',$tags);			
+			return explode(' ',$tags);			
 		}
 		
 		// Fallback:
@@ -213,9 +212,27 @@ class EBurg{
 			if (!$div->hasAttribute('class') || $div->getAttribute('class')!= 'gallery-row') continue;
 			$imgs = $div->getElementsByTagName('img');
 			foreach ($imgs as $img){
-				if ($img->hasAttribute('data-large-file')) print 'large: '.$img->getAttribute('data-large-file');
-				if ($img->hasAttribute('src')) print 'large: '.$img->getAttribute('src');
-				print NL;
+				if ($img->hasAttribute('data-large-file')){
+					$address = $img->getAttribute('data-large-file');
+					$pos = strpos($address,'?resize');
+					if ($pos !== false) $address=substr($address,0,$pos);
+					$mime = guess_mime_type($address);
+					if (strpos($mime,'image')!==false){
+						$images[] = url::create($address,$mime);
+						continue;
+					}
+				}
+				if ($img->hasAttribute('src')){
+					$address = $img->getAttribute('src');
+					$pos = strpos($address,'?resize');
+					if ($pos !== false) $address=substr($address,0,$pos);
+					$mime = guess_mime_type($address);
+					if (strpos($mime,'image')!==false){
+						$images[] = url::create($address,$mime);
+						continue;
+					}
+						
+				}
 			}
 		}			
 		
