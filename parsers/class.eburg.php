@@ -170,7 +170,7 @@ class EBurg{
 			$pos = strpos($tags, ':');
 			if ($pos !== false) $tags=trim(substr($tags, $pos+1));
 			$tags=str_replace(' ', '', $tags);
-			return explode(' ',$tags);			
+			return explode(',',$tags);			
 		}
 		
 		// Fallback:
