@@ -66,10 +66,9 @@ class EBurg{
 		
 
 		$tags = self::read_tags($xml);
-		error_log($location);
-		die(print_r($tags,true));
 		$links = self::read_links($xml,$source_url);		
 		$attachments = self::read_images($xml);
+		die(print_r($attachments,true));
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event == null){
@@ -165,53 +164,62 @@ class EBurg{
 
 	private static function read_tags($xml){
 		$content = $xml->getElementById('content');
-		$description = '';
-		foreach ($articles as $article){
-			$paragraphs = $article->getElementsByTagName('p');
-			foreach ($paragraphs as $paragraph){
-				$text = trim($paragraph->textContent);
-				$pos = strpos($text, 'Kategorie:');
-				if ($pos!==false) {
-					$tags = explode(' ',substr($text, $pos+11));
-					$tags[] = 'CafeWagner';
-					$tags[] = 'Jena';
-					return $tags;
-				}
-			}
+		$paragraphs = $content->getElementsByTagName('p');
+		foreach ($paragraphs as $paragraph){
+			if (!$paragraph->hasAttribute('class') || $paragraph->getAttribute('class')!='tags') continue;
+			$tags = trim($paragraph->nodeValue);
+			$pos = strpos($tags, ':');
+			if ($pos !== false) $tags=trim(substr($tags, $pos+1));
+			$tags=str_replace(' ', '', $tags);
+			return $explode(' ',$tags);			
 		}
-		return array('CafeWagner','Jena');
+		
+		// Fallback:
+		$tags = explode(',',self::read_category($xml, 'Was?'));
+		$tags[] = 'Eburg';
+		$tags[] = 'Erfurt';
+		return $tags;
 	}
 
 	private static function read_links($xml,$source_url){
-		$articles = $xml->getElementsByTagName('article');
+		$content = $xml->getElementById('content');
 		$url = url::create($source_url,loc('event page'));	
 		$links = array($url,);
-		foreach ($articles as $article){			
-			$anchors = $article->getElementsByTagName('a');
-			foreach ($anchors as $anchor){
-				if ($anchor->hasAttribute('href')){
-					$address = $anchor->getAttribute('href');
-					if (strpos(guess_mime_type($address),'image')===false){
-						$links[] = url::create($address,trim($anchor->nodeValue));
+		$divs = $content->getElementsByTagName('div');
+		foreach ($divs as $div){
+			if (!$div->hasAttribute('class') || $div->getAttribute('class')!= 'lf_wrapper') continue;
+			$list_items = $div->getElementsByTagName('li');
+			foreach ($list_items as $list_item){
+				$anchors = $list_item->getElementsByTagName('a');
+				foreach ($anchors as $anchor){
+					if ($anchor->hasAttribute('href')){
+						$address = $anchor->getAttribute('href');
+						if (strpos(guess_mime_type($address),'image')===false){
+							$links[] = url::create($address,trim($anchor->nodeValue));
+						}
 					}
 				}
 			}
-		}
+		}			
+		
 		return $links;
 	}
 
 	private static function read_images($xml){
-		$articles = $xml->getElementsByTagName('article');
-		$attachments = array();
-		foreach ($articles as $article){
-			$images = $article->getElementsByTagName('img');
-			foreach ($images as $image){
-				$address = $image->getAttribute('src');
-				$mime = guess_mime_type($address);
-				$attachments[] = url::create($address,$mime);
+		$content = $xml->getElementById('content');
+		$images = array();
+		$divs = $content->getElementsByTagName('div');
+		foreach ($divs as $div){
+			if (!$div->hasAttribute('class') || $div->getAttribute('class')!= 'gallery-row') continue;
+			$imgs = $div->getElementsByTagName('img');
+			foreach ($imgs as $img){
+				if ($img->hasAttribute('data-large-file')) print 'large: '.$img->getAttribute('data-large-file');
+				if ($img->hasAttribute('src')) print 'large: '.$img->getAttribute('src');
+				print NL;
 			}
-		}
-		return $attachments;
+		}			
+		
+		return $images;
 	}
 
 
