@@ -163,6 +163,7 @@ class EBurg{
 
 	private static function read_tags($xml){
 		$content = $xml->getElementById('content');
+		$tags == null;
 		$paragraphs = $content->getElementsByTagName('p');
 		foreach ($paragraphs as $paragraph){
 			if (!$paragraph->hasAttribute('class') || $paragraph->getAttribute('class')!='tags') continue;
@@ -170,11 +171,12 @@ class EBurg{
 			$pos = strpos($tags, ':');
 			if ($pos !== false) $tags=trim(substr($tags, $pos+1));
 			$tags=str_replace(' ', '', $tags);
-			return explode(',',$tags);			
+			$tags = explode(',',$tags);
+			break;			
 		}
 		
 		// Fallback:
-		$tags = explode(',',self::read_category($xml, 'Was?'));
+		if ($tags == null)	$tags = explode(',',self::read_category($xml, 'Was?'));
 		$tags[] = 'Eburg';
 		$tags[] = 'Erfurt';
 		return $tags;
@@ -210,8 +212,8 @@ class EBurg{
 		$divs = $content->getElementsByTagName('div');
 		foreach ($divs as $div){
 			$good = false;
-			if ($div->hasAttribute('id') && strpos($div->getAttribute('id'),'attachment')) $good=true;
-			if ($div->hasAttribute('class') && $div->getAttribute('class')== 'gallery-row') $good = true;
+			if ($div->hasAttribute('id') && strpos($div->getAttribute('id'),'attachment')!==false) $good=true;
+			if ($div->hasAttribute('class') && $div->getAttribute('class')== 'gallery-row') $good=true;
 			if (!$good) continue;
 			$imgs = $div->getElementsByTagName('img');
 			foreach ($imgs as $img){
