@@ -732,11 +732,11 @@ class Event {
 		return $appointments;
 	}
 
-	public static function loadCurrent($tags=null){
+	public static function loadCurrent($tags=null,$all_keywords=true){
 		global $db,$db_time_format,$limit;
 		$appointments=array();
 		 
-		$yesterday=time()-24*60*60; //
+		$yesterday=time()-12*60*60; // show events in the past 12 hours, too
 		$yesterday=date($db_time_format,$yesterday);
 
 		if ($tags!=null){
@@ -749,10 +749,12 @@ class Event {
 				  AND keyword IN (";
 			$sql.=':tag'.implode(', :tag',array_keys($tags));
 			/* array( [0] => a, [1] => b, [2] => c ) wird zu ':tag'.0.', :tag'.1.', :tag'.2 = ':tag0, :tag1, :tag2' */
-			$sql.=")
-				  GROUP BY aid
-				  HAVING COUNT(DISTINCT tid) = :count
-				  ORDER BY start";
+			$sql.=')
+				  GROUP BY aid';
+			if ($all_keywords){
+				$sql.=' HAVING COUNT(DISTINCT tid) = :count';
+			}
+			$sql.='ORDER BY start';
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
