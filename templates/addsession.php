@@ -45,7 +45,7 @@ if ($format=='html') {
 				</label>
 			</div>
 			<div class="choice">
-				<input type="radio" id="addattachment" name="nextaction" value="addattachment"" />
+				<input type="radio" id="addattachment" name="nextaction" value="addattachment" />
 				<label for="addattachment">			
 					<?php echo loc('Add an attachment to this appointment in the next step.'); ?>
 				</label>
