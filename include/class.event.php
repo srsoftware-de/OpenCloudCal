@@ -736,7 +736,7 @@ class Event {
 		global $db,$db_time_format,$limit;
 		$appointments=array();
 		 
-		$yesterday=time()-12*60*60; // show events in the past 12 hours, too
+		$yesterday=time()-24*60*60; // show events in the past 12 hours, too
 		$yesterday=date($db_time_format,$yesterday);
 
 		if ($tags!=null){
@@ -752,17 +752,20 @@ class Event {
 			$sql.=')
 				  GROUP BY aid';
 			if ($all_keywords){
-				$sql.=' HAVING COUNT(DISTINCT tid) = :count';
+				$sql.=' HAVING COUNT(DISTINCT tid) = :count ';
 			}
 			$sql.='ORDER BY start';
 			if ($limit){
 				$sql.=' LIMIT :limit';
 			}
+			error_log($sql);
 			$stm=$db->prepare($sql);
 			foreach ($tags as $key => $tag){
 				$stm->bindValue(':tag'.$key, $tag);
 			}
-			$stm->bindValue(':count', count($tags));
+			if ($all_keywords){
+				$stm->bindValue(':count', count($tags));
+			}
 		} else {
 			$sql="SELECT * FROM appointments WHERE start>'$yesterday' OR end>'$yesterday' ORDER BY start";
 			if ($limit){
