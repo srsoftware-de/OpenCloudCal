@@ -2,6 +2,7 @@
 class Psychochor{
 	private static $base_url = 'http://psycho-chor.de/';
 	private static $event_list_page = 'de/konzerte/aktuell.html';
+	private static $cities = array('Erfurt','Jena', 'Weimar');	
 
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
@@ -13,49 +14,80 @@ class Psychochor{
 			if (strpos($class, 'wrapper')!==false) continue;
 			$tables = $event->getElementsByTagName('table');
 			if ($tables->length <1) continue;
-			self::read_event($event);
+			self::read_event(self::$base_url . self::$event_list_page,$event);
 		}
 	}
 
-	public static function read_event($xml){
+	public static function read_event($source_url,$xml){
 		$title = self::read_title($xml);
 		$table_rows = $xml->getElementsByTagName('tr');
+		$date = null;
+		$time = null;
+		$description = '';
+		$location = null;
 		foreach ($table_rows as $row){
 			$cols = $row->getElementsByTagName('td');
 			$first = null;
 			$second = null;
 			foreach ($cols as $col){
 				if ($first == null){
-					$first = trim($col->nodeValue);
+					$first = trim(str_replace("\xC2\XA0", ' ', $col->nodeValue));
 				} elseif ($second == null){
-					$second = trim($col->nodeValue);
+					$second = trim(str_replace("\xC2\XA0", ' ', $col->nodeValue));
 					break;
 				}
 			}
-			print $first.NL;
-			print $second.NL; die();
+			if ($first=='Wochentag'){
+				
+			} elseif ($first == 'Datum'){
+				$date = $second;
+			} elseif ($first == 'Beginn'){
+				$time = trim(str_replace('Uhr','',$second));
+			} elseif ($first == 'Einlass'){
+				$description.=$first.': '.$second."\n";
+			} elseif ($first == 'Ort'){
+				if ($location == null){
+					$location=$second;
+				} else {
+					$location .= ", ".$second;
+				}
+			} elseif ($first == 'Adresse'){
+				if ($location == null){
+					$location=$second;
+				} else {
+					$location .= ", ".$second;
+				}
+			} elseif ($first == ''){
+				if ($location == null){
+					$location=$second;
+				} else {
+					$location .= ", ".$second;
+				}
+			} elseif ($first == 'Eintritt'){
+				$description.=$first.': '.$second."\n";
+			} elseif (preg_match('/^[0-9]{5} /', $first)) {
+				if ($location == null){
+					$location=$first;
+				} else {
+					$location .= ", ".$first;
+				}		
+			} else {
+				error_log('Psychochor-Parser found unknown field "'.$first.'": "'.$second.'"');				
+			}			
 		}
-		
-		
-		
-		
-		
-		
-		$description = self::read_description($xml);
-		die($description);
-		$start = self::date(self::read_start($xml));
-		$location = 'Café Wagner, Wagnergasse 26, 07743 Jena';
 
-		$coords = '50.931251, 11.580310';
-
-		$tags = self::read_tags($xml);
-		$links = self::read_links($xml,$source_url);		
-		$attachments = self::read_images($xml);
-		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
+		if ($date == null || $time == null) return;
+		$start = self::date($date.' '.$time);
+		$source_url=$source_url.'?date='.$date.'&time='.$time;
+		$links = array(url::create($source_url,'Homepage'));
+		$tags = array('Chor','Psychochor','Konzert');		
+		foreach (self::$cities as $city){
+			if (strpos($location, $city)!==false) $tags[]=$city;
+		}
 		$event = Event::get_imported($source_url);
 		if ($event == null){
 			//print 'creating new event for '.$source_url.NL;
-			$event = Event::create($title, $description, $start, null, $location, $coords,$tags,$links,$attachments,false);
+			$event = Event::create($title, $description, $start, null, $location, null,$tags,$links,null,false);
 			$event->mark_imported($source_url);
 		} else {
 			//print 'updating event for '.$source_url.NL;
@@ -63,10 +95,8 @@ class Psychochor{
 			$event->set_description($description);
 			$event->set_start($start);
 			$event->set_location($location);
-			$event->set_coords($coords);
 			foreach ($tags as $tag) $event->add_tag($tag);
 			foreach ($links as $link) $event->add_link($link);
-			foreach ($attachments as $attachment) $event->add_attachment($attachment);
 			$event->save();
 		}
 	}
