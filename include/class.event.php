@@ -736,7 +736,7 @@ class Event {
 		global $db,$db_time_format,$limit;
 		$appointments=array();
 		 
-		$yesterday=time()-24*60*60; // show events in the past 12 hours, too
+		$yesterday=time()-12*60*60; // show events in the past 12 hours, too
 		$yesterday=date($db_time_format,$yesterday);
 
 		if ($tags!=null){
