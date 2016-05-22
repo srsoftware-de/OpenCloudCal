@@ -32,7 +32,7 @@ class Rosenkeller{
 		}
 		
 		$tags = self::read_tags($xml);
-
+		if (stripos($title,	'Metal')!=false) $tags[]='schwarzesjena';
 		$links = self::read_links($xml,$source_url);
 		$attachments = self::read_attachments($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
