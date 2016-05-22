@@ -9,6 +9,7 @@ if (isset($_GET['clear_imported']) && $_GET['clear_imported']=='true'){
 
 if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
 	set_time_limit(0);
+	Psychochor::read_events();
 	EBurg::read_events();
 	KasseTurm::read_events();
 	SevenGera::read_events();
