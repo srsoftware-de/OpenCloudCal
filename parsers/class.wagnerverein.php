@@ -37,7 +37,9 @@ class WagnerVerein{
 		$coords = '50.931251, 11.580310';
 
 		$tags = self::read_tags($xml);
-		$links = self::read_links($xml,$source_url);		
+		if (stripos($title, 'Wave')!==false) $tags[]='schwarzesjena';
+		if (stripos($title, 'Depeche Mode')!==false) $tags[]='schwarzesjena';		
+		$links = self::read_links($xml,$source_url);
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);

@@ -37,6 +37,7 @@ class Wotufa{
 		$coords = '50.732068, 11.745464';
 
 		$tags = array('Wotufa','Neustadt.Orla');
+		if (stripos($title,	'Metal')!=false) $tags[]='schwarzesjena';
 		$links = self::read_links($xml,$source_url);		
 		$attachments = self::read_images($xml);		
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
