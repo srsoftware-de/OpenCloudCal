@@ -7,27 +7,8 @@ if (isset($_GET['clear_imported']) && $_GET['clear_imported']=='true'){
 	clear_imported($db);
 }
 
-if (isset($_GET['autoimport']) && $_GET['autoimport']=='true'){
-	set_time_limit(0);
-	Psychochor::read_events();
-	EBurg::read_events();
-	KasseTurm::read_events();
-	SevenGera::read_events();
-	Wotufa::read_events();
-	FromHell::read_events();
-	Rosenkeller::read_events();
-	WagnerVerein::read_events();
-	CosmicDawn::read_events();
-	Kassablanca::read_events();
-	
+if (isset($_GET['autoimport'])){
 	include 'config/autoimport.php';
-	if (isset($ical_import_urls)){
-		foreach ($ical_import_urls as $item){
-			if (is_array($item)){
-				importIcal($item['url'],$item['tag']);
-			} else importIcal($item);
-		}
-	}
 	die();	
 } else {
 	include 'templates/head.php';
