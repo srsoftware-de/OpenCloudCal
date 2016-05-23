@@ -163,7 +163,7 @@ class EBurg{
 
 	private static function read_tags($xml){
 		$content = $xml->getElementById('content');
-		$tags == null;
+		$tags = null;
 		$paragraphs = $content->getElementsByTagName('p');
 		foreach ($paragraphs as $paragraph){
 			if (!$paragraph->hasAttribute('class') || $paragraph->getAttribute('class')!='tags') continue;
