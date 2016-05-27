@@ -51,6 +51,9 @@ switch ($location){
 	case 11:
 		Kassablanca::read_events();
 		break;
+	case 12:
+		SaechsischerBahnhof::read_events();
+		break;
 	default:
 		print "no location number given!";
 }
