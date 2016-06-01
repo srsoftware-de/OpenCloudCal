@@ -154,7 +154,7 @@ class BiClub{
 	private static function read_tags($xml){
 		$content = $xml->getElementById('content');
 		$divs = $content->getElementsByTagName('div');
-		$tags = array('Biclub','Ilmenau');
+		$tags = array('BiClub','Ilmenau');
 		foreach ($divs as $div){
 			if (!$div->hasAttribute('class')) continue;
 			$class = $div->getAttribute('class');
