@@ -1,7 +1,7 @@
 <?php
 class SaaleGaerten{
 	private static $base_url = 'http://www.saalgaerten.de/';
-	private static $event_list_page = 'de/programm.html';
+	private static $event_list_pages = array('de/programm.html','de/kinoprogramm.html');
 
 	private static $months = array(
 			'Januar'=>'01',
@@ -18,19 +18,23 @@ class SaaleGaerten{
 			'Dezember'=>'12');
 	
 	public static function read_events(){
-		$xml = load_xml(self::$base_url . self::$event_list_page);
-		$programm = $xml->getElementById('programm');
-		$events = $programm->getElementsByTagName('div');
 		$event_pages = array();
-		foreach ($events as $event){
-			if (!$event->hasAttribute('class')) continue;
-			$class = $event->getAttribute('class');
-			if (strpos($class, 'upcoming')===false) continue;
-			$links = $event->getElementsByTagName('a');
-			foreach ($links as $link){
-				$href = trim($link->getAttribute('href'));
-				$event_pages[]=self::$base_url.$href;
-				break;			
+		
+		foreach (self::$event_list_pages as $event_list_page){
+			$xml = load_xml(self::$base_url . $event_list_page);
+			$programm = $xml->getElementById('programm');
+			if ($programm == null) $programm = $xml->getElementById('kinoprogramm');
+			$events = $programm->getElementsByTagName('div');
+			foreach ($events as $event){
+				if (!$event->hasAttribute('class')) continue;
+				$class = $event->getAttribute('class');
+				if (strpos($class, 'upcoming')===false) continue;
+				$links = $event->getElementsByTagName('a');
+				foreach ($links as $link){
+					$href = trim($link->getAttribute('href'));
+					$event_pages[]=self::$base_url.$href;
+					break;			
+				}
 			}
 		}
 		$event_pages=array_unique($event_pages);
@@ -75,6 +79,7 @@ class SaaleGaerten{
 
 	private static function read_title($xml){
 		$detail = $xml->getElementById('programm-detail');
+		if ($detail == null) $detail = $xml->getElementById('filmdetail');
 		$divs = $detail->getElementsByTagName('div');
 		foreach ($divs as $div){
 			if (!$div->hasAttribute('class')) continue;
@@ -87,6 +92,7 @@ class SaaleGaerten{
 
 	private static function read_description($xml){
 		$detail = $xml->getElementById('programm-detail');
+		if ($detail == null) $detail = $xml->getElementById('filmdetail');
 		$divs = $detail->getElementsByTagName('div');
 		foreach ($divs as $div){
 			if (!$div->hasAttribute('class')) continue;
@@ -104,6 +110,7 @@ class SaaleGaerten{
 
 	private static function read_start($xml){
 		$detail = $xml->getElementById('programm-detail');
+		if ($detail == null) $detail = $xml->getElementById('filmdetail');
 		$divs = $detail->getElementsByTagName('div');
 		$datestring = '';
 		foreach ($divs as $div){
@@ -139,6 +146,7 @@ class SaaleGaerten{
 
 	private static function read_tags($xml){
 		$detail = $xml->getElementById('programm-detail');
+		if ($detail == null) $detail = $xml->getElementById('filmdetail');
 		$divs = $detail->getElementsByTagName('div');
 		$tags = array();
 		foreach ($divs as $div){
@@ -164,6 +172,7 @@ class SaaleGaerten{
 		$links = array($url,);
 		
 		$detail = $xml->getElementById('programm-detail');
+		if ($detail == null) $detail = $xml->getElementById('filmdetail');
 		$divs = $detail->getElementsByTagName('div');
 		foreach ($divs as $div){
 			if (!$div->hasAttribute('class')) continue;
@@ -183,6 +192,7 @@ class SaaleGaerten{
 		$images = array();
 		
 		$detail = $xml->getElementById('programm-detail');
+		if ($detail == null) $detail = $xml->getElementById('filmdetail');
 		$imgs = $detail->getElementsByTagName('img');
 		foreach ($imgs as $img){
 			if (!$img->hasAttribute('src')) continue;
