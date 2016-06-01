@@ -57,6 +57,9 @@ switch ($location){
 	case 13:
 		SaaleGaerten::read_events();
 		break;
+	case 14:
+		BiClub::read_events();
+		break;
 	default:
 		print "no location number given!";
 }
