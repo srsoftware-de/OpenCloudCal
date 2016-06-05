@@ -124,7 +124,7 @@ class Event {
 		}
 		return false;
 	}
-	
+
 	/** read an event from an ical file **/
 	public static function readFromIcal(&$stack,$tags=null,$timezone=null,$source_url=null){
 		$start=null;
@@ -151,10 +151,20 @@ class Event {
 			$line=trim($line);
 			if (startsWith($line,'UID:')){
 				$foreignId=substr($line,4).readMultilineFromIcal($stack);
-			} elseif (startsWith($line,'DTSTART:')){
-				$start=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 8),$timezone);
-			} elseif (startsWith($line,'DTSTART;TZID=Europe/Berlin:')){
-				$start=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 27),$timezone);
+			} elseif (startsWith($line,'DTSTART')){
+				$line = substr($line,7);
+				$pos = strpos($line, ';VALUE=DATE');
+				if ($pos !== false){
+					$line = str_replace(';VALUE=DATE', '', $line).'T000000';
+				}
+				$start = Event::convertRFC2445DateTimeToUTCtimestamp($line,$timezone); //*/
+			} elseif (startsWith($line,'DTEND')){
+					$line = substr($line,5);
+					$pos = strpos($line, ';VALUE=DATE');
+					if ($pos !== false){
+						$line = str_replace(';VALUE=DATE', '', $line).'T235959';
+					}
+					$end = Event::convertRFC2445DateTimeToUTCtimestamp($line,$timezone); //*/				
 			} elseif (startsWith($line,'CREATED:')){
 			} elseif (startsWith($line,'SEQUENCE:')){
 			} elseif (startsWith($line,'STATUS:')){
@@ -164,21 +174,13 @@ class Event {
 			} elseif (startsWith($line,'ATTENDEE')){
 			} elseif (startsWith($line,'TRANSP:')){
 			} elseif (startsWith($line,'LAST-MODIFIED:')){
-			} elseif (startsWith($line,'DTSTART;VALUE=DATE:')){
-				$start=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 19).'T000000',$timezone);
-			} elseif (startsWith($line,'DTEND:')){
-				$end=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 6), $timezone);
-			} elseif (startsWith($line,'DTEND;TZID=Europe/Berlin:')){
-				$end=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 25), $timezone);
-			} elseif (startsWith($line,'DTEND;VALUE=DATE:')){
-				$end=Event::convertRFC2445DateTimeToUTCtimestamp(substr($line, 17).'T235959',$timezone);
 			} elseif (startsWith($line,'GEO:')){
 				$geo=str_replace('\;', ';',substr($line,4));
-			} elseif (startsWith($line,'URL:')){
+			} elseif (startsWith($line,'URL')){
 				if ($links==null){
 					$links=array();
 				}
-				$links[]=substr($line,4) . readMultilineFromIcal($stack);
+				$links[]=Event::readUrl(substr($line,3) . readMultilineFromIcal($stack));
 			} elseif (startsWith($line,'LOCATION:')){
 				$location=str_replace(array('\,','\n'), array(',',"\n"),substr($line,9) . readMultilineFromIcal($stack));
 			} elseif (startsWith($line,'SUMMARY:')){
@@ -269,25 +271,72 @@ class Event {
 			}
 		}
 	}
-	 
+	
+	static function readUrl($line){
+		while (startsWith($line, ';')){
+			if (startsWith($line, ';VALUE=URI')){
+				$line = substr($line,10);
+			}
+		}
+		if (startsWith($line, ':')) $line = substr($line, 1);
+		return $line;		
+	}
+	
+	
+	static function readTZID(&$timestring){
+		if (startsWith($timestring, '"')){
+			$pos = strpos($timestring, '"',1);			
+			$tzid = substr($timestring,1,$pos-1);			
+			$timestring = substr($timestring, $pos+1);
+		} else {
+			$pos = strpos($timestring, ':',$pos);
+			$tzid = substr($timestring,	0,$pos);
+			$timestring = substr($timestring, $pos);
+		}
+		if (startsWith($tzid, '+')){
+			$offset = explode(':', substr($tzid,1));
+			return array('offset'=>array('h'=>(int)$offset[0],'m'=>(int)$offset[1]));
+		}		
+		return array('id'=>$tzid); 
+	}
+
 	/** convert an RFC 2445 formatted time string to a UTC timestamp **/
-	static function convertRFC2445DateTimeToUTCtimestamp($datetime,$timezone=null){
+	static function convertRFC2445DateTimeToUTCtimestamp($timestring,$timezone=null){
 		global $db_time_format;
-		if (substr($datetime,-1)=='Z'){
+		if (substr($timestring,-1)=='Z'){
 			$timezone='UTC';
 		}
-		$dummy=substr($datetime, 0,4).'-'.substr($datetime, 4,2).'-'.substr($datetime, 6,2).' '.	substr($datetime, 9,2).':'.substr($datetime, 11,2).':'.substr($datetime, 13,2);
-		if ($timezone != null && $timezone != 'UTC'){
-			if ($timezone['id']=='Europe/Berlin'){
-				$_SESSION['country']='DE';
-				$secs=strtotime($dummy);
-				$dummy=date($db_time_format,$secs-getTimezoneOffset($secs));
-					
+		while (startsWith($timestring, ';')){
+			if (startsWith($timestring, ';TZID=')){
+				$timestring = substr($timestring, 6);
+				$timezone = self::readTZID($timestring);
+				if ($tzid == 'Europe/Berlin'){
+					$timezone['id'] = $tzid;
+				}
 			} else {
-				print_r($timezone);
-				print $datetime;
-				die();
-				warn(str_replace('%tz', $timezone, loc('Handling of timezone "%tz" currently not implemented!')));
+				warn(str_replace('%tz', $timestring, loc('Handling of timezone "%tz" currently not implemented!')));
+			}
+		}
+		if (startsWith($timestring, ':')){
+			$timestring = substr($timestring, 1);
+		}
+		
+		$dummy=substr($timestring, 0,4).'-'.substr($timestring, 4,2).'-'.substr($timestring, 6,2).' '.	substr($timestring, 9,2).':'.substr($timestring, 11,2).':'.substr($timestring, 13,2);
+		if ($timezone != null && $timezone != 'UTC'){
+			if (isset($timezone['offset'])){
+				$secs=strtotime($dummy);
+				$offset = 3600*$timezone['offset']['h']+60*$timezone['offset']['m'];
+				$dummy=date($db_time_format,$secs-$offset);				
+			} elseif (isset($timezone['id'])){
+				if ($timezone['id']=='Europe/Berlin'){
+					$_SESSION['country']='DE';
+					$secs=strtotime($dummy);
+					$dummy=date($db_time_format,$secs-getTimezoneOffset($secs));
+				} else {
+					warn(str_replace('%tz', print_r($timezone,true), loc('Handling of timezone "%tz" currently not implemented!')));
+				}
+			} else {
+				warn(str_replace('%tz', print_r($timezone,true), loc('Handling of timezone "%tz" currently not implemented!')));
 			}
 		}
 		return $dummy;
