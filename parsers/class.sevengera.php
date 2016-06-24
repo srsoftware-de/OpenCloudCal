@@ -107,6 +107,7 @@ class SevenGera{
 	private static function read_links($div){
 		$anchors = $div->getElementsByTagName('a');
 		$links = array();
+		$links[] = url::create(self::$base_url,'Homepage');
 		foreach ($anchors as $anchor){
 			if ($anchor->hasAttribute('href')){
 				$address = $anchor->getAttribute('href');
