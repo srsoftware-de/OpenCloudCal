@@ -39,7 +39,7 @@ class SevenGera{
 
 		$coords = '50.884116, 12.078617';
 
-		$tags = self::read_tags();
+		$tags = self::read_tags($title.$description);
 		$links = self::read_links($div);
 		$attachments = null;
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
@@ -94,8 +94,14 @@ class SevenGera{
 		return null;
 	}
 
-	private static function read_tags(){
-		return array('SevenClub','Gera');
+	private static function read_tags($text){
+		$tags =array('SevenClub','Gera');
+		if (stripos($text,'80er') !== false) $tags[]='80er';
+		if (stripos($text,'90er') !== false) $tags[]='90er';
+		if (stripos($text,'Bad Taste') !== false) $tags[]='BadTaste';
+		if (stripos($text,'Dark Side') !== false) $tags[]='schwarzesjena';
+		if (stripos($text,'Party') !== false) $tags[]='Party';
+		return $tags; 		
 	}
 
 	private static function read_links($div){
