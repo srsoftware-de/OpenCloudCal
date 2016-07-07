@@ -121,10 +121,20 @@ class FromHell{
 					$genres = $div->getElementsByTagName('div');
 					foreach ($genres as $genre){
 						$new_tags = explode(',',trim(str_replace(' ', '', $genre->nodeValue)));
-						$tags = array_merge($tags,$new_tags);						
+						$tags = array_merge($tags,$new_tags);
 					}
 				}
 			}
+		}
+		foreach ($tags as $tag){
+			$lc=strtolower($tag);
+			if (strpos($lc, 'goth')!== false){
+				$tags[]='schwarzesjena';
+			}
+			if ($lc=='ebm'){
+				$tags[]='schwarzesjena';
+			}
+				
 		}		
 		return array_unique($tags);
 	}

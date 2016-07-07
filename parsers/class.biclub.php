@@ -77,6 +77,11 @@ class BiClub{
 		$coords = '50.682690, 10.931450';
 
 		$tags = self::read_tags($xml);
+		
+		if (strpos(strtolower($title),'schwarzer tanz') !== false){
+			$tags[]='schwarzesjena';
+		}
+		
 		$links = self::read_links($xml,$source_url);
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
@@ -161,7 +166,12 @@ class BiClub{
 			if (strpos($class,'style')===false) continue;
 			$anchors = $div->getElementsByTagName('a');
 			foreach ($anchors as $anchor){
-				$tags[]=trim($anchor->nodeValue);
+				$tag=trim($anchor->nodeValue);
+				$tags[]=$tag;
+				if (strpos(strtolower($tag),'goth') !== false){
+					$tags[]='schwarzesjena';
+					$tags[]='gothic';
+				}
 			}
 			break;
 		}
