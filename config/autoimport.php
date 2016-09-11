@@ -60,6 +60,12 @@ switch ($location){
 	case 14:
 		BiClub::read_events();
 		break;
+	case 15:
+		Moritzbastei::read_events(); // TODO!
+		break;
+	case 16:
+		MpireJena::read_events();
+		break;
 	default:
 		print "no location number given!";
 }
