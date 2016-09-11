@@ -61,7 +61,7 @@ switch ($location){
 		BiClub::read_events();
 		break;
 	case 15:
-		Moritzbastei::read_events(); // TODO!
+		Moritzbastei::read_events();
 		break;
 	case 16:
 		MpireJena::read_events();
