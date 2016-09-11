@@ -26,7 +26,7 @@ class Moritzbastei{
 		$title = self::read_title($xml);
 		$description = self::read_description($xml);
 		$start = self::date(self::read_start($xml));
-		$location = 'Universitätsstraße 9, 04109 Leipzig';
+		$location = 'Moritzbastei, Universitätsstraße 9, 04109 Leipzig';
 
 		$coords = '50.931251, 11.580310';
 
