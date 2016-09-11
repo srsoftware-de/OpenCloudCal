@@ -10,13 +10,13 @@ class Moritzbastei{
 		foreach ($anchors as $anchor){
 			$href = trim($anchor->getAttribute('href'));
 			if (strpos($href,'event')!==false){
-				$event_pages[]=self::$base_url.$href;
+				$event_pages[]=$href;
 			}
 		}
 		$event_pages = array_unique($event_pages);
 		//print '<pre>'; print_r($event_pages); print '</pre>';
 		foreach ($event_pages as $page){
-			self::read_event($base_url.$page);
+			self::read_event(self::$base_url.$page);
 		}
 	}
 
@@ -103,6 +103,7 @@ class Moritzbastei{
 				$tag = trim($keyword);
 				if (empty($tag)) continue;
 				$tags[]=$tag;
+				if ($tag == 'Film') $tags[]='Kino';
 			}
 		}
 		return $tags;
