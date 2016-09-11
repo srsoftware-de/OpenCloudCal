@@ -130,7 +130,7 @@ class MpireJena{
 	}
 
 	private static function read_tags($description){
-		$tags = array('EmpireJena','Jena');
+		$tags = array('MpireJena','Jena');
 		if (stripos($description, 'Disco') !== false) $tags[] = 'Disco';
 		if (stripos($description, 'Party') !== false) $tags[] = 'Party';
 		if (stripos($description, 'Konzert') !== false) $tags[] = 'Konzert';
