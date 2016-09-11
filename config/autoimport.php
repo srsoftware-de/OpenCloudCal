@@ -66,6 +66,9 @@ switch ($location){
 	case 16:
 		MpireJena::read_events();
 		break;
+	case 17:
+		VolkshausJena::read_events();
+		break;
 	default:
 		print "no location number given!";
 }
