@@ -104,7 +104,7 @@ class SaechsischerBahnhof{
 	}
 
 	private static function read_tags($xml){
-		return array('SächsischerBahnhof','Gera');
+		return array('Sächsischer.Bahnhof','Gera');
 	}
 
 	private static function read_links($xml,$source_url){

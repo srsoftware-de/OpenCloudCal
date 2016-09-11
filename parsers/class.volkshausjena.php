@@ -43,7 +43,7 @@ class VolkshausJena{
 		$title = self::read_title($xml);
 		$description = self::read_description($event_xml);
 		$start = self::date(self::read_start($event_xml));
-		$location = 'Carl-Zeiß-Platz 15, 07743 Jena';
+		$location = 'Volkshaus, Carl-Zeiß-Platz 15, 07743 Jena';
 
 		$coords = '50.927331, 11.579837';
 
@@ -108,7 +108,7 @@ class VolkshausJena{
 	}
 
 	private static function read_tags($xml){
-		$tags = array('VolkshausJena','Jena');
+		$tags = array('Volkshaus.Jena','Jena');
 		$paragraphs = $xml->getElementsByTagName('p');
 		foreach ($paragraphs as $paragraph){
 			if (!$paragraph->hasAttribute('class')) continue;

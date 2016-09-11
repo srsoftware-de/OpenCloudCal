@@ -72,7 +72,7 @@ class BiClub{
 		
 		$description = self::read_description($xml);
 		$start = self::date(self::read_start($xml));
-		$location = 'Max-Planck-Ring 4, 98693 Ilmenau';
+		$location = 'BiClub, Max-Planck-Ring 4, 98693 Ilmenau';
 
 		$coords = '50.682690, 10.931450';
 
