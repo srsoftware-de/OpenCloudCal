@@ -626,19 +626,25 @@ class Event {
 				'90´er'=>'90er',				
 				'AC/DC'=>'Metal',
 				'Alternative-Rock'=>'AlternativeRock',
+				'Alrauna'=>'Alrauna',
 				'Bad Taste'=>'BadTaste',
+				'Balkan'=>'Balkan',
 				'Black Channel'=>'Gothic',
 				'Blues'=>'Blues',
 				'Brettspiele'=>'Brettspiele',
-				'Charts'=>'Charts',
+				'Charts'=>'Charts',				
 				'Cosmic Dawn'=>'CosmicDawn',
 				'Country'=>'Country',
+				'Coverband'=>'Konzert',
 				'Dark Side'=>'Gothic',
 				'Death-Metal'=>'DeathMetal',
 				'Depeche Mode' => 'Wave',
-				'Disco'=>'Disco',
+				'Deutsch Rock'=>'Deutschrock',
+				'Dia Show'=>'DiaShow',
+				'Disco'=>'Disco',				
 				'Disko'=>'Disco',
 				'Doom'=>'Doom',
+				'Drschz Bäm'=>'Jazz',
 				'Elektropop'=>'Elektropop',
 				'Elektro-Pop'=>'Elektropop',
 				'Festival'=>'Festival',
@@ -654,6 +660,8 @@ class Event {
 				'Hip-Hop'=>'HipHop',
 				'Humppa'=>'Humppa',
 				'Jazz'=>'Jazz',
+				'Karneval'=>'Karneval',
+				'Kirsche & Co'=>'Konzert',
 				'Knorkator'=>'Metal',
 				'Konzert'=>'Konzert',
 				'Lesung '=>'Lesung',
@@ -673,6 +681,7 @@ class Event {
 				' Rap '=>'Rap',
 				'Rock'=>'Rock',
 				'Rock’n Roll'=>'RockNRoll',
+				'Rock´n Roll'=>'RockNRoll',
 				'Rock´n´Roll'=>'RockNRoll',
 				"Rock'n'Roll"=>'RockNRoll',
 				'Rock ’n‘ Roll'=>'RockNRoll',
@@ -683,6 +692,8 @@ class Event {
 				'Southern Rock'=>'Southern',
 				'Stoner'=>'Stoner',
 				'Software'=>'Software',
+				'Syntension'=>'ProgressiveMetal',
+				'Synthie Pop'=>'Synthpop',
 				'Techno'=>'Techno',
 				'Windows'=>'Windows',
 				'Volleyball'=>'Volleyball',			
@@ -690,24 +701,49 @@ class Event {
 		
 		$expand_tags = array(
 				'AlternativeRock'=>'Rock',
+				'Alrauna'=>'FolkMetal',
+				'Batcave'=>'schwarzesjena',
+				'BlackMetal'=>'Metal',
+				'DarkAmbient'=>'schwarzesjena',
+				'Dark-Calssics'=>'schwarzesjena',
+				'Dark-Electro'=>'schwarzesjena',
+				'DarkMetal'=>'Metal',
+				'DarkWave'=>'schwarzesjena',
 				'DeathMetal'=>'Metal',
+				'Discotheque'=>'Disco',
 				'Doom'=>'schwarzesjena',
+				'DoomMetal'=>'Metal',
 				'EBM'=>'schwarzesjena',
 				'Fußball'=>'Sport',
 				'Goth'=>'schwarzesjena',
 				'Gothic'=>'schwarzesjena',
+				'GothicMetal'=>'schwarzesjena',
+				'GothicRock'=>'schwarzesjena',
+				'Hardrock'=>'Rock',
+				'HeavyMetal'=>'Metal',
 				'OpenAir'=>'Festival',
 				'Festival'=>'Konzert',
+				'FolkMetal'=>'Metal',
 				'Folkrock'=>'Rock',
 				'HardRock'=>'Rock',
-				'Konzert'=>'Live',				
-				'Metal'=>'schwarzesjena',
+				'Industrial'=>'schwarzesjena',
+				'Karneval'=>'Fasching',
+				'Liedermacher'=>'Konzert',
+				'Konzert'=>'Live',
+				'MelodicDeathMetal'=>'Metal',
+				'Powermetal'=>'Metal',
+				'ProgressiveMetal'=>'Metal',
 				'Punkrock'=>'Rock',
 				'Rap'=>'HipHop',
 				'RockNRoll'=>'Rock',
 				'Stoner'=>'Rock',
+				'Symphonicmetal'=>'Metal',
+				'VikingMetal'=>'Metal',				
 				'Volleyball'=>'Sport',
 				'Wave'=>'schwarzesjena',
+				
+				'Metal'=>'schwarzesjena',
+				
 		);
 		
 		$text = $this->title.$this->description;
@@ -722,6 +758,10 @@ class Event {
 		if (array_key_exists('LESUNG', $this->tags)){
 			unset($this->tags['KONZERT']);					
 		}
+		if (array_key_exists('KONZERT', $this->tags)){
+			unset($this->tags['KINO']);
+		}
+		
 	}
 
 	/* remove tag from appointment */
