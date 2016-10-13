@@ -31,8 +31,6 @@ class Moritzbastei{
 		$coords = '50.931251, 11.580310';
 
 		$tags = self::read_tags($xml);
-		if (stripos($title, 'Wave')!==false) $tags[]='schwarzesjena';
-		if (stripos($title, 'Depeche Mode')!==false) $tags[]='schwarzesjena';		
 		$links = self::read_links($xml,$source_url);
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
@@ -103,7 +101,6 @@ class Moritzbastei{
 				$tag = trim($keyword);
 				if (empty($tag)) continue;
 				$tags[]=$tag;
-				if ($tag == 'Film') $tags[]='Kino';
 			}
 		}
 		return $tags;

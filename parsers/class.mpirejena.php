@@ -47,8 +47,6 @@ class MpireJena{
 		$coords = '50.883224, 11.597377';
 
 		$tags = self::read_tags($description);
-		if (stripos($title, 'Disco')!==false) $tags[]='Disco';
-		if (stripos($title, 'Party')!==false) $tags[]='Party';		
 		$links = self::read_links($xml,$source_url);
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
@@ -130,20 +128,7 @@ class MpireJena{
 	}
 
 	private static function read_tags($description){
-		$tags = array('Mpire.Jena','Jena');
-		if (stripos($description, 'Disco') !== false) $tags[] = 'Disco';
-		if (stripos($description, 'Party') !== false) $tags[] = 'Party';
-		if (stripos($description, 'Konzert') !== false) $tags[] = 'Konzert';
-		if (stripos($description, 'Live') !== false) $tags[] = 'Live';
-		if (stripos($description, 'Depeche Mode') !== false) $tags[] = 'schwarzesjena';
-		if (stripos($description, 'Wave') !== false) $tags[] = 'wave';
-		if (stripos($description, '70er') !== false) $tags[] = '70er';
-		if (stripos($description, '80er') !== false) $tags[] = '80er';
-		if (stripos($description, '90er') !== false) $tags[] = '90er';
-		if (stripos($description, '70´er') !== false) $tags[] = '70er';
-		if (stripos($description, '80´er') !== false) $tags[] = '80er';
-		if (stripos($description, '90´er') !== false) $tags[] = '90er';
-		return $tags;
+		return array('Mpire.Jena','Jena');
 	}
 
 	private static function read_links($xml,$source_url){

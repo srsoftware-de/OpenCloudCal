@@ -132,41 +132,7 @@ class CosmicDawn{
 	}
 	
 	private static function read_tags($title,$description){
-		$tags = array('Kulturbahnhof', 'Jena');
-		$konzert=true;
-		if (stripos($title.$description, '80er') != false) $tags[]='80er';
-		if (stripos($title.$description, '80s') != false) $tags[]='80er';
-		if (stripos($title.$description, 'Charts') != false) $tags[]='Charts';
-		if (stripos($title.$description, 'Cosmic Dawn') != false) $tags[]='CosmicDawn';
-		if (stripos($title.$description, 'Depeche Mode') != false){
-			$tags[]='schwarzesjena';
-			$konzert=false;
-		}
-		if (stripos($title.$description, 'Doom') != false) {
-			$tags[]='Doom';
-			$tags[]='schwarzesjena';
-		}
-		if (stripos($title.$description, 'Festival') != false) $tags[]='Festival';
-		if (stripos($title.$description, 'Funk') != false) $tags[]='Funk';
-		if (stripos($title.$description, 'Jazz') != false) $tags[]='Jazz';
-		if (stripos($title.$description, 'Lesung') != false) {
-			$tags[]='Lesung';
-			$konzert=false;
-		}
-		if (stripos($title.$description, 'Med-Club') != false) $tags[]='MedClub';
-		if (stripos($title.$description, 'Metal') != false){
-			$tags[]='Metal';
-			$tags[]='schwarzesjena';
-		}
-		if (stripos($title.$description, 'Party') != false){
-			$tags[]='Party';
-			$konzert=false;
-		}
-		if (stripos($title.$description, 'progressive') != false) $tags[]='Progressive';
-		if (stripos($title.$description, 'psychedelic') != false) $tags[]='Psychedelic';		
-		if (stripos($title.$description, 'Stoner') != false) $tags[]='Stoner';
-		if ($konzert) $tags[]='Konzert';		
-		return $tags;
+		return array('Kulturbahnhof', 'Jena');		
 	}
 	
 	private static function read_links($xml,$source_url){
