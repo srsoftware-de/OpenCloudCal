@@ -139,7 +139,6 @@ class Event {
 		if ($tags==null){
 			$tags=array();
 		}
-		$tags[]=loc('imported');
 		if (!is_array($tags)){
 			$tags=array($tags);
 		}
@@ -191,7 +190,8 @@ class Event {
 				$tags = array_merge($tags,$cats);
 			} elseif (startsWith($line,'CATEGORIES;LANGUAGE=de-DE:')){
 				$cats=str_replace(array('\,','\n'), array(',',"\n"),substr($line,26) . readMultilineFromIcal($stack));
-				$cats=explode(',',$cats);
+				//$cats=explode(',',$cats);
+				$cats=preg_split('/(,|\/)/', $cats);
 				$tags = array_merge($tags,$cats);
 			} elseif (startsWith($line,'DESCRIPTION:')){
 				$description=$line=str_replace(array('\,','\n'), array(',',"\n"), substr($line,12) . readMultilineFromIcal($stack));
@@ -264,7 +264,6 @@ class Event {
 					$app=Event::create($summary, $description, $start, $end, $location, $geo,$tags,$links,$attachments,false);
 				}
 				$app->mark_imported($id);
-				print 'saved event.'.NL;
 				return $app;
 			} else {
 				warn('tag unknown to Event::readFromIcal: '.$line);
@@ -342,6 +341,7 @@ class Event {
 		return $dummy;
 	}
 	
+	/* adds a hash based on the import url to the event and saves the event */
 	function mark_imported($import_src_url){
 		global $db;
 		if (!isset($import_src_url) || $import_src_url==null || empty($import_src_url)){
@@ -395,6 +395,7 @@ class Event {
 		} else {
 			$coords=null;
 		}
+		$this->auto_add_tags();
 		if (isset($this->id)){
 			$sql="UPDATE appointments SET title=:title,description=:description, start=:start, end=:end, location=:location, coords=:coords WHERE aid=:id";
 			$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
@@ -584,7 +585,7 @@ class Event {
 	function add_tag($tag){
 		if ($tag == null) return;
 		if ($tag instanceof tag){
-			$this->tags[]=$tag;
+			$this->tags[strtoupper($tag->text)]=$tag;
 		} else {
 			$this->add_tag(tag::create($tag));
 		}
@@ -597,6 +598,121 @@ class Event {
 			$sql="INSERT INTO appointment_tags (tid,aid) VALUES ($tag->id, $this->id)";
 			$db->query($sql);				
 		}		
+	}
+	
+	function expand_tags($keyword,$tags){
+		if (array_key_exists(strtoupper($keyword), $this->tags)){
+			if (is_array($tags)){
+				foreach ($tags as $tag){
+					$this->add_tag($tag);
+				}
+			} else {
+				$this->add_tag($tags);
+			}
+		}
+	}
+	
+	function auto_add_tags(){
+		$scan_tags = array(
+				'70er'=>'70er',
+				'70s'=>'70er',
+				'70´er'=>'70er',
+				'80er'=>'80er',
+				'80s'=>'80er',
+				'80´er'=>'80er',
+				'90er'=>'90er',
+				'90s'=>'90er',
+				'90´er'=>'90er',				
+				'AC/DC'=>'Metal',
+				'Bad Taste'=>'BadTaste',
+				'Black Channel'=>'Gothic',
+				'Brettspiele'=>'Brettspiele',
+				'Charts'=>'Charts',
+				'Cosmic Dawn'=>'CosmicDawn',
+				'Country'=>'Country',
+				'Dark Side'=>'Gothic',
+				'Death-Metal'=>'DeathMetal',
+				'Depeche Mode' => 'Wave',
+				'Disco'=>'Disco',
+				'Disko'=>'Disco',
+				'Doom'=>'Doom',
+				'Festival'=>'Festival',
+				'Film'=>'Kino',
+				'Folkrock'=>'Folkrock',
+				'Funk'=>'Funk',				
+				'Fußball'=>'Fußball',
+				'Fussball'=>'Fußball',
+				'Halloween' => 'Halloween',
+				'HardRock'=>'HardRock',
+				'Hard-Rock'=>'HardRock',
+				'HipHop'=>'HipHop',
+				'Hip-Hop'=>'HipHop',
+				'Humppa'=>'Humppa',
+				'Jazz'=>'Jazz',
+				'Knorkator'=>'Metal',
+				'Konzert'=>'Konzert',
+				'Lesung '=>'Lesung',
+				'Liedermacher'=>'Liedermacher',
+				'Liedermaching'=>'Liedermacher',
+				'Linux'=>'Linux',		
+				'Med-Club'=>'MedClub',		
+				'Metal'=>'Metal',
+				'Open Air'=>'OpenAir',
+				'Party'=>'Party',
+				'Polka'=>'Polka',
+				'progressive'=>'Progressive',
+				'psychedelic'=>'Psychedelic',
+				'Punk '=>'Punkrock',
+				'Punkrock'=>'Punkrock',
+				'Punks '=>'Punkrock',
+				' Rap '=>'Rap',
+				'Rock'=>'Rock',
+				'Rock’n Roll'=>'RockNRoll',
+				'Rock´n´Roll'=>'RockNRoll',
+				'Rock ’n‘ Roll'=>'RockNRoll',
+				'Rollenspiel'=>'Rollenspiel',
+				'schwarzer tanz'=>'Gothic',
+				'Seminar'=>'Seminar',
+				'Stoner'=>'Stoner',
+				'Software'=>'Software',
+				'Techno'=>'Techno',
+				'Windows'=>'Windows',
+				'Volleyball'=>'Volleyball',			
+		);
+		
+		$expand_tags = array(
+				'DeathMetal'=>'Metal',
+				'Doom'=>'schwarzesjena',
+				'EBM'=>'schwarzesjena',
+				'Fußball'=>'Sport',
+				'Folkrock'=>'Rock',
+				'Goth'=>'schwarzesjena',
+				'Gothic'=>'schwarzesjena',
+				'HardRock'=>'Rock',
+				'Volleyball'=>'Sport',
+				'OpenAir'=>'Festival',
+				'Festival'=>'Konzert',
+				'Konzert'=>'Live',
+				'Metal'=>'schwarzesjena',
+				'Punkrock'=>'Rock',
+				'Rap'=>'HipHop',
+				'RockNRoll'=>'Rock',
+				'Stoner'=>'Rock',
+				'Wave'=>'schwarzesjena',
+		);
+		
+		$text = $this->title.$this->description;
+		foreach ($scan_tags as $keyword => $tag){
+			if (stripos($text,$keyword) !== false) {
+				$this->add_tag($tag);
+			}
+		}
+		foreach ($expand_tags as $keyword => $tag){
+			$this->expand_tags($keyword,$tag);
+		}
+		if (array_key_exists('LESUNG', $this->tags)){
+			unset($this->tags['KONZERT']);					
+		}
 	}
 
 	/* remove tag from appointment */

@@ -8,6 +8,7 @@
     public static function create($tag){
       global $db;
       $tag = trim($tag);
+      $tag = str_replace(' ', '', $tag);      
       if (strlen($tag)<2) return null;
       $instance=new self();
       $stm=$db->prepare("SELECT * FROM tags WHERE keyword=?");

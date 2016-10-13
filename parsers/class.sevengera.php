@@ -95,13 +95,7 @@ class SevenGera{
 	}
 
 	private static function read_tags($text){
-		$tags =array('SevenClub','Gera');
-		if (stripos($text,'80er') !== false) $tags[]='80er';
-		if (stripos($text,'90er') !== false) $tags[]='90er';
-		if (stripos($text,'Bad Taste') !== false) $tags[]='BadTaste';
-		if (stripos($text,'Dark Side') !== false) $tags[]='schwarzesjena';
-		if (stripos($text,'Party') !== false) $tags[]='Party';
-		return $tags; 		
+		return array('SevenClub','Gera');
 	}
 
 	private static function read_links($div){
