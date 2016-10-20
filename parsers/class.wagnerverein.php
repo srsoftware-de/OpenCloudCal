@@ -8,7 +8,7 @@ class WagnerVerein{
 		$tables = $xml->getElementsByTagName('table');
 		$event_pages = array();
 		foreach ($tables as $table){
-			$class = $table->getAttribute('class');
+			$class = $table->getAttribute('id');
 			if (strpos($class, 'events')!==false){
 				$links = $table->getElementsByTagName('a');
 				foreach ($links as $link){
@@ -28,17 +28,27 @@ class WagnerVerein{
 
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
-
-		$title = self::read_title($xml);
-		$description = self::read_description($xml);
-		$start = self::date(self::read_start($xml));
+	
+		// next block: find content div
+		$content = $xml->getElementById('Content');
+		$divs = $content->getElementsByTagName('div');
+		foreach ($divs as $div){
+			if ($div->hasAttribute('class') && (strpos($div->getAttribute('class'), 'content_wrapper') !== false)){
+				$content = $div;
+				break;
+			}
+		}
+		
+		$title = self::read_title($content);
+		$description = self::read_description($content);
+		$start = self::read_start($content);
 		$location = 'Café Wagner, Wagnergasse 26, 07743 Jena';
 
 		$coords = '50.931251, 11.580310';
 
-		$tags = self::read_tags($xml);
-		$links = self::read_links($xml,$source_url);
-		$attachments = self::read_images($xml);
+		$tags = self::read_tags($content);
+		$links = self::read_links($content,$source_url);
+		$attachments = self::read_images($content);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event == null){
@@ -59,103 +69,115 @@ class WagnerVerein{
 		}
 	}
 
-	private static function read_title($xml){
-		$headings = $xml->getElementsByTagName('h1');
+	private static function read_title($content){
+		$doc = $content->ownerDocument;
+		$headings = $content->getElementsByTagName('h1');
+		$title = '';
 		foreach ($headings as $heading){
-			return trim($heading->nodeValue);
+			$parts = $heading->childNodes;
+			$active = false;
+			foreach ($parts as $part){
+				if ($active){
+					if ($part->nodeType == XML_TEXT_NODE) $title.=$part->nodeValue;
+				} else {
+					if ($part->nodeType == XML_ELEMENT_NODE) $active = true;
+				}
+				
+			}
 		}
-		return null;
+		return trim($title);
 	}
 
-	private static function read_description($xml){
-		$articles = $xml->getElementsByTagName('article');
+	private static function read_description(DOMNode $content){
 		$description = '';
-		foreach ($articles as $article){
-			$paragraphs = $article->getElementsByTagName('p');
-			$first=true;
-			foreach ($paragraphs as $paragraph){
-				if ($first){
-					$first = false;
-					continue;
-				}
-				$text = trim($paragraph->textContent);
-				if (!empty($text)) {
-					if ($text == 'Sorry, the comment form is closed at this time.') continue;
-					$description .= str_replace('€Kategorie', "€\nKategorie", $text) . NL;
-				}
-			}
+		$paragraphs = $content->getElementsByTagName('p');
+		$doc = $content->ownerDocument;
+		foreach ($paragraphs as $paragraph){
+			$html = trim($doc->saveHTML($paragraph));
+			$html = str_replace(array('<p>','<strong>','</strong>'),'',$html);
+			$html = str_replace(array('</p>','<br>'),"<br/>",$html);									
+			if (strpos($html, 'Kategorie:') == 1) continue;
+			$description .= $html."\n";
 		}
 		return $description;
 	}
 
-	private static function read_start($xml){
+	private static function read_start($content){
 		global $db_time_format;
-		$articles = $xml->getElementsByTagName('article');
-		$description = '';
-		foreach ($articles as $article){
-			$paragraphs = $article->getElementsByTagName('p');
-			foreach ($paragraphs as $paragraph){
-				$text = trim($paragraph->textContent);
-				if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
-					return $text;
-				}
-				if (preg_match('/\d\d.\d\d.\d\d\d\d/',$text)){
-					return $text;
-				}
+		
+		$day = null;
+		$time = null;
+		$headings = $content->getElementsByTagName('h1');		
+		foreach ($headings as $heading){
+			$parts = $heading->childNodes;
+			foreach ($parts as $part){
+				$text = trim($part->nodeValue);				
+				if ($text != ''){
+					if ($day == null){
+						$day = $text;
+					} elseif ($time == null){
+						$time = $text;
+						break;						
+					}
+				}	
 			}
+			if ($time != null) break;
 		}
-		return null;
+		$day = substr($day,3); // remove day name abbrevation
+		
+		$date=extract_date($day.date('Y'));
+		$datestring=date_parse($date.' '.$time);
+		$secs=parseDateTime($datestring);
+		
+		// if day has passed by this year, it should lie in the next year
+		if ($secs < time()){
+			$date=extract_date($day.(date('Y')+1));
+			$datestring=date_parse($date.' '.$time);
+			$secs=parseDateTime($datestring);				
+		}
+		
+		return date($db_time_format,$secs);
 	}
 
-	private static function read_tags($xml){
-		global $db_time_format;
-		$articles = $xml->getElementsByTagName('article');
-		$description = '';
-		foreach ($articles as $article){
-			$paragraphs = $article->getElementsByTagName('p');
-			foreach ($paragraphs as $paragraph){
-				$text = trim($paragraph->textContent);
-				$pos = strpos($text, 'Kategorie:');
-				if ($pos!==false) {
-					$tags = explode(' ',substr($text, $pos+11));
-					$tags[] = 'CafeWagner';
-					$tags[] = 'Jena';
-					return $tags;
-				}
-			}
+	private static function read_tags($content){
+		$lists = $content->getElementsByTagName('ul');
+		$tags = array('CafeWagner','Jena');
+		foreach ($lists as $list){
+			if (!$list->hasAttribute('class')) continue;
+			if (strpos($list->getAttribute('class'), 'categories') === false) continue;
+			$list_elements = $list->getElementsByTagName('li');
+			foreach ($list_elements as $list_element){
+				$tags[] = trim($list_element->nodeValue);
+			}			
 		}
-		return array('CafeWagner','Jena');
+		return $tags;
 	}
 
-	private static function read_links($xml,$source_url){
-		$articles = $xml->getElementsByTagName('article');
+	private static function read_links($content,$source_url){
 		$url = url::create($source_url,loc('event page'));	
 		$links = array($url,);
-		foreach ($articles as $article){			
-			$anchors = $article->getElementsByTagName('a');
-			foreach ($anchors as $anchor){
-				if ($anchor->hasAttribute('href')){
-					$address = $anchor->getAttribute('href');
-					if (strpos(guess_mime_type($address),'image')===false){
-						$links[] = url::create($address,trim($anchor->nodeValue));
-					}
+		$anchors = $content->getElementsByTagName('a');
+		foreach ($anchors as $anchor){
+			if ($anchor->hasAttribute('href')){
+				$address = $anchor->getAttribute('href');
+				if (strpos(guess_mime_type($address),'image')===false){
+					$links[] = url::create($address,trim($anchor->nodeValue));
 				}
 			}
 		}
 		return $links;
 	}
 
-	private static function read_images($xml){
-		$articles = $xml->getElementsByTagName('article');
+	private static function read_images($content){
+		$images = $content->getElementsByTagName('img');
 		$attachments = array();
-		foreach ($articles as $article){
-			$images = $article->getElementsByTagName('img');
-			foreach ($images as $image){
-				$address = $image->getAttribute('src');
-				$mime = guess_mime_type($address);
-				$attachments[] = url::create($address,$mime);
-			}
+
+		foreach ($images as $image){
+			$address = $image->getAttribute('src');
+			$mime = guess_mime_type($address);
+			$attachments[] = url::create($address,$mime);
 		}
+	
 		return $attachments;
 	}
 
