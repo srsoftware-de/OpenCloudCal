@@ -30,7 +30,7 @@ switch ($location){
 		KasseTurm::read_events();
 		break;
 	case 9:
-		SevenGera::read_events();
+		AtEvents::read_events();
 		break;
 	case 10:	
 		Wotufa::read_events();
@@ -67,9 +67,6 @@ switch ($location){
 		break;
 	case 21:
 		VolkshausJena::read_events();
-		break;
-	case 22:
-		AtEvents::read_events();
 		break;
 	default:
 		print "no location number given!";

@@ -23,6 +23,8 @@ class AtEvents{
 		$events = $events_div->childNodes;
 		foreach ($events as $event){
 			if ($event->nodeType == XML_TEXT_NODE) continue;
+			if (!$event->hasAttribute('class')) continue;
+			if (strpos($event->getAttribute('class'),'event') === false) continue;
 			self::read_event($event);
 		}
 	}
@@ -33,20 +35,43 @@ class AtEvents{
 		$description = self::read_description($content);
 		$start=parseDate(self::read_start($content));
 		$location = self::read_location($content);
-		
+		$source_url = self::read_source($content);
 		$coords = null;
 		$tags = array();
 		switch ($location){
 			case 'Club Seven':
-				$location = 'SevenClub, Bahnhofsplatz 6, 07545 Gera';
+			case 'Seven Gera':
+				$location = 'Seven Club, Bahnhofsplatz 6, 07545 Gera';
 				$coords = '50.884116, 12.078617';
 				$tags = array('Gera','SevenClub');
 				break;
+			case 'Havanna Lounge Gera':
+				$location = 'Havanna Lounge, De-Smit-Straße 2, 07545 Gera';
+				$coords = '50.879306, 12.078275';
+				$tags = array('Gera','HavannaLounge');
+				break;
+			case 'Club Qui':
+				$location = 'Club Qui, De-Smit-Straße 2, 07545 Gera';
+				$coords = '50.879306, 12.078275';
+				$tags = array('Gera','ClubQui');
+				break;
+			case 'Trash Gera':
+				$location = 'Trash Bar, Bahnhofsplatz 8, 07545 Gera';
+				$coords = '50.883696, 12.077655';
+				$tags = array('Gera','ThrashBar');
+				break;
+			case 'Music Hall Gera':
+				$location = 'Music Hall, Heinrichstraße 49, 07545 Gera';
+				$coords = '50.872052, 12.075023';
+				$tags = array('Gera','MusicHall');
+				break;
 			default:
-				die('Unknown location: '.$location);
+				$tags = array('unbekannte.location');	
 		}
 	
-		$links = array(url::create(self::$base_url . self::$event_list_page,'Event-Seite'));
+		$links = array();
+		$links[] = url::create(self::$base_url . self::$event_list_page,'Event-Seite');
+		$links[] = url::create($source_url,'Facebook-Event');
 		$attachments = self::read_images($content);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
@@ -66,6 +91,13 @@ class AtEvents{
 			foreach ($attachments as $attachment) $event->add_attachment($attachment);
 			$event->save();
 		}
+	}
+	
+	public static function read_source($content){
+		if ($content->hasAttribute('itemtype')){
+			return $content->getAttribute('itemtype');
+		}
+		return null;
 	}
 	
 	public static function read_title($content){
