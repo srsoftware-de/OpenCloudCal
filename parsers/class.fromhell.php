@@ -37,7 +37,6 @@ class FromHell{
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
 
-		print $source_url."<br/>\n";
 		$title = self::read_title($xml);
 		$description = self::read_description($xml);
 		$start = self::date(self::read_start($xml));
