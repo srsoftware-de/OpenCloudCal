@@ -46,6 +46,7 @@ class CKeller{
 		if (stripos($title,'Live:') !== false) $tags[]='Konzert';
 		$links = self::read_links($content);
 		$links[] = url::create($source_url,'Event-Seite');
+		$attachments = self::read_images($content);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event == null){
