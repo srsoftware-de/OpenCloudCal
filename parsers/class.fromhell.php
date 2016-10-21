@@ -41,9 +41,7 @@ class FromHell{
 		$description = self::read_description($xml);
 		$start = self::date(self::read_start($xml));
 		$location = 'From Hell, Flughafenstraße 41, 99092 Erfurt / Bindersleben';
-
 		$coords = '50.973578, 10.954197';
-
 		$tags = self::read_tags($xml);
 		$links = self::read_links($xml,$source_url);
 		$attachments = self::read_images($xml);
