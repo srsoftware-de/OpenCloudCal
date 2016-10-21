@@ -68,6 +68,9 @@ switch ($location){
 	case 21:
 		VolkshausJena::read_events();
 		break;
+	case 22:
+		CKeller::read_events();
+		break;
 	default:
 		print "no location number given!";
 }
