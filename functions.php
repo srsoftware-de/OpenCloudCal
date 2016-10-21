@@ -393,7 +393,7 @@ function icalLine($head,$content){
 }
 
 function replace_spaces($text){	
-	return str_replace(' ', '+', $text);
+	return str_replace(' ', '%20', $text);
 }
 
 function load_xml($url){
