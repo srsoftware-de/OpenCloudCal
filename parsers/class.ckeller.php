@@ -39,7 +39,7 @@ class CKeller{
 		$title = self::read_title($content);
 		$description = self::read_description($content);
 		$start=parseDate(self::read_start($cal_div));
-		$location = 'C-Keller, Markt 21, 99425';
+		$location = 'C-Keller, Markt 21, 99425 Weimar';
 		$source_url = self::$base_url . self::$event_list_page.'#'.replace_spaces($start);
 		$coords = '50.979138, 11.329847';
 		$tags = array('C-Keller','Weimar');
