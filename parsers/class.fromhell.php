@@ -24,6 +24,7 @@ class FromHell{
 		$links = $content->getElementsByTagName('a');
 		foreach ($links as $link){
 			$href = trim($link->getAttribute('href'));
+			// do not follow links to overview
 			if (strpos($href,'events/uebersicht')===false){
 				$event_pages[]=$href;
 			}
@@ -36,6 +37,7 @@ class FromHell{
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
 
+		print $source_url."<br/>\n";
 		$title = self::read_title($xml);
 		$description = self::read_description($xml);
 		$start = self::date(self::read_start($xml));
@@ -96,7 +98,7 @@ class FromHell{
 		foreach ($spans as $span){
 			if ($span->hasAttribute('class')){
 				$class = $span->getAttribute('class');
-				if (strpos($class,'date-display-start')!==false){
+				if (strpos($class,'date-display-s')!==false){ // date-display-start or date-display-single
 					$datestring = $span->nodeValue;
 					$keys = array('Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag','Uhr',' um');
 					$datestring = str_replace($keys, '', $datestring);
