@@ -651,7 +651,6 @@ class Event {
 				'Drschz Bäm'=>'Jazz',
 				'Elektropop'=>'Elektropop',
 				'Elektro-Pop'=>'Elektropop',
-				'Festival'=>'Festival',
 				'Film'=>'Kino',
 				'Folkrock'=>'Folkrock',
 				'Funk'=>'Funk',				
