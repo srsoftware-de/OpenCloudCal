@@ -74,6 +74,9 @@ switch ($location){
 	case 23:
 		FourRooms::read_events();
 		break;
+	case 24:
+		TheLondoner::read_events();
+		break;
 	default:
 		print "no location number given!";
 }

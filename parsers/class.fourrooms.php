@@ -94,11 +94,11 @@ class FourRooms{
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event == null){
-			print 'creating new event for '.$source_url.NL;
+			//print 'creating new event for '.$source_url.NL;
 			$event = Event::create($title, $description, $start, null, $location, $coords,$tags,$links,$attachments,false);
 			$event->mark_imported($source_url);
 		} else {
-			print 'updating event for '.$source_url.NL;
+			//print 'updating event for '.$source_url.NL;
 			$event->set_title($title);
 			$event->set_description($description);
 			$event->set_start($start);
