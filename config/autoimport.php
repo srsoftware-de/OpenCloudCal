@@ -71,6 +71,9 @@ switch ($location){
 	case 22:
 		CKeller::read_events();
 		break;
+	case 23:
+		FourRooms::read_events();
+		break;
 	default:
 		print "no location number given!";
 }
