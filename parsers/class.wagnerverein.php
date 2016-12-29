@@ -13,7 +13,7 @@ class WagnerVerein{
 				$links = $table->getElementsByTagName('a');
 				foreach ($links as $link){
 					$href = trim($link->getAttribute('href'));
-					if (strpos($href,'event')!==false){
+					if (strpos($href,'event=')!==false){
 						$event_pages[]=$href;
 					}
 				}
