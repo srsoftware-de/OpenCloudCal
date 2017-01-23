@@ -33,9 +33,25 @@ class FromHell{
 			self::read_event(self::$base_url.$page);
 		}
 	}
+	
+	public static function find_canonical($xml,$url){
+		$bodies = $xml->getElementsByTagName('body');
+		foreach ($bodies as $body){
+			if ($body != null && $body->hasAttribute('class')){
+				$class = trim($body->getAttribute('class'));
+				if ($class == '') continue;
+				preg_match('/node-\d+/', $class, $nodes);
+				if (!empty($nodes)){
+					return self::$base_url.'/'.str_replace('-', '/', reset($nodes));
+				}
+			}
+		}
+		return $url;
+	}
 
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
+		$source_url = self::find_canonical($xml,$source_url);
 
 		$title = self::read_title($xml);
 		$description = self::read_description($xml);
