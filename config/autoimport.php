@@ -77,6 +77,10 @@ switch ($location){
 	case 24:
 		TheLondoner::read_events();
 		break;
+	case 25:
+		importIcal('htthttp://comma-club-gera.de/veranstaltungen-gera/?ical=1',array('Comma','Gera'));
+		break;
+		
 	default:
 		print "no location number given!";
 }

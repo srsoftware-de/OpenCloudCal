@@ -170,6 +170,7 @@ class Event {
 			} elseif (startsWith($line,'RRULE:')){
 			} elseif (startsWith($line,'EXDATE')){
 			} elseif (startsWith($line,'CONTACT')){
+			} elseif (startsWith($line,'ORGANIZER')){
 			} elseif (startsWith($line,'ATTENDEE')){
 			} elseif (startsWith($line,'TRANSP:')){
 			} elseif (startsWith($line,'LAST-MODIFIED:')){
