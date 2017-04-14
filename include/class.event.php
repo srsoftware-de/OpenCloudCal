@@ -694,6 +694,7 @@ class Event {
 				"Rock'n'Roll"=>'RockNRoll',
 				'Rock ’n‘ Roll'=>'RockNRoll',
 				'Rollenspiel'=>'Rollenspiel',
+				'schattentanz'=>'schwarzesjena',
 				'schwarzer tanz'=>'Gothic',
 				'Seminar'=>'Seminar',
 				'Songwriter'=>'Liedermacher',
