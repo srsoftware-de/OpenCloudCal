@@ -80,6 +80,9 @@ switch ($location){
 	case 25:
 		importIcal('http://comma-club-gera.de/veranstaltungen-gera/?ical=1',array('Comma','Gera'));
 		break;
+	case 26:
+		MedClub::read_events();
+		break;
 		
 	default:
 		print "no location number given!";

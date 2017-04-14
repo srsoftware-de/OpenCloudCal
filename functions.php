@@ -434,3 +434,9 @@ function parseDate($text){
 	$secs=parseDateTime($datestring);
 	return date($db_time_format,$secs);
 }
+
+function debug($object = null,$die = false){
+	if ($object === null) $object = 'null';
+	print '<pre>'.print_r($object,true).'</pre>';
+	if ($die) die();
+}
