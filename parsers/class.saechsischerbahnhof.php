@@ -19,7 +19,12 @@ class SaechsischerBahnhof{
 
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
+		
 		$agenda = $xml->getElementById('icagenda');
+		if ($agenda === null) {
+			http_response_code(404);
+			die('Website not available: '.self::$base_url);			
+		}
 		$links = $agenda->getElementsByTagName('a');
 		$event_pages = array();
 		foreach ($links as $link){
