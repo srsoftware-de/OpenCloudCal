@@ -1,5 +1,4 @@
 <?php
-require 'functions.php';
 
 class MedClub{
 	private static $base_url = 'http://www.med-club.de';
