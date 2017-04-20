@@ -85,5 +85,6 @@ switch ($location){
 		break;
 		
 	default:
-		print "no location number given!";
+		http_response_code(404);
+		die('no valid location number given!');
 }
