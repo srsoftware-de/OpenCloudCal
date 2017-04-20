@@ -1,48 +1,58 @@
 <?php
 class KasseTurm{
 	private static $base_url = 'http://www.kasseturm.de';
-	private static $event_list_page = '/';
+	private static $event_list_page = '/events';
 
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
-		$events = $xml->getElementById('mycarousel');
-		$events = $events->getElementsByTagName('li');
+		
+		$events = array();
+		$divs = $xml->getElementsByTagName('div');
+		foreach ($divs as $div){
+			if (!$div->hasAttribute('class')) continue;
+			$class = $div->getAttribute('class');			
+			if (strpos($class,'eventHeader')!==false){
+				$header = $div;
+			} elseif (strpos($class,'eventBody')!==false){
+				$body = $div;
+				$events[] = array('header'=>$header,'body'=>$body);
+			}
+		}
+		
 		foreach ($events as $event){
-			self::read_event($event);			
+			self::read_event($event['header'],$event['body']);			
 		}
 	}
 	
-	public static function read_span($container,$className){
-		$spans = $container->getElementsByTagName('span');
+	public static function get_element($container,$type,$className){
+		$spans = $container->getElementsByTagName($type);
 		foreach ($spans as $span){			
-			if ($span->hasAttribute('id') && $span->getAttribute('id') == $className){
-				return $span;
-			}
+			if ($span->hasAttribute('id') && $span->getAttribute('id') == $className) return $span;
 		}
 		foreach ($spans as $span){			
 			if ($span->hasAttribute('class')){
 				$class = $span->getAttribute('class');
-				if (strpos($class, $className)!==false){
-					return $span;
-				}
+				if (strpos($class, $className)!==false) return $span;
 			}
 		}
 		return null;
 	}
 
-	public static function read_event($container){
-
-		$title = self::read_span($container,'title')->nodeValue;
-		$description = self::read_span($container,'description')->nodeValue;
+	public static function read_event($header,$body){
+		$title = self::get_element($header,'span','eventTitle')->nodeValue;
+		$subtitle = self::get_element($header,'span','eventSubtitle');
+		if ($subtitle !== null) $title.=' - '.$subtitle->nodeValue;
+		$description = self::get_element($body,'div','eventDescription');
+		$description = self::get_element($description, 'span', 'eventRight')->nodeValue;
 		
-		$start = self::date(self::read_start($container));
+		$start = self::date(self::read_start($header));
 		$location = 'Kasseturm, Goetheplatz 10, 99423 Weimar';
 
 		$coords = '50.981880, 11.326006';
 
-		$tags = self::read_tags($container);
-		$links = self::read_links($container);
-		$attachments = self::read_images($container);
+		$tags = self::read_tags($header);
+		$links = self::read_links($body);
+		$attachments = self::read_images($body);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$id=self::$base_url.'#'.str_replace(' ','+',$start);
 		$event = Event::get_imported($id);
@@ -66,15 +76,15 @@ class KasseTurm{
 
 
 	private static function read_start($container){
-		$date = self::read_span($container, 'date')->nodeValue;
-		$time = str_replace('.', ':', self::read_span($container, 'time')->nodeValue);		
+		$date = self::get_element($container,'span','eventDatee')->nodeValue;
+		$time = self::get_element($container,'span','eventTime')->nodeValue;		
 		return $date.' '.$time; 
 		
 	}
 
 	private static function read_tags($container){
-		$cats = trim(self::read_span($container, 'category')->nodeValue);
-		if ($cats == 'Sonst.') {
+		$cats = trim(self::get_element($container,'span','eventCity')->nodeValue);
+		if ($cats == 'Sonstiges') {
 			$tags = array();
 		} else $tags = explode(' ', $cats);
 		$tags[] = 'Kasseturm';
@@ -84,8 +94,9 @@ class KasseTurm{
 
 	private static function read_links($container){
 		$links = array();
-		$description = self::read_span($container, 'description');
-		$anchors = $description->getElementsByTagName('a');
+		$organizer = self::get_element($container,'div', 'eventOrganizer');
+		if ($organizer === null) return $links;		
+		$anchors = $organizer->getElementsByTagName('a');
 		foreach ($anchors as $anchor){
 			if ($anchor->hasAttribute('href')){
 				$address = $anchor->getAttribute('href');
@@ -99,9 +110,6 @@ class KasseTurm{
 			}
 		}
 		
-		
-		$facebook = trim(self::read_span($container, 'facebook')->nodeValue);		
-		if ($facebook != '') $links[] = url::create($facebook,'Facebook');
 		return $links;
 	}
 	
