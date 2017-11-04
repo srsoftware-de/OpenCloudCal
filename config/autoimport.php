@@ -83,6 +83,16 @@ switch ($location){
 	case 26:
 		MedClub::read_events();
 		break;
+	case 27:
+		Taeubchenthal::read_events();
+		break;
+	case 28:
+		HellRaiser::read_events();
+		break;
+	
+	case 29:
+		Werk2::read_events();
+		break;
 		
 	default:
 		http_response_code(404);

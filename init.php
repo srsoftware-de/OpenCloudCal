@@ -27,6 +27,8 @@
       date_default_timezone_set('UTC');
   }
   
+  session_write_close();
+  
   function occ_autoload($class_name) {
 //    echo "occ_autoload called for $class_name\n";
     $path = OCC_ROOT . "/include/class." . strtolower($class_name) . ".php";
