@@ -84,6 +84,10 @@ switch ($location){
 		MedClub::read_events();
 		break;
 		
+	case 27:
+		Taeubchenthal::read_events();
+		break;
+		
 	default:
 		http_response_code(404);
 		die('no valid location number given!');
