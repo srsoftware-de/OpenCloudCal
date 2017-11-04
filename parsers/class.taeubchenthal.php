@@ -64,7 +64,11 @@ class Taeubchenthal{
 		
 		if ($parent !== null){
 			$headings = $parent->getElementsByTagName('h4');
-			foreach ($headings as $heading) $title .= ' : '.$heading->nodeValue;
+			foreach ($headings as $heading) {
+				$text = trim($heading->nodeValue);
+				if ($text == '') continue;
+				$title .= ' : '.$text;
+			}
 		}
 		
 		return trim($title);		
@@ -102,8 +106,11 @@ class Taeubchenthal{
 				$pos = strpos($text,'Start');
 				if ($pos === false) $pos = strpos($text,'Beginn');
 				if ($pos === false) continue;
-				$time = trim(substr($text,$pos+5));
-				$day = trim(reset(explode(' ',$text)));
+				$parts = explode(': ', $text);
+				
+				$time = trim(end($parts));
+				if (strpos($time, ':')===false) $time=str_replace('Uhr', ':00', $time); // 22Uhr => 22:00
+				$day = trim(reset(explode(':',$text)));
 				break;
 			}
 			if ($day !== null) break;
