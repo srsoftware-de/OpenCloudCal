@@ -66,7 +66,7 @@ switch ($location){
 		MpireJena::read_events();
 		break;
 	case 21:
-		VolkshausJena::read_events();
+		JenaKultur::read_events();
 		break;
 	case 22:
 		CKeller::read_events();
