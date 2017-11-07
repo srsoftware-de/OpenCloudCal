@@ -11,7 +11,8 @@
     ?>
     <br/>
     <div class="bottomline">
-    <?php echo 'OpenCloudCal 0.60 - '.str_replace('%link', 'https://github.com/keawe-software/OpenCloudCal', loc('Proudly developed using PHP and JavaScript. Find the sources at <a href="%link">Github</a>.')); ?>
+    <?php echo 'OpenCloudCal 0.60.1 - '.str_replace('%link', 'https://github.com/keawe-software/OpenCloudCal', loc('Proudly developed using PHP and JavaScript. Find the sources at <a href="%link">Github</a>.')); ?>
+    <!-- Major number: main version | Intermediate number: increases when new functions added | minor number: bugfix version -->
     </div>
   </body>
 </html>
