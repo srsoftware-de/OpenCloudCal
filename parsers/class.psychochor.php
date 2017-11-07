@@ -30,9 +30,9 @@ class Psychochor{
 			$first = null;
 			$second = null;
 			foreach ($cols as $col){
-				if ($first == null){
+				if ($first === null){
 					$first = trim(str_replace("\xC2\XA0", ' ', $col->nodeValue));
-				} elseif ($second == null){
+				} elseif ($second === null){
 					$second = trim(str_replace("\xC2\XA0", ' ', $col->nodeValue));
 					break;
 				}
@@ -46,19 +46,19 @@ class Psychochor{
 			} elseif ($first == 'Einlass'){
 				$description.=$first.': '.$second."\n";
 			} elseif ($first == 'Ort'){
-				if ($location == null){
+				if ($location === null){
 					$location=$second;
 				} else {
 					$location .= ", ".$second;
 				}
 			} elseif ($first == 'Adresse'){
-				if ($location == null){
+				if ($location === null){
 					$location=$second;
 				} else {
 					$location .= ", ".$second;
 				}
 			} elseif ($first == ''){
-				if ($location == null){
+				if ($location === null){
 					$location=$second;
 				} else {
 					$location .= ", ".$second;
@@ -66,7 +66,7 @@ class Psychochor{
 			} elseif ($first == 'Eintritt'){
 				$description.=$first.': '.$second."\n";
 			} elseif (preg_match('/^[0-9]{5} /', $first)) {
-				if ($location == null){
+				if ($location === null){
 					$location=$first;
 				} else {
 					$location .= ", ".$first;
@@ -76,7 +76,7 @@ class Psychochor{
 			}			
 		}
 
-		if ($date == null || $time == null) return;
+		if ($date === null || $time === null) return;
 		$start = self::date($date.' '.$time);
 		$source_url=$source_url.'?date='.$date.'&time='.$time;
 		$links = array(url::create($source_url,'Homepage'));
@@ -85,7 +85,7 @@ class Psychochor{
 			if (strpos($location, $city)!==false) $tags[]=$city;
 		}
 		$event = Event::get_imported($source_url);
-		if ($event == null){
+		if ($event === null){
 			//print 'creating new event for '.$source_url.NL;
 			$event = Event::create($title, $description, $start, null, $location, null,$tags,$links,null,false);
 			$event->mark_imported($source_url);

@@ -20,7 +20,7 @@ class FromHell{
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
 		$content = $xml->getElementById('cfh_content_inner');
-		if ($content == null) return;
+		if ($content === null) return;
 		$links = $content->getElementsByTagName('a');
 		foreach ($links as $link){
 			$href = trim($link->getAttribute('href'));
@@ -63,7 +63,7 @@ class FromHell{
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
-		if ($event == null){
+		if ($event === null){
 			//print 'creating new event for '.$source_url.NL;
 			$event = Event::create($title, $description, $start, null, $location, $coords,$tags,$links,$attachments,false);
 			$event->mark_imported($source_url);

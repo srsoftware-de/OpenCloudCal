@@ -27,27 +27,20 @@ class Event {
 		$instance->location=$location;
 
 		$instance->set_coords($coords);
+		//print_r(['Before Creation'=>$tags]);
 		if ($tags!=null){
-			if (!is_array($tags)){
-				$tags=explode(' ', $tags);
-			}
-			foreach ($tags as $tag){
-				$instance->add_tag($tag);
-			}
+			if (!is_array($tags)) $tags=explode(' ', $tags);
+			foreach ($tags as $tag) $instance->add_tag($tag);
+			//print_r(['During Creation'=>$tags]);
 		}
 		if ($links!=null){
-			foreach ($links as $link){
-				$instance->add_link($link);
-			}
+			foreach ($links as $link) $instance->add_link($link);
 		}
 		if ($attachments!=null){
-			foreach ($attachments as $attachment){
-				$instance->add_attachment($attachment);
-			}
+			foreach ($attachments as $attachment) $instance->add_attachment($attachment);
 		}
-		if ($save){
-			$instance->save();
-		}
+		if ($save) $instance->save();
+		//print_r(['Post Creation'=>$tags]);
 		return $instance;
 	}
 	
@@ -576,7 +569,7 @@ class Event {
 		$sql="SELECT tid FROM appointment_tags WHERE aid=$this->id";
 		foreach ($db->query($sql) as $row){
 			$tag=tag::load($row['tid']);
-			$tags[$tag->id]=$tag;
+			$tags[strtoupper($tag->text)]=$tag;
 		}
 		return $tags;
 	}
@@ -602,14 +595,13 @@ class Event {
 	}
 	
 	function expand_tags($keyword,$tags){
-		if (array_key_exists(strtoupper($keyword), $this->tags)){
+		$keyword = strtoupper($keyword);
+		//print_r(['expand'=>['key'=>$keyword,'tags'=>$tags]]);
+		if (array_key_exists($keyword, $this->tags)){
+			//print_r(['Match'=>$keyword]);
 			if (is_array($tags)){
-				foreach ($tags as $tag){
-					$this->add_tag($tag);
-				}
-			} else {
-				$this->add_tag($tags);
-			}
+				foreach ($tags as $tag) $this->add_tag($tag);
+			} else $this->add_tag($tags);
 		}
 	}
 	
@@ -642,6 +634,7 @@ class Event {
 				'Dark Electro'=>'DarkElectro',
 				'Dark Side'=>'Gothic',
 				'Dark Wave'=>'DarkWave',
+				'Darkwave'=>'DarkWave',
 				'Death-Metal'=>'DeathMetal',
 				'Depeche Mode' => 'Wave',
 				'Deutsch Rock'=>'Deutschrock',
@@ -661,6 +654,8 @@ class Event {
 				'Fussball'=>'Fußball',
 				'Futurepop'=>'Futurepop',
 				'Future pop'=>'Futurepop',
+				'Gothrock'=>'GothRock',
+				'Gothic'=>'Gothic',
 				'Halloween' => 'Halloween',
 				'HardRock'=>'HardRock',
 				'Hard-Rock'=>'HardRock',
@@ -719,6 +714,12 @@ class Event {
 				'Zirkus'=>'Zirkus',			
 		);
 		
+		//print_r(['Before'=>$this->tags]);
+		$text = preg_replace("/[^\wÄäÖöÜüß]+/", ' ', strip_tags(" $this->title $this->description "));
+		foreach ($scan_tags as $keyword => $tag){
+			if (stripos($text,$keyword) !== false) $this->add_tag($tag);			
+		}
+		
 		$expand_tags = array(
 				'AlternativeRock'=>'Rock',
 				'Alrauna'=>'FolkMetal',
@@ -737,41 +738,44 @@ class Event {
 				'Fußball'=>'Sport',
 				'Goth'=>'schwarzesjena',
 				'Gothic'=>'schwarzesjena',
-				'GothicMetal'=>'schwarzesjena',
-				'GothicRock'=>'schwarzesjena',
+				'GothicMetal'=>['schwarzesjena','Gothic','Metal'],
+				'GothMetal'=>['schwarzesjena','Gothic','Metal'],
+				'GothicRock'=>['schwarzesjena','Gothic','Rock'],
+				'GothRock'=>['schwarzesjena','Gothic','Rock'],
 				'Hardrock'=>'Rock',
 				'HeavyMetal'=>'Metal',
 				'OpenAir'=>'Festival',
 				'Festival'=>'Konzert',
-				'FolkMetal'=>'Metal',
-				'Folkrock'=>'Rock',
+				'FolkMetal'=>['Folk','Metal'],
+				'Folkrock'=>['Folk','Rock'],
+				'Fussball'=>['Sport','Fußball'],
+				'Fußball'=>['Sport'],
 				'HardRock'=>'Rock',
 				'Industrial'=>'schwarzesjena',
 				'Karneval'=>'Fasching',
 				'Liedermacher'=>'Konzert',
 				'Konzert'=>'Live',
-				'MelodicDeathMetal'=>'Metal',
+				'MelodicDeathMetal'=>['Metal','DeathMetal'],
 				'NDH'=>'schwarzesjena',
 				'Powermetal'=>'Metal',
-				'ProgressiveMetal'=>'Metal',
-				'Punkrock'=>'Rock',
+				'ProgressiveMetal'=>['Metal','Progressive'],
+				'Punkrock'=>['Rock','Punk'],
 				'Rap'=>'HipHop',
 				'RockNRoll'=>'Rock',
 				'Stoner'=>'Rock',
 				'Symphonicmetal'=>'Metal',
-				'VikingMetal'=>'Metal',				
+				'VikingMetal'=>'Metal',
 				'Volleyball'=>'Sport',
 				'Wave'=>'schwarzesjena',
 				'Metal'=>'schwarzesjena',
-				
+		
 		);
-		$text = preg_replace("/[^\wÄäÖöÜüß]+/", ' ', strip_tags(" $this->title $this->description "));
-		foreach ($scan_tags as $keyword => $tag){
-			if (stripos($text,$keyword) !== false) $this->add_tag($tag);			
+		
+		//print_r(['Between'=>$this->tags]);
+		foreach ($expand_tags as $keyword => $tags){
+			$this->expand_tags($keyword,$tags);
 		}
-		foreach ($expand_tags as $keyword => $tag){
-			$this->expand_tags($keyword,$tag);
-		}
+		//print_r(['After'=>$this->tags]);
 		if (array_key_exists('LESUNG', $this->tags)){
 			unset($this->tags['KONZERT']);					
 		}

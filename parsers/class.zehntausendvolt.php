@@ -35,7 +35,7 @@ class ZehnTausendVolt{
 		$images = self::read_images($xml->getElementById('cover'));
 		
 		$event = Event::get_imported($source_url);
-		if ($event == null){
+		if ($event === null){
 			//print 'creating new event for '.$source_url.NL;
 			$event = Event::create($title, $description, $start, null, $location, $coords,$tags,$links,$images,false);
 			$event->mark_imported($source_url);

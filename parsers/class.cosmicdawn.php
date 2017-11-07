@@ -36,7 +36,7 @@ class CosmicDawn{
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
-		if ($event == null){
+		if ($event === null){
 			//print 'creating new event for '.$source_url.NL;
 			$event = Event::create($title, $description, $start, null, $location, $coords,$tags,$links,$attachments,false);
 			$event->mark_imported($source_url);
@@ -90,18 +90,18 @@ class CosmicDawn{
 				continue;
 			}
 			$pos = strpos($text, 'show:');
-			if ($time == null && $pos!==false){
+			if ($time === null && $pos!==false){
 				$time = trim(substr($text,$pos+5));
 				continue;				
 			}
 			$pos = strpos($text, 'Start:');
-			if ($time == null && $pos!==false){
+			if ($time === null && $pos!==false){
 				$keys = array('ca.','Uhr');
 				$time = trim(str_replace($keys, '', trim(substr($text,$pos+6))));
 				continue;
 			}
 			$pos = strpos($text, 'doors:');
-			if ($time == null && $pos!==false){
+			if ($time === null && $pos!==false){
 				$time = trim(substr($text,$pos+6));
 				continue;
 			}
@@ -112,8 +112,8 @@ class CosmicDawn{
 			$time = trim(substr($time,0,$pos));
 			$time = (12+(int)$time).':00';
 		}
-		if ($time == null) $time = '21:00';
-		if ($date == null) return null;		
+		if ($time === null) $time = '21:00';
+		if ($date === null) return null;		
 		return $date.' '.$time;
 	}
 	

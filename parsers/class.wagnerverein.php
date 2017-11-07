@@ -51,7 +51,7 @@ class WagnerVerein{
 		$attachments = self::read_images($content);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
-		if ($event == null){
+		if ($event === null){
 			//print 'creating new event for '.$source_url.NL;
 			$event = Event::create($title, $description, $start, null, $location, $coords,$tags,$links,$attachments,false);
 			$event->mark_imported($source_url);
@@ -113,9 +113,9 @@ class WagnerVerein{
 			foreach ($parts as $part){
 				$text = trim($part->nodeValue);				
 				if ($text != ''){
-					if ($day == null){
+					if ($day === null){
 						$day = $text;
-					} elseif ($time == null){
+					} elseif ($time === null){
 						$time = $text;
 						break;						
 					}
