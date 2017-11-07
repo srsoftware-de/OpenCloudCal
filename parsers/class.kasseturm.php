@@ -56,7 +56,7 @@ class KasseTurm{
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$id=self::$base_url.'#'.str_replace(' ','+',$start);
 		$event = Event::get_imported($id);
-		if ($event == null){
+		if ($event === null){
 			//print 'creating new event for '.$source_url.NL;
 			$event = Event::create($title, $description, $start, null, $location, $coords,$tags,$links,$attachments,false);
 			$event->mark_imported($id);

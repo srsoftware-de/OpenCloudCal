@@ -49,7 +49,7 @@ class MedClub{
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
-		if ($event == null){
+		if ($event === null){
 			//print 'creating new event for '.$source_url.NL;
 			$event = Event::create($title, $description, $start, $end, $location, $coords,$tags,$links,$attachments,false);
 			$event->mark_imported($source_url);
@@ -183,7 +183,7 @@ class MedClub{
 
 	private static function date($text){
 		global $db_time_format;
-		if ($text == null) return null;
+		if ($text === null) return null;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
