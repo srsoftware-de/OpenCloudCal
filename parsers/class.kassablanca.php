@@ -37,15 +37,18 @@ class Kassablanca{
 	
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
-		$title = self::read_title($xml);
-		$description = self::read_description($xml);
-		$start=self::date(self::read_start($xml));
+		$content = $xml->getElementById('contentleft');
+		if ($content === null) return;
+		
+		$title = self::read_title($content);
+		$description = self::read_description($content);
+		$start=parseDate(self::read_start($xml));
 		$location = self::read_location($xml);
 		$coords = null;		
 		if (stripos($location, 'Kassablanca') !== false){
 			$coords = '50.920, 11.578';
 		}
-		$tags = self::read_tags($xml);
+		$tags = self::read_tags($content);
 		
 		$links = self::read_links($xml,$source_url);
 		$attachments = self::read_images($xml);
@@ -69,9 +72,8 @@ class Kassablanca{
 		}
 	}
 	
-	private static function read_title($xml){
-		$contentleft = $xml->getElementById('contentleft');
-		$divs = $contentleft->getElementsByTagName('div');
+	private static function read_title($content){		
+		$divs = $content->getElementsByTagName('div');
 		foreach ($divs as $div){
 			if ($div->hasAttribute('class') && $div->getAttribute('class')=='headline'){
 				return trim($div->nodeValue);
@@ -80,9 +82,8 @@ class Kassablanca{
 		return null;		
 	}
 	
-	private static function read_description($xml){
-		$contentleft = $xml->getElementById('contentleft');
-		$divs = $contentleft->getElementsByTagName('div');
+	private static function read_description($content){
+		$divs = $content->getElementsByTagName('div');
 		$description = '';
 		foreach ($divs as $div){
 			if ($div->hasAttribute('class')){
@@ -129,9 +130,8 @@ class Kassablanca{
 		return $location;
 	}
 	
-	private static function read_tags($xml){	
-		$contentleft = $xml->getElementById('contentleft');
-		$divs = $contentleft->getElementsByTagName('div');
+	private static function read_tags($content){	
+		$divs = $content->getElementsByTagName('div');
 		$tags = array('Kassablanca','Jena');
 		foreach ($divs as $div){
 			if ($div->hasAttribute('class')){
@@ -155,9 +155,8 @@ class Kassablanca{
 		return array_unique($final_tags);
 	}
 	
-	private static function read_links($xml,$source_url){
-		$contentleft = $xml->getElementById('contentleft');		
-		$anchors = $contentleft->getElementsByTagName('a');
+	private static function read_links($content,$source_url){
+		$anchors = $content->getElementsByTagName('a');
 		$url = url::create($source_url,loc('event page'));	
 		$links = array($url,);		
 		foreach ($anchors as $anchor){
@@ -174,6 +173,7 @@ class Kassablanca{
 	
 	private static function read_images($xml){
 		$contentleft = $xml->getElementById('contentleft');
+		if ($contentleft === null) return;
 		$imgs = $contentleft->getElementsByTagName('img');
 		$images = array();
 		foreach ($imgs as $image){
@@ -194,14 +194,5 @@ class Kassablanca{
 			}
 		}
 		return $images;
-	}
-	
-	private static function date($text){
-		global $db_time_format;
-		$date=extract_date($text);	
-		$time=extract_time($text);	
-		$datestring=date_parse($date.' '.$time);
-		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);		
 	}
 }
