@@ -18,7 +18,7 @@ switch ($location){
 		importIcal('http://www.f-haus.de/cms/?plugin=all-in-one-event-calendar&controller=ai1ec_exporter_controller&action=export_events&no_html=true',array('FHaus','Jena'));
 		break;
 	case 5:
-		importIcal('https://tockify.com/api/feeds/ics/jg.stadtmitte',array('JG.Stadtmitte','Jena'));
+		ZehnTausendVolt::read_events();
 		break;
 	case 6:
 		Psychochor::read_events();

@@ -584,7 +584,7 @@ class Event {
 	/* Adds a tag to the appointment. While the tag is instantly created in the database,
 	 * the assignment will not be saved before $this->save() is called. */
 	function add_tag($tag){
-		if ($tag == null) return;
+		if ($tag === null) return;
 		if ($tag instanceof tag){
 			$this->tags[strtoupper($tag->text)]=$tag;
 		} else {
@@ -653,6 +653,7 @@ class Event {
 				'Drschz Bäm'=>'Jazz',
 				'Elektropop'=>'Elektropop',
 				'Elektro-Pop'=>'Elektropop',
+				'Festival'=>'Festival',
 				'Film'=>'Kino',
 				'Folkrock'=>'Folkrock',
 				'Funk'=>'Funk',				
@@ -669,15 +670,18 @@ class Event {
 				'Jazz'=>'Jazz',
 				'Karneval'=>'Karneval',
 				'Kammermusik'=>'Kammermusik',
+				'Kino'=>'Kino',
 				'Kirsche & Co'=>'Konzert',
+				'Konzert'=>'Konzert',
 				'Knorkator'=>'Metal',
 				'Konzert'=>'Konzert',
-				'Lesung '=>'Lesung',
-				'Liedermacher'=>'Liedermacher',
-				'Liedermaching'=>'Liedermacher',
-				'Linux'=>'Linux',		
+				'Lesebühne'=>'Lesung',
+				'Lesung '=>'Lesung',				
+				'Liedermach'=>'Liedermacher',
+				'Linux'=>'Linux',
+				'Markt'=>'Markt',		
 				'Med-Club'=>'MedClub',		
-				'Metal'=>'Metal',
+				'Metal '=>'Metal',
 				'Modellbahn'=>'Modellbahn',
 				' NDH'=>'NDH',
 				'Open Air'=>'OpenAir',
@@ -688,7 +692,7 @@ class Event {
 				'Punk '=>'Punkrock',
 				'Punkrock'=>'Punkrock',
 				'Punks '=>'Punkrock',
-				' Rap '=>'Rap',
+				'Rap '=>'Rap',
 				' RNB' =>'RnB',
 				'Rock'=>'Rock',
 				'Rock’n Roll'=>'RockNRoll',
@@ -706,9 +710,13 @@ class Event {
 				'Software'=>'Software',
 				'Syntension'=>'ProgressiveMetal',
 				'Synthie Pop'=>'Synthpop',
+				'Tanz'=>'Tanzen',
 				'Techno'=>'Techno',
+				'Theater'=>'Theater',
 				'Windows'=>'Windows',
-				'Volleyball'=>'Volleyball',			
+				'Volleyball'=>'Volleyball',
+				'Universität'=>'Universität',
+				'Zirkus'=>'Zirkus',			
 		);
 		
 		$expand_tags = array(
@@ -754,16 +762,12 @@ class Event {
 				'VikingMetal'=>'Metal',				
 				'Volleyball'=>'Sport',
 				'Wave'=>'schwarzesjena',
-				
 				'Metal'=>'schwarzesjena',
 				
 		);
-		
-		$text = $this->title.$this->description;
+		$text = preg_replace("/[^\wÄäÖöÜüß]+/", ' ', strip_tags(" $this->title $this->description "));
 		foreach ($scan_tags as $keyword => $tag){
-			if (stripos($text,$keyword) !== false) {
-				$this->add_tag($tag);
-			}
+			if (stripos($text,$keyword) !== false) $this->add_tag($tag);			
 		}
 		foreach ($expand_tags as $keyword => $tag){
 			$this->expand_tags($keyword,$tag);
