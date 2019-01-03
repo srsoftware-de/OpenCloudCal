@@ -5,12 +5,12 @@ class KasseTurm{
 
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
-		
+
 		$events = array();
 		$divs = $xml->getElementsByTagName('div');
 		foreach ($divs as $div){
 			if (!$div->hasAttribute('class')) continue;
-			$class = $div->getAttribute('class');			
+			$class = $div->getAttribute('class');
 			if (strpos($class,'eventHeader')!==false){
 				$header = $div;
 			} elseif (strpos($class,'eventBody')!==false){
@@ -18,18 +18,18 @@ class KasseTurm{
 				$events[] = array('header'=>$header,'body'=>$body);
 			}
 		}
-		
+
 		foreach ($events as $event){
-			self::read_event($event['header'],$event['body']);			
+			self::read_event($event['header'],$event['body']);
 		}
 	}
-	
+
 	public static function get_element($container,$type,$className){
 		$spans = $container->getElementsByTagName($type);
-		foreach ($spans as $span){			
+		foreach ($spans as $span){
 			if ($span->hasAttribute('id') && $span->getAttribute('id') == $className) return $span;
 		}
-		foreach ($spans as $span){			
+		foreach ($spans as $span){
 			if ($span->hasAttribute('class')){
 				$class = $span->getAttribute('class');
 				if (strpos($class, $className)!==false) return $span;
@@ -40,11 +40,13 @@ class KasseTurm{
 
 	public static function read_event($header,$body){
 		$title = self::get_element($header,'span','eventTitle')->nodeValue;
+
 		$subtitle = self::get_element($header,'span','eventSubtitle');
 		if ($subtitle !== null) $title.=' - '.$subtitle->nodeValue;
+		print_r(['title'=>$title]);
 		$description = self::get_element($body,'div','eventDescription');
-		$description = self::get_element($description, 'span', 'eventRight')->nodeValue;
-		
+		$description = $description===null?'':self::get_element($description, 'span', 'eventRight')->nodeValue;
+		print_r(['descr'=>$description]);
 		$start = self::date(self::read_start($header));
 		$location = 'Kasseturm, Goetheplatz 10, 99423 Weimar';
 
@@ -77,9 +79,9 @@ class KasseTurm{
 
 	private static function read_start($container){
 		$date = self::get_element($container,'span','eventDatee')->nodeValue;
-		$time = self::get_element($container,'span','eventTime')->nodeValue;		
-		return $date.' '.$time; 
-		
+		$time = self::get_element($container,'span','eventTime')->nodeValue;
+		return $date.' '.$time;
+
 	}
 
 	private static function read_tags($container){
@@ -95,7 +97,7 @@ class KasseTurm{
 	private static function read_links($container){
 		$links = array();
 		$organizer = self::get_element($container,'div', 'eventOrganizer');
-		if ($organizer === null) return $links;		
+		if ($organizer === null) return $links;
 		$anchors = $organizer->getElementsByTagName('a');
 		foreach ($anchors as $anchor){
 			if ($anchor->hasAttribute('href')){
@@ -109,10 +111,10 @@ class KasseTurm{
 				$links[] = $link;
 			}
 		}
-		
+
 		return $links;
 	}
-	
+
 	private static function read_images($container){
 		$imgs = $container->getElementsByTagName('img');
 		$images = array();

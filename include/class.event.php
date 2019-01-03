@@ -43,7 +43,7 @@ class Event {
 		//print_r(['Post Creation'=>$tags]);
 		return $instance;
 	}
-	
+
 	public static function get_imported($import_src_url){
 		global $db;
 		$url_hash=md5($import_src_url);
@@ -59,7 +59,7 @@ class Event {
 			return $appointment;
 		}
 	}
-	
+
 	/** sets the coordinates of this event **/
 	function set_coords($coords){
 		if ($coords==NULL){
@@ -73,10 +73,10 @@ class Event {
 				$this->coords=array('lat'=>$c[0],'lon'=>$c[1]);
 			} else {
 				$this->coords=NULL;
-			}				
+			}
 		}
 	}
-	
+
 	function set_title($title){
 		$this->title=$title;
 	}
@@ -84,18 +84,18 @@ class Event {
 	function set_description($description){
 		$this->description=$description;
 	}
-	
+
 	function set_start($start){
 		if ($this->end == $this->start){
 			$this->end=$start;
 		}
 		$this->start=$start;
 	}
-	
+
 	function set_end($end){
 		$this->end=$end;
 	}
-	
+
 	function set_location($loc){
 		$this->location=$loc;
 	}
@@ -156,7 +156,7 @@ class Event {
 					if ($pos !== false){
 						$line = str_replace(';VALUE=DATE', '', $line).'T235959';
 					}
-					$end = Event::convertRFC2445DateTimeToUTCtimestamp($line,$timezone); //*/				
+					$end = Event::convertRFC2445DateTimeToUTCtimestamp($line,$timezone); //*/
 			} elseif (startsWith($line,'CREATED:')){
 			} elseif (startsWith($line,'SEQUENCE:')){
 			} elseif (startsWith($line,'STATUS:')){
@@ -194,14 +194,26 @@ class Event {
 			} elseif (startsWith($line,'DTSTAMP:')){
 				// no use for ststamp at the moment
 			} elseif (startsWith($line,'RECURRENCE-ID')){
-				// no use for ststamp at the moment				
+				// no use for ststamp at the moment
+			} elseif (startsWith($line,'X-WP-IMAGES-URL:')){
+				$line = str_replace(array('\,','\n'), array(',',"\n"), substr($line,16) . readMultilineFromIcal($stack));
+				$start = strpos($line,'http');
+				$end = strpos($line,'jpg');
+				$address=substr($line,$start,$end-$start+3);
+				if (!empty($address)){
+					$mime = guess_mime_type($address);
+					$url = url::create($address,$mime);
+					$attachments[]=$url;
+				}
+
+				// no use for ststamp at the moment
 			} elseif (startsWith($line,'X-')){
 				// no use for ststamp at the moment
 			} elseif (startsWith($line, 'ATTACH;FMTTYPE=image')){
 				$pos=strpos($line, ':');
 				$address=substr($line, $pos+1);
 				if (!empty($address)){
-					$mime = guess_mime_type($address);				
+					$mime = guess_mime_type($address);
 					$url = url::create($address,$mime);
 					$attachments[]=$url;
 				}
@@ -215,13 +227,13 @@ class Event {
 						$attachment_description = substr($address,$pos+1);
 						$address=substr($address,0,$pos);
 					}
-					$url = url::create($address,$attachment_description);				
+					$url = url::create($address,$attachment_description);
 					$links[]=$url;
 				}
 			} elseif ($line=='END:VEVENT'){
 				// create appointment, do not save it, return it.
 				if (in_array('opencloudcal', $tags)) return null; // do not re-import events
-				
+
 				if ($foreignId != null){
 					if (startsWith($foreignId, 'http')){
 						$id=$foreignId;
@@ -264,7 +276,7 @@ class Event {
 			}
 		}
 	}
-	
+
 	static function readUrl($line){
 		while (startsWith($line, ';')){
 			if (startsWith($line, ';VALUE=URI')){
@@ -272,14 +284,14 @@ class Event {
 			}
 		}
 		if (startsWith($line, ':')) $line = substr($line, 1);
-		return $line;		
+		return $line;
 	}
-	
-	
+
+
 	static function readTZID(&$timestring){
 		if (startsWith($timestring, '"')){
-			$pos = strpos($timestring, '"',1);			
-			$tzid = substr($timestring,1,$pos-1);			
+			$pos = strpos($timestring, '"',1);
+			$tzid = substr($timestring,1,$pos-1);
 			$timestring = substr($timestring, $pos+1);
 		} else {
 			$pos = strpos($timestring, ':',$pos);
@@ -289,8 +301,8 @@ class Event {
 		if (startsWith($tzid, '+')){
 			$offset = explode(':', substr($tzid,1));
 			return array('offset'=>array('h'=>(int)$offset[0],'m'=>(int)$offset[1]));
-		}		
-		return array('id'=>$tzid); 
+		}
+		return array('id'=>$tzid);
 	}
 
 	/** convert an RFC 2445 formatted time string to a UTC timestamp **/
@@ -313,13 +325,13 @@ class Event {
 		if (startsWith($timestring, ':')){
 			$timestring = substr($timestring, 1);
 		}
-		
+
 		$dummy=substr($timestring, 0,4).'-'.substr($timestring, 4,2).'-'.substr($timestring, 6,2).' '.	substr($timestring, 9,2).':'.substr($timestring, 11,2).':'.substr($timestring, 13,2);
 		if ($timezone != null && $timezone != 'UTC'){
 			if (isset($timezone['offset'])){
 				$secs=strtotime($dummy);
 				$offset = 3600*$timezone['offset']['h']+60*$timezone['offset']['m'];
-				$dummy=date($db_time_format,$secs-$offset);				
+				$dummy=date($db_time_format,$secs-$offset);
 			} elseif (isset($timezone['id'])){
 				if ($timezone['id']=='Europe/Berlin'){
 					$_SESSION['country']='DE';
@@ -334,7 +346,7 @@ class Event {
 		}
 		return $dummy;
 	}
-	
+
 	/* adds a hash based on the import url to the event and saves the event */
 	function mark_imported($import_src_url){
 		global $db;
@@ -342,9 +354,9 @@ class Event {
 			return;
 		}
 		$this->import_src_url_hash=md5($import_src_url);
-		$this->save();		
+		$this->save();
 	}
-	
+
 	/* loads tags, urls and sessions related to the current appointment */
 	function loadRelated(){
 		$this->attachments			= $this->get_attachments();
@@ -359,7 +371,7 @@ class Event {
 		if (!$id){
 			return;
 		}
-		 
+
 		$sql = "DELETE FROM sessions WHERE aid=:id";
 		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 		$stm->execute(array(':id'=>$id));
@@ -375,7 +387,7 @@ class Event {
 		$sql = "DELETE FROM appointments WHERE aid=:id";
 		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 		$stm->execute(array(':id'=>$id));
-		 
+
 		$sql = "DELETE FROM imported_appointments WHERE aid=:id";
 		$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 		$stm->execute(array(':id'=>$id));
@@ -403,12 +415,12 @@ class Event {
 		$this->save_tags();
 		$this->save_links();
 		$this->save_attachments();
-		
+
 		if ($this->import_src_url_hash != null){
 			$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
 			$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 			$stm->execute(array(':aid'=>$this->id,':hash'=>$this->import_src_url_hash));
-		}		
+		}
 	}
 
 	function sendToGrical(){
@@ -445,17 +457,17 @@ class Event {
 			$ckfile = "/tmp/gricalcookie";
 			$target_host = "https://grical.org/";
 			$target_request = "e/new/raw/";
-			 
+
 			// 2. Visit homepage to set cookie
 			$ch = curl_init ($target_host);
-			 
+
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0); // TODO: disabling host an peer check is rather bad.
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0); // this should be implemented in the future
-			 
+
 			curl_setopt ($ch, CURLOPT_COOKIEJAR, $ckfile); // prepare to recieve cookie
 			curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true); // answer of request shall be returned
 			$output = curl_exec ($ch); // perform request, answer goes to variable
-			 
+
 			/* the next lines extract the csrf token */
 			$output=explode("input", curl_exec($ch));
 			foreach ($output as $line){
@@ -470,20 +482,20 @@ class Event {
 					break;
 				}
 			}
-			 
+
 			curl_close($ch);
-			 
+
 			$form=array();
 			$form['event_astext']=$text;
 			$form['csrfmiddlewaretoken']=$token; // add the token to the input for the actual post request
 			$post_data=http_build_query($form); // format query data
-			 
+
 			// 3. Continue
 			$login = curl_init ($target_host.$target_request);
-			 
+
 			curl_setopt ($login, CURLOPT_SSL_VERIFYHOST, 0); // TODO: disabling host an peer check is rather bad.
 			curl_setopt ($login, CURLOPT_SSL_VERIFYPEER, 0); // this should be implemented in the future
-			 
+
 			curl_setopt($login, CURLOPT_COOKIESESSION, 1); // use cookies
 			curl_setopt($login, CURLOPT_COOKIEJAR, $ckfile); // prepare to recieve cookies
 			curl_setopt($login, CURLOPT_COOKIEFILE, $ckfile); // prepare to submit cookies
@@ -584,16 +596,16 @@ class Event {
 			$this->add_tag(tag::create($tag));
 		}
 	}
-	
+
 	/* save all tags belonging to event */
 	private function save_tags(){
 		global $db;
 		foreach ($this->tags as $tag){
 			$sql="INSERT INTO appointment_tags (tid,aid) VALUES ($tag->id, $this->id)";
-			$db->query($sql);				
-		}		
+			$db->query($sql);
+		}
 	}
-	
+
 	function expand_tags($keyword,$tags){
 		$keyword = strtoupper($keyword);
 		//print_r(['expand'=>['key'=>$keyword,'tags'=>$tags]]);
@@ -604,7 +616,7 @@ class Event {
 			} else $this->add_tag($tags);
 		}
 	}
-	
+
 	function auto_add_tags(){
 		$scan_tags = array(
 				'50s'=>'50er',
@@ -616,7 +628,7 @@ class Event {
 				'80´er'=>'80er',
 				'90er'=>'90er',
 				'90s'=>'90er',
-				'90´er'=>'90er',				
+				'90´er'=>'90er',
 				'AC/DC'=>'Metal',
 				'Alternative-Rock'=>'AlternativeRock',
 				'Alrauna'=>'Alrauna',
@@ -626,7 +638,7 @@ class Event {
 				'Black Channel'=>'Gothic',
 				'Blues'=>'Blues',
 				'Brettspiele'=>'Brettspiele',
-				'Charts'=>'Charts',				
+				'Charts'=>'Charts',
 				'Cosmic Dawn'=>'CosmicDawn',
 				'Country'=>'Country',
 				'Coverband'=>'Konzert',
@@ -640,7 +652,7 @@ class Event {
 				'Deutsch Rock'=>'Deutschrock',
 				'Deutschrock'=>'Deutschrock',
 				'Dia Show'=>'DiaShow',
-				'Disco'=>'Disco',				
+				'Disco'=>'Disco',
 				'Disko'=>'Disco',
 				'Doom'=>'Doom',
 				'Drschz Bäm'=>'Jazz',
@@ -649,7 +661,7 @@ class Event {
 				'Festival'=>'Festival',
 				'Film'=>'Kino',
 				'Folkrock'=>'Folkrock',
-				'Funk'=>'Funk',				
+				'Funk'=>'Funk',
 				'Fußball'=>'Fußball',
 				'Fussball'=>'Fußball',
 				'Futurepop'=>'Futurepop',
@@ -671,11 +683,11 @@ class Event {
 				'Knorkator'=>'Metal',
 				'Konzert'=>'Konzert',
 				'Lesebühne'=>'Lesung',
-				'Lesung '=>'Lesung',				
+				'Lesung '=>'Lesung',
 				'Liedermach'=>'Liedermacher',
 				'Linux'=>'Linux',
-				'Markt'=>'Markt',		
-				'Med-Club'=>'MedClub',		
+				'Markt'=>'Markt',
+				'Med-Club'=>'MedClub',
 				'Metal '=>'Metal',
 				'Modellbahn'=>'Modellbahn',
 				' NDH'=>'NDH',
@@ -711,15 +723,15 @@ class Event {
 				'Windows'=>'Windows',
 				'Volleyball'=>'Volleyball',
 				'Universität'=>'Universität',
-				'Zirkus'=>'Zirkus',			
+				'Zirkus'=>'Zirkus',
 		);
-		
+
 		//print_r(['Before'=>$this->tags]);
 		$text = preg_replace("/[^\wÄäÖöÜüß]+/", ' ', strip_tags(" $this->title $this->description "));
 		foreach ($scan_tags as $keyword => $tag){
-			if (stripos($text,$keyword) !== false) $this->add_tag($tag);			
+			if (stripos($text,$keyword) !== false) $this->add_tag($tag);
 		}
-		
+
 		$expand_tags = array(
 				'AlternativeRock'=>'Rock',
 				'Alrauna'=>'FolkMetal',
@@ -768,21 +780,21 @@ class Event {
 				'Volleyball'=>'Sport',
 				'Wave'=>'schwarzesjena',
 				'Metal'=>'schwarzesjena',
-		
+
 		);
-		
+
 		//print_r(['Between'=>$this->tags]);
 		foreach ($expand_tags as $keyword => $tags){
 			$this->expand_tags($keyword,$tags);
 		}
 		//print_r(['After'=>$this->tags]);
 		if (array_key_exists('LESUNG', $this->tags)){
-			unset($this->tags['KONZERT']);					
+			unset($this->tags['KONZERT']);
 		}
 		if (array_key_exists('KONZERT', $this->tags)){
 			unset($this->tags['KINO']);
 		}
-		
+
 	}
 
 	/* remove tag from appointment */
@@ -791,7 +803,7 @@ class Event {
 		if ($tag instanceof tag){
 			$sql="DELETE FROM appointment_tags WHERE tid=$tag->id AND aid=$this->id";
 			$db->query($sql);
-		
+
 			unset($this->tags[$tag->id]);
 		} else {
 			if (is_int($tag)){
@@ -835,7 +847,7 @@ class Event {
 			$this->add_link($link);
 		}
 	}
-	
+
 	/* saves all links of the appointment */
 	private function save_links(){
 		global $db;
@@ -876,7 +888,7 @@ class Event {
 			$this->add_link($attachment);
 		}
 	}
-	
+
 	function get_attachments(){
 		global $db;
 		$urls=array();
@@ -906,7 +918,7 @@ class Event {
 			}
 		}
 	}
-	
+
 	/* saves all links of the appointment */
 	private function save_attachments(){
 		global $db;
@@ -917,19 +929,19 @@ class Event {
 		}
 	}
 	/******************...Attachments */
-	
+
 	public static function load($id){
 		global $db;
 		$instance=new self();
 		$sql="SELECT * FROM appointments WHERE appointments.aid=$id";
 		foreach ($db->query($sql) as $row){
 			$instance=self::create($row['title'], $row['description'], $row['start'], $row['end'], $row['location'],$row['coords'],null,null,null,false);
-			$instance->id=$id;			
+			$instance->id=$id;
 			$instance->loadRelated();
 			return $instance;
 		}
 	}
-	
+
 	/* loading all appointments */
 	public static function loadAll($tags=null){
 		global $db,$limit;
@@ -970,7 +982,7 @@ class Event {
 	public static function loadCurrent($tags=null,$all_keywords=true){
 		global $db,$db_time_format,$limit;
 		$appointments=array();
-		 
+
 		$yesterday=time()-12*60*60; // show events in the past 12 hours, too
 		$yesterday=date($db_time_format,$yesterday);
 
@@ -1029,7 +1041,7 @@ class Event {
 		}
 		return implode($separator, $res);
 	}
-	
+
 	// appends link title as get parameter to url
 	function urlWithTitle($url){
 		$address=$url->address;
@@ -1073,19 +1085,19 @@ class Event {
 					$result.=icalLine('ATTACH',replace_spaces($link));
 				}
 			}
-		}		
+		}
 		if ($this->end != null){
 			$result.=icalLine('DTEND',str_replace(array('-',' ',':'),array('','T',''),$this->end).'Z');
 		}
 		$result.=icalLine('END','VEVENT');
 		return $result;
-		
-		
+
+
 	}
-	
+
 	function get_import_src_url_hash(){
 		global $db;
-		$hash = null;		
+		$hash = null;
 		$sql="SELECT md5hash FROM imported_appointments WHERE aid=$this->id";
 		foreach ($db->query($sql) as $row){
 			$hash = $row['md5hash'];

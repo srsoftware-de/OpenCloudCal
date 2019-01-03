@@ -12,7 +12,7 @@ switch ($location){
 		importIcal('https://calcifer.datenknoten.me/all.ics');
 		break;
 	case 3:
-		importIcal('https://www.google.com/calendar/ical/sfgnd1tl8n1fnkl0v3ne1oq9jc%40group.calendar.google.com/public/basic.ics',array('FreiRaum','Jena'));
+		// gone // importIcal('https://www.google.com/calendar/ical/sfgnd1tl8n1fnkl0v3ne1oq9jc%40group.calendar.google.com/public/basic.ics',array('FreiRaum','Jena'));
 		break;
 	case 4:
 		importIcal('http://www.f-haus.de/cms/?plugin=all-in-one-event-calendar&controller=ai1ec_exporter_controller&action=export_events&no_html=true',array('FHaus','Jena'));
@@ -24,15 +24,15 @@ switch ($location){
 		Psychochor::read_events();
 		break;
 	case 7:
-		EBurg::read_events();
+		// gone // EBurg::read_events();
 		break;
 	case 8:
 		KasseTurm::read_events();
 		break;
 	case 9:
-		AtEvents::read_events();
+		// not parsable // AtEvents::read_events();
 		break;
-	case 10:	
+	case 10:
 		Wotufa::read_events();
 		break;
 	case 11:
@@ -51,7 +51,7 @@ switch ($location){
 		Kassablanca::read_events();
 		break;
 	case 16:
-		SaechsischerBahnhof::read_events();
+		// dead // SaechsischerBahnhof::read_events();
 		break;
 	case 17:
 		SaaleGaerten::read_events();
@@ -81,7 +81,7 @@ switch ($location){
 		importIcal('http://comma-club-gera.de/veranstaltungen-gera/?ical=1',array('Comma','Gera'));
 		break;
 	case 26:
-		MedClub::read_events();
+		// currently broken on their realm // MedClub::read_events();
 		break;
 	case 27:
 		Taeubchenthal::read_events();
@@ -89,11 +89,11 @@ switch ($location){
 	case 28:
 		HellRaiser::read_events();
 		break;
-	
+
 	case 29:
 		Werk2::read_events();
 		break;
-		
+
 	default:
 		http_response_code(404);
 		die('no valid location number given!');
