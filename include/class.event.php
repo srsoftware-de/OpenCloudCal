@@ -611,7 +611,8 @@ class Event {
 	}
 
 	function auto_add_tags(){
-		$scan_tags = array(
+		// these tags are accepted in both title and description
+		$description_tags = array(
 				'50s'=>'50er',
 				'70er'=>'70er',
 				'70s'=>'70er',
@@ -651,7 +652,6 @@ class Event {
 				'Drschz Bäm'=>'Jazz',
 				'Elektropop'=>'Elektropop',
 				'Elektro-Pop'=>'Elektropop',
-				'Festival'=>'Festival',
 				'Film'=>'Kino',
 				'Folkrock'=>'Folkrock',
 				'Funk'=>'Funk',
@@ -719,11 +719,22 @@ class Event {
 				'Zirkus'=>'Zirkus',
 		);
 
+		// these tags are only accepted in the title
+		$title_tags=[
+			'Festival'=>'Festival',
+		];
+
 		//print_r(['Before'=>$this->tags]);
 		$text = preg_replace("/[^\wÄäÖöÜüß]+/", ' ', strip_tags(" $this->title $this->description "));
-		foreach ($scan_tags as $keyword => $tag){
+		foreach ($description_tags as $keyword => $tag){
 			if (stripos($text,$keyword) !== false) $this->add_tag($tag);
 		}
+
+		$text = preg_replace("/[^\wÄäÖöÜüß]+/", ' ', strip_tags(" $this->title "));
+		foreach ($title_tags as $keyword => $tag){
+			if (stripos($text,$keyword) !== false) $this->add_tag($tag);
+		}
+
 
 		$expand_tags = array(
 				'AlternativeRock'=>'Rock',
