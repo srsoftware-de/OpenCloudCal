@@ -3,7 +3,7 @@
 /***** very basic functions ******/
 function loc($text,$replacements=null){
 	global $locale;
-	$message=$text;	
+	$message=$text;
 	if (isset($locale) && array_key_exists($text,$locale)){
 		$message=$locale[$text];
 	}
@@ -21,7 +21,7 @@ function notify($message){
 }
 
 function warn($message){
-	global $warnings;	
+	global $warnings;
 	$warnings.='<p>'.$message.'</p>'.PHP_EOL;
 	error_log($message);
 }
@@ -47,9 +47,7 @@ function getTimezoneOffset($timestamp){
 	}
 	$summertimeOffset=3600*date('I',$timestamp); // date('I',$timestamp) returns 0 or 1 for winter or summer time
 	$code=$_SESSION['country'];
-	if ($code=='DE'){
-		return $summertimeOffset+3600; // one additional hour to UTC
-	}
+	if ($code=='DE') return $summertimeOffset+3600; // one additional hour to UTC
 	warn(str_replace('%tz',$_SESSION['country'],loc('Unknown timezone: %tz')));
 	return null;
 }
@@ -57,7 +55,7 @@ function getTimezoneOffset($timestamp){
 function clientTime($timestamp){
 	global $db_time_format;
 	if ($timestamp==null){
-		return null;		
+		return null;
 	}
 	$secs=strtotime($timestamp);
 	return date($db_time_format,$secs+getTimezoneOffset($secs));
@@ -82,7 +80,7 @@ function parseDateTime($array){
 		return false;
 	}
 
-	$d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];	
+	$d_string=$array['year'].'-'.$array['month'].'-'.$array['day'];
 	$secs=strtotime($d_string);
 
 	if (isset($array['hour'])){
@@ -114,7 +112,7 @@ function isSpam($data){
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -138,7 +136,7 @@ function parseAppointmentData($data){
 		warn('invalid start date');
 		return false;
 	}
-	
+
 	$end=parseDateTime($data['end']);
 	if ($end<$start){
 		$end=$start;
@@ -217,7 +215,7 @@ function parseAttachmentData($data){
 		warn('no appointment given');
 		return false;
 	}
-	
+
 	if (empty($data['url'])){
 		warn('no url given');
 		return false;
@@ -228,7 +226,7 @@ function parseAttachmentData($data){
 	}
 	if (empty($data['mime'])){
 		$data['mime'] = guess_mime_type($url);
-	}	
+	}
 	$url=url::create($url,$data['mime']);
 	return $url;
 }
@@ -344,7 +342,7 @@ function importIcal($url,$tags=null){
 		$line=trim(array_pop($stack));
 		if ($line=='BEGIN:VCALENDAR') {
 		} else if (startsWith($line,'VERSION:')) {
-			$version=substr($line, 8);
+			//$version=substr($line, 8);
 		} else if (startsWith($line,'PRODID:')) {
 			readMultilineFromIcal($stack);
 		} else if (startsWith($line,'CALSCALE:')){
@@ -392,7 +390,7 @@ function icalLine($head,$content){
 	return utf8_wordwrap($head.':'.$content,75,CRLF.' ',true).CRLF;
 }
 
-function replace_spaces($text){	
+function replace_spaces($text){
 	return str_replace(' ', '%20', $text);
 }
 

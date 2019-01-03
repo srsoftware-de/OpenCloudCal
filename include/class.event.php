@@ -146,17 +146,13 @@ class Event {
 			} elseif (startsWith($line,'DTSTART')){
 				$line = substr($line,7);
 				$pos = strpos($line, ';VALUE=DATE');
-				if ($pos !== false){
-					$line = str_replace(';VALUE=DATE', '', $line).'T000000';
-				}
+				if ($pos !== false) $line = str_replace(';VALUE=DATE', '', $line).'T000000';
 				$start = Event::convertRFC2445DateTimeToUTCtimestamp($line,$timezone); //*/
 			} elseif (startsWith($line,'DTEND')){
-					$line = substr($line,5);
-					$pos = strpos($line, ';VALUE=DATE');
-					if ($pos !== false){
-						$line = str_replace(';VALUE=DATE', '', $line).'T235959';
-					}
-					$end = Event::convertRFC2445DateTimeToUTCtimestamp($line,$timezone); //*/
+				$line = substr($line,5);
+				$pos = strpos($line, ';VALUE=DATE');
+				if ($pos !== false) $line = str_replace(';VALUE=DATE', '', $line).'T235959';
+				$end = Event::convertRFC2445DateTimeToUTCtimestamp($line,$timezone); //*/
 			} elseif (startsWith($line,'CREATED:')){
 			} elseif (startsWith($line,'SEQUENCE:')){
 			} elseif (startsWith($line,'STATUS:')){
@@ -196,10 +192,10 @@ class Event {
 			} elseif (startsWith($line,'RECURRENCE-ID')){
 				// no use for ststamp at the moment
 			} elseif (startsWith($line,'X-WP-IMAGES-URL:')){
-				$line = str_replace(array('\,','\n'), array(',',"\n"), substr($line,16) . readMultilineFromIcal($stack));
-				$start = strpos($line,'http');
-				$end = strpos($line,'jpg');
-				$address=substr($line,$start,$end-$start+3);
+				$raw = str_replace(array('\,','\n'), array(',',"\n"), substr($line,16) . readMultilineFromIcal($stack));
+				$pos1 = strpos($raw,'http');
+				$pos2 = strpos($raw,'jpg');
+				$address=substr($raw,$pos1,$pos2-$pos1+3);
 				if (!empty($address)){
 					$mime = guess_mime_type($address);
 					$url = url::create($address,$mime);
@@ -294,39 +290,35 @@ class Event {
 			$tzid = substr($timestring,1,$pos-1);
 			$timestring = substr($timestring, $pos+1);
 		} else {
-			$pos = strpos($timestring, ':',$pos);
+			$pos = strpos($timestring, ':',1);
 			$tzid = substr($timestring,	0,$pos);
 			$timestring = substr($timestring, $pos);
 		}
 		if (startsWith($tzid, '+')){
 			$offset = explode(':', substr($tzid,1));
-			return array('offset'=>array('h'=>(int)$offset[0],'m'=>(int)$offset[1]));
+			return ['id'=>'offset','offset'=>array('h'=>(int)$offset[0],'m'=>(int)$offset[1])];
 		}
-		return array('id'=>$tzid);
+		return ['id'=>$tzid];
 	}
 
 	/** convert an RFC 2445 formatted time string to a UTC timestamp **/
 	static function convertRFC2445DateTimeToUTCtimestamp($timestring,$timezone=null){
 		global $db_time_format;
-		if (substr($timestring,-1)=='Z'){
-			$timezone='UTC';
-		}
+		if (substr($timestring,-1)=='Z') $timezone='UTC';
 		while (startsWith($timestring, ';')){
 			if (startsWith($timestring, ';TZID=')){
 				$timestring = substr($timestring, 6);
-				$timezone = self::readTZID($timestring);
-				if ($tzid == 'Europe/Berlin'){
-					$timezone['id'] = $tzid;
+				$tzid = self::readTZID($timestring);
+				if (!is_array($timezone) || $timezone['id']!=$tzid['id']){
+					if (in_array($tzid['id'],['Europe/Berlin','offset'])){
+						$timezone = $tzid;
+					} else warn(str_replace('%tz', print_r($tzid,true), loc('Handling of timezone "%tz" currently not implemented!')));
 				}
-			} else {
-				warn(str_replace('%tz', $timestring, loc('Handling of timezone "%tz" currently not implemented!')));
 			}
 		}
-		if (startsWith($timestring, ':')){
-			$timestring = substr($timestring, 1);
-		}
-
+		if (startsWith($timestring, ':'))$timestring = substr($timestring, 1);
 		$dummy=substr($timestring, 0,4).'-'.substr($timestring, 4,2).'-'.substr($timestring, 6,2).' '.	substr($timestring, 9,2).':'.substr($timestring, 11,2).':'.substr($timestring, 13,2);
+
 		if ($timezone != null && $timezone != 'UTC'){
 			if (isset($timezone['offset'])){
 				$secs=strtotime($dummy);
@@ -344,6 +336,7 @@ class Event {
 				warn(str_replace('%tz', print_r($timezone,true), loc('Handling of timezone "%tz" currently not implemented!')));
 			}
 		}
+
 		return $dummy;
 	}
 
@@ -1099,9 +1092,7 @@ class Event {
 		global $db;
 		$hash = null;
 		$sql="SELECT md5hash FROM imported_appointments WHERE aid=$this->id";
-		foreach ($db->query($sql) as $row){
-			$hash = $row['md5hash'];
-		}
+		foreach ($db->query($sql) as $row) $hash = $row['md5hash'];
 		return $hash;
 	}
 }
