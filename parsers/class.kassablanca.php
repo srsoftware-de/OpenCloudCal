@@ -2,7 +2,7 @@
 class Kassablanca{
 	private static $base_url = 'http://www.kassablanca.de/';
 	private static $event_list_page = 'programm/aktuell';
-	
+
 	private static $months = array(
 			'Januar'=>'01',
 			'Februar'=>'02',
@@ -16,11 +16,11 @@ class Kassablanca{
 			'Oktober'=>'10',
 			'November'=>'11',
 			'Dezember'=>'12');
-	
+
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
 		$tables = $xml->getElementsByTagName('table');
-		$event_pages = array();		
+		$event_pages = array();
 		foreach ($tables as $table){
 			$links = $table->getElementsByTagName('a');
 			foreach ($links as $link){
@@ -34,24 +34,24 @@ class Kassablanca{
 			self::read_event(self::$base_url . $page);
 		}
 	}
-	
+
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
 		$content = $xml->getElementById('contentleft');
 		if ($content === null) return;
-		
+
 		$title = self::read_title($content);
 		$description = self::read_description($content);
-		$start=parseDate(self::read_start($xml));
+		$start=parseDate(self::read_start($content));
 		$location = self::read_location($xml);
-		$coords = null;		
+		$coords = null;
 		if (stripos($location, 'Kassablanca') !== false){
 			$coords = '50.920, 11.578';
 		}
 		$tags = self::read_tags($content);
-		
-		$links = self::read_links($xml,$source_url);
-		$attachments = self::read_images($xml);
+
+		$links = self::read_links($content,$source_url);
+		$attachments = self::read_images($content);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event === null){
@@ -71,31 +71,31 @@ class Kassablanca{
 			$event->save();
 		}
 	}
-	
-	private static function read_title($content){		
+
+	private static function read_title($content){
 		$divs = $content->getElementsByTagName('div');
 		foreach ($divs as $div){
 			if ($div->hasAttribute('class') && $div->getAttribute('class')=='headline'){
 				return trim($div->nodeValue);
 			}
 		}
-		return null;		
+		return null;
 	}
-	
+
 	private static function read_description($content){
 		$divs = $content->getElementsByTagName('div');
 		$description = '';
 		foreach ($divs as $div){
 			if ($div->hasAttribute('class')){
-				$class = trim($div->getAttribute('class'));				
+				$class = trim($div->getAttribute('class'));
 				if (stripos($class, 'description')!==false){
-					$description .= trim($div->nodeValue);	
-				}				
+					$description .= trim($div->nodeValue);
+				}
 			}
 		}
 		return $description;
 	}
-	
+
 	private static function read_start($xml){
 		$tables = $xml->getElementsByTagName('table');
 		$day = null;
@@ -124,28 +124,28 @@ class Kassablanca{
 		}
 		return $day.'.'.$month.'. '.$time;
 	}
-	
+
 	private static function read_location($xml){
 		$location = 'Kassablanca, Felsenkellerstr. 13a, 07745 Jena';
 		return $location;
 	}
-	
-	private static function read_tags($content){	
+
+	private static function read_tags($content){
 		$divs = $content->getElementsByTagName('div');
 		$tags = array('Kassablanca','Jena');
 		foreach ($divs as $div){
 			if ($div->hasAttribute('class')){
-				$class = trim($div->getAttribute('class'));				
+				$class = trim($div->getAttribute('class'));
 				if (stripos($class, 'category')!==false){
 					$tags = array_merge($tags,explode(' ', trim($div->nodeValue)));
-					continue;	
+					continue;
 				}
 				if (stripos($class, 'subheadline')!==false){
 					$line = trim($div->nodeValue);
 					if (substr($line, -1,1) == ':') $line=trim(substr($line, 0,-1));
 					$tags = array_merge($tags,explode(' ', $line));
-					continue;						
-				}			
+					continue;
+				}
 			}
 		}
 		$final_tags = array();
@@ -154,11 +154,11 @@ class Kassablanca{
 		}
 		return array_unique($final_tags);
 	}
-	
+
 	private static function read_links($content,$source_url){
 		$anchors = $content->getElementsByTagName('a');
-		$url = url::create($source_url,loc('event page'));	
-		$links = array($url,);		
+		$url = url::create($source_url,loc('event page'));
+		$links = array($url,);
 		foreach ($anchors as $anchor){
 			if ($anchor->hasAttribute('href')){
 				$address = $anchor->getAttribute('href');
@@ -170,19 +170,17 @@ class Kassablanca{
 		}
 		return $links;
 	}
-	
-	private static function read_images($xml){
-		$contentleft = $xml->getElementById('contentleft');
-		if ($contentleft === null) return;
-		$imgs = $contentleft->getElementsByTagName('img');
+
+	private static function read_images($content){
+		$imgs = $content->getElementsByTagName('img');
 		$images = array();
 		foreach ($imgs as $image){
 			$address = self::$base_url.$image->getAttribute('src');
 			$mime = guess_mime_type($address);
 			$images[] = url::create($address,$mime);
-			break; // use only first image, the others are referenced by hyperlinks			
+			break; // use only first image, the others are referenced by hyperlinks
 		}
-		$anchors = $contentleft->getElementsByTagName('a');
+		$anchors = $content->getElementsByTagName('a');
 		foreach ($anchors as $anchor){
 			if ($anchor->hasAttribute('href')){
 				$address = $anchor->getAttribute('href');

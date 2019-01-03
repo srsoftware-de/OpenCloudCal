@@ -2,16 +2,17 @@
 class Psychochor{
 	private static $base_url = 'http://psycho-chor.de/';
 	private static $event_list_page = 'de/konzerte/aktuell.html';
-	private static $cities = array('Erfurt','Jena', 'Weimar');	
+	private static $cities = array('Erfurt','Jena', 'Weimar');
 
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
 		$event_div = $xml->getElementById('c1074');
 		$divs = $event_div->getElementsByTagName('div');
-		
+
 		foreach ($divs as $event){
 			$class = $event->getAttribute('class');
-			if (strpos($class, 'wrapper')!==false) continue;
+			if ($class!='csc-default') continue;
+			//if (strpos($class, 'wrapper')!==false) continue;
 			$tables = $event->getElementsByTagName('table');
 			if ($tables->length <1) continue;
 			self::read_event(self::$base_url . self::$event_list_page,$event);
@@ -38,7 +39,7 @@ class Psychochor{
 				}
 			}
 			if ($first=='Wochentag'){
-				
+
 			} elseif ($first == 'Datum'){
 				$date = $second;
 			} elseif ($first == 'Beginn'){
@@ -70,17 +71,17 @@ class Psychochor{
 					$location=$first;
 				} else {
 					$location .= ", ".$first;
-				}		
+				}
 			} else {
-				error_log('Psychochor-Parser found unknown field "'.$first.'": "'.$second.'"');				
-			}			
+				error_log('Psychochor-Parser found unknown field "'.$first.'": "'.$second.'"');
+			}
 		}
 
 		if ($date === null || $time === null) return;
 		$start = self::date($date.' '.$time);
 		$source_url=$source_url.'?date='.$date.'&time='.$time;
 		$links = array(url::create($source_url,'Homepage'));
-		$tags = array('Chor','Psychochor','Konzert');		
+		$tags = array('Chor','Psychochor','Konzert');
 		foreach (self::$cities as $city){
 			if (strpos($location, $city)!==false) $tags[]=$city;
 		}
@@ -104,7 +105,8 @@ class Psychochor{
 	private static function read_title($xml){
 		$headings = $xml->getElementsByTagName('h1');
 		foreach ($headings as $heading){
-			return trim($heading->nodeValue);
+			$parts = explode(':',$heading->nodeValue,2);
+			return trim($parts[1]);
 		}
 		return null;
 	}
@@ -171,9 +173,9 @@ class Psychochor{
 
 	private static function read_links($xml,$source_url){
 		$articles = $xml->getElementsByTagName('article');
-		$url = url::create($source_url,loc('event page'));	
+		$url = url::create($source_url,loc('event page'));
 		$links = array($url,);
-		foreach ($articles as $article){			
+		foreach ($articles as $article){
 			$anchors = $article->getElementsByTagName('a');
 			foreach ($anchors as $anchor){
 				if ($anchor->hasAttribute('href')){
