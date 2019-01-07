@@ -117,6 +117,12 @@ class Gewerkschaftshaus{
 		return date($db_time_format,$secs);
 	}
 
+	private static function read_location($node){
+		$text = $node->nodeValue;
+		$parts = explode(' / ',$text);
+		return $parts[3];
+	}
+
 	private static function read_links($node){
 		$links = [];
 		$anchors = $node->getElementsByTagName('a');
