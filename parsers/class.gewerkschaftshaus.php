@@ -58,6 +58,7 @@ class Gewerkschaftshaus{
 						$source_url.=md5($node->textContent);
 						$start = static::read_start($node);
 						$location = trim(static::read_location($node));
+						$links = [url::create($source_url,'Event-Seite')];
 					}
 					$image = static::read_image($node);
 					$links = array_merge($links,static::read_links($node));
