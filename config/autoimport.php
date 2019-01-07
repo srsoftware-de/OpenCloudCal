@@ -13,6 +13,7 @@ switch ($location){
 		break;
 	case 3:
 		// gone // importIcal('https://www.google.com/calendar/ical/sfgnd1tl8n1fnkl0v3ne1oq9jc%40group.calendar.google.com/public/basic.ics',array('FreiRaum','Jena'));
+		Gewerkschaftshaus::read_events();
 		break;
 	case 4:
 		importIcal('http://www.f-haus.de/cms/?plugin=all-in-one-event-calendar&controller=ai1ec_exporter_controller&action=export_events&no_html=true',array('FHaus','Jena'));
@@ -25,6 +26,7 @@ switch ($location){
 		break;
 	case 7:
 		// gone // EBurg::read_events();
+
 		break;
 	case 8:
 		KasseTurm::read_events();
