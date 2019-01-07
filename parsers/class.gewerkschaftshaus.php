@@ -93,7 +93,7 @@ class Gewerkschaftshaus{
 		$event = Event::get_imported($source_url);
 		if (empty($event)){
 			//print 'creating new event for '.$source_url.NL;
-			$event = Event::create($title, $text, $start, null, $location, $coords, ['Erfurt'], $links, $attachments);
+			$event = Event::create($title, $text, $start, null, $location, $coords, ['Erfurt','HsD'], $links, $attachments);
 			$event->mark_imported($source_url);
 		} else {
 			//print 'updating event for '.$source_url.NL;
@@ -106,36 +106,6 @@ class Gewerkschaftshaus{
 		}
 	}
 
-	private static function read_title($xml){
-		$headings = $xml->getElementsByTagName('h1');
-		foreach ($headings as $heading){
-			$parts = explode(':',$heading->nodeValue,2);
-			return trim($parts[1]);
-		}
-		return null;
-	}
-
-	private static function read_description($xml){
-		$articles = $xml->getElementsByTagName('article');
-		$description = '';
-		foreach ($articles as $article){
-			$paragraphs = $article->getElementsByTagName('p');
-			$first=true;
-			foreach ($paragraphs as $paragraph){
-				if ($first){
-					$first = false;
-					continue;
-				}
-				$text = trim($paragraph->textContent);
-				if (!empty($text)) {
-					if ($text == 'Sorry, the comment form is closed at this time.') continue;
-					$description .= str_replace('€Kategorie', "€\nKategorie", $text) . NL;
-				}
-			}
-		}
-		return $description;
-	}
-
 	private static function read_start($node){
 		global $db_time_format;
 		$text = $node->nodeValue;
@@ -145,33 +115,6 @@ class Gewerkschaftshaus{
 		$secs=parseDateTime(date_parse($date.' '.$time));
 
 		return date($db_time_format,$secs);
-	}
-
-	private static function read_location($node){
-		global $db_time_format;
-		$text = $node->nodeValue;
-		$parts = explode(' / ',$text);
-		return $parts[3];
-	}
-
-	private static function read_tags($xml){
-		global $db_time_format;
-		$articles = $xml->getElementsByTagName('article');
-		$description = '';
-		foreach ($articles as $article){
-			$paragraphs = $article->getElementsByTagName('p');
-			foreach ($paragraphs as $paragraph){
-				$text = trim($paragraph->textContent);
-				$pos = strpos($text, 'Kategorie:');
-				if ($pos!==false) {
-					$tags = explode(' ',substr($text, $pos+11));
-					$tags[] = 'CafeWagner';
-					$tags[] = 'Jena';
-					return $tags;
-				}
-			}
-		}
-		return array('CafeWagner','Jena');
 	}
 
 	private static function read_links($node){
@@ -194,16 +137,5 @@ class Gewerkschaftshaus{
 			return url::create($address,$mime);
 		}
 		return null;
-	}
-
-
-
-	private static function date($text){
-		global $db_time_format;
-		$date=extract_date($text);
-		$time=extract_time($text);
-		$datestring=date_parse($date.' '.$time);
-		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
 	}
 }
