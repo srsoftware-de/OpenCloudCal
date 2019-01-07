@@ -85,7 +85,6 @@ class Gewerkschaftshaus{
 			}
 		}
 
-		debug($location);
 		if (in_array($location,['HsD','Museumskeller'])){
 			$coords = '50.981758,11.035228';
 			$location .= ', Juri-Gagarin-Ring 140A, Erfurt';
