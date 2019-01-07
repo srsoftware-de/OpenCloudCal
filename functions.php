@@ -339,7 +339,8 @@ function importIcal($url,$tags=null){
 	// probably we should save all appointments in UTC,
 	// and handle the web interface always in CET/CEST
 	while (!empty($stack)){
-		$line=trim(array_pop($stack));
+		$line=trim(array_pop($stack)); // read line
+		$line.=readMultilineFromIcal($stack); // if next line starts with space: get that, too
 		if ($line=='BEGIN:VCALENDAR') {
 		} else if (startsWith($line,'VERSION:')) {
 			//$version=substr($line, 8);

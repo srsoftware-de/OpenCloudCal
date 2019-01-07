@@ -12,7 +12,6 @@ switch ($location){
 		importIcal('https://calcifer.datenknoten.me/all.ics');
 		break;
 	case 3:
-		// gone // importIcal('https://www.google.com/calendar/ical/sfgnd1tl8n1fnkl0v3ne1oq9jc%40group.calendar.google.com/public/basic.ics',array('FreiRaum','Jena'));
 		Gewerkschaftshaus::read_events();
 		break;
 	case 4:
@@ -25,8 +24,7 @@ switch ($location){
 		Psychochor::read_events();
 		break;
 	case 7:
-		// gone // EBurg::read_events();
-
+		Bandhaus::read_events();
 		break;
 	case 8:
 		KasseTurm::read_events();

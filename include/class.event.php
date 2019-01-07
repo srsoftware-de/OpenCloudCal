@@ -19,6 +19,7 @@ class Event {
 
 	/** start and end are expected to be UTC timestamps in the form YYYY-MM-DD hh:mm:ss **/
 	public static function create($title, $description, $start, $end=null, $location=null, $coords=null, $tags=null, $links=null, $attachments=null,$save=true){
+
 		$instance=new self();
 		$instance->title=$title;
 		$instance->description=$description;
