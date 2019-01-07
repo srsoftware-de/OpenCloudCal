@@ -101,6 +101,8 @@ class Gewerkschaftshaus{
 			$event->set_description($text);
 			$event->set_start($start);
 			$event->set_location($location);
+			$event->add_tag('Erfurt');
+			$event->add_tag('HsD');
 			foreach ($links as $link) $event->add_link($link);
 			$event->save();
 		}
