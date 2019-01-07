@@ -93,7 +93,7 @@ class Gewerkschaftshaus{
 		$event = Event::get_imported($source_url);
 		if (empty($event)){
 			//print 'creating new event for '.$source_url.NL;
-			$event = Event::create($title, $text, $start, null, $location, $coords, ['Erfurt'], $links, $attachments);
+			$event = Event::create($title, $text, $start, null, $location, $coords, ['Erfurt','HsD'], $links, $attachments);
 			$event->mark_imported($source_url);
 		} else {
 			//print 'updating event for '.$source_url.NL;
