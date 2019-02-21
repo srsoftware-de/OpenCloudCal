@@ -24,12 +24,12 @@ class FestungKoenigstein{
 		$coords = '50.91844, 14.05813';
 		$tags = ['Festung','Königstein','Festung'];
 		$images = static::read_images($ev_div);
-
+		$links = findElements($ev_div, ANCHOR,LINK,null,VALUES);
 		//debug(['source'=>$source_url,'title'=>$title,'start'=>$start,'end'=>$end,'description'=>$description,'location'=>$location,'coords'=>$coords,'tags'=>$tags,'images'=>$images]); return;
 		$event = Event::get_imported($source_url);
 		if ($event === null){
 			//print 'creating new event for '.$source_url.NL;
-			$event = Event::create($title, $description, $start, $end, $location, $coords,$tags,null,$images,false);
+			$event = Event::create($title, $description, $start, $end, $location, $coords,$tags,$links,$images,false);
 			$event->mark_imported($source_url);
 		} else {
 			//print 'updating event for '.$source_url.NL;
@@ -38,6 +38,7 @@ class FestungKoenigstein{
 			$event->set_start($start);
 			$event->set_location($location);
 			$event->set_coords($coords);
+			foreach ($links as $link) $event->add_link($link);
 			foreach ($tags as $tag) $event->add_tag($tag);
 			foreach ($images as $image) $event->add_attachment($image);
 			$event->save();
