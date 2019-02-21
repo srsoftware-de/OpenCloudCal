@@ -28,7 +28,7 @@ class WagnerVerein{
 
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
-	
+
 		// next block: find content div
 		$content = $xml->getElementById('Content');
 		$divs = $content->getElementsByTagName('div');
@@ -38,7 +38,7 @@ class WagnerVerein{
 				break;
 			}
 		}
-		
+
 		$title = self::read_title($content);
 		$description = self::read_description($content);
 		$start = self::read_start($content);
@@ -82,7 +82,7 @@ class WagnerVerein{
 				} else {
 					if ($part->nodeType == XML_ELEMENT_NODE) $active = true;
 				}
-				
+
 			}
 		}
 		return trim($title);
@@ -95,7 +95,7 @@ class WagnerVerein{
 		foreach ($paragraphs as $paragraph){
 			$html = trim($doc->saveHTML($paragraph));
 			$html = str_replace(array('<p>','<strong>','</strong>'),'',$html);
-			$html = str_replace(array('</p>','<br>'),"<br/>",$html);									
+			$html = str_replace(array('</p>','<br>'),"<br/>",$html);
 			if (strpos($html, 'Kategorie:') == 1) continue;
 			$description .= $html."\n";
 		}
@@ -103,40 +103,38 @@ class WagnerVerein{
 	}
 
 	private static function read_start($content){
-		global $db_time_format;
-		
 		$day = null;
 		$time = null;
-		$headings = $content->getElementsByTagName('h1');		
+		$headings = $content->getElementsByTagName('h1');
 		foreach ($headings as $heading){
 			$parts = $heading->childNodes;
 			foreach ($parts as $part){
-				$text = trim($part->nodeValue);				
+				$text = trim($part->nodeValue);
 				if ($text != ''){
 					if ($day === null){
 						$day = $text;
 					} elseif ($time === null){
 						$time = $text;
-						break;						
+						break;
 					}
-				}	
+				}
 			}
 			if ($time != null) break;
 		}
 		$day = substr($day,3); // remove day name abbrevation
-		
+
 		$date=extract_date($day.date('Y'));
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		
+
 		// if day has passed by this year, it should lie in the next year
 		if ($secs < time()){
 			$date=extract_date($day.(date('Y')+1));
 			$datestring=date_parse($date.' '.$time);
-			$secs=parseDateTime($datestring);				
+			$secs=parseDateTime($datestring);
 		}
-		
-		return date($db_time_format,$secs);
+
+		return date(TIME_FMT,$secs);
 	}
 
 	private static function read_tags($content){
@@ -148,13 +146,13 @@ class WagnerVerein{
 			$list_elements = $list->getElementsByTagName('li');
 			foreach ($list_elements as $list_element){
 				$tags[] = trim($list_element->nodeValue);
-			}			
+			}
 		}
 		return $tags;
 	}
 
 	private static function read_links($content,$source_url){
-		$url = url::create($source_url,loc('event page'));	
+		$url = url::create($source_url,loc('event page'));
 		$links = array($url,);
 		$anchors = $content->getElementsByTagName('a');
 		foreach ($anchors as $anchor){
@@ -177,18 +175,17 @@ class WagnerVerein{
 			$mime = guess_mime_type($address);
 			$attachments[] = url::create($address,$mime);
 		}
-	
+
 		return $attachments;
 	}
 
 
 
 	private static function date($text){
-		global $db_time_format;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

@@ -2,7 +2,7 @@
 class MpireJena{
 	private static $base_url = 'http://mpire-jena.de/';
 	private static $event_list_page = 'calendar';
-	
+
 	private static $months = array(
 			'Januar'=>'01',
 			'Februar'=>'02',
@@ -16,7 +16,7 @@ class MpireJena{
 			'Oktober'=>'10',
 			'November'=>'11',
 			'Dezember'=>'12');
-	
+
 
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
@@ -25,10 +25,10 @@ class MpireJena{
 		foreach ($anchors as $anchor){
 			$href = $anchor->getAttribute('href');
 			if (strpos($href, 'tc-events')!==false){
-				$event_pages[]=$href;				
+				$event_pages[]=$href;
 			}
 		}
-		
+
 		$event_pages = array_unique($event_pages);
 		foreach ($event_pages as $page){
 			self::read_event($page);
@@ -98,7 +98,6 @@ class MpireJena{
 	}
 
 	private static function read_start($xml){
-		global $db_time_format;
 		$times = $xml->getElementsByTagName('time');
 		foreach ($times as $time){
 			$text = trim($time->nodeValue);
@@ -111,9 +110,8 @@ class MpireJena{
 		}
 		return null;
 	}
-	
+
 	private static function read_end($xml){
-		global $db_time_format;
 		$times = $xml->getElementsByTagName('time');
 		foreach ($times as $time){
 			$text = trim($time->nodeValue);
@@ -134,9 +132,9 @@ class MpireJena{
 
 	private static function read_links($xml,$source_url){
 		$articles = $xml->getElementsByTagName('article');
-		$url = url::create($source_url,loc('event page'));	
+		$url = url::create($source_url,loc('event page'));
 		$links = array($url,);
-		foreach ($articles as $article){			
+		foreach ($articles as $article){
 			$anchors = $article->getElementsByTagName('a');
 			foreach ($anchors as $anchor){
 				if ($anchor->hasAttribute('href')){
@@ -167,12 +165,11 @@ class MpireJena{
 
 
 	private static function date($text){
-		global $db_time_format;
 		if ($text === null) return null;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

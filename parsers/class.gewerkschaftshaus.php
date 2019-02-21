@@ -110,14 +110,13 @@ class Gewerkschaftshaus{
 	}
 
 	private static function read_start($node){
-		global $db_time_format;
 		$text = $node->nodeValue;
 		$parts = explode(' / ',$text);
 		$date = extract_date($parts[1]);
 		$time = str_replace('.',':',$parts[2]);
 		$secs=parseDateTime(date_parse($date.' '.$time));
 
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 
 	private static function read_location($node){

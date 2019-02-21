@@ -2,11 +2,11 @@
 class CosmicDawn{
 	private static $base_url = 'http://www.cosmic-dawn.de/';
 	private static $event_list_page = 'kulturbahnhof.html';
-	
+
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
 		$links = $xml->getElementsByTagName('a');
-		$event_pages = array();		
+		$event_pages = array();
 		foreach ($links as $link){
 			$page = $link->getAttribute('href');
 			if (strpos($page, 'eventleser')===0) {
@@ -17,19 +17,19 @@ class CosmicDawn{
 			self::read_event(self::$base_url . $page);
 		}
 	}
-	
+
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
-		
+
 		$title = self::read_title($xml);
 		$description = self::read_description($xml);
 		$start=self::date(self::read_start($xml));
 		$location = self::read_location($xml);
-		$coords = null;		
+		$coords = null;
 		if (stripos($location, 'Kulturbahnhof') !== false){
 			$coords = '50.93658, 11.59266';
 		}
-		
+
 		$tags = self::read_tags($title,$description);
 
 		$links = self::read_links($xml,$source_url);
@@ -53,20 +53,20 @@ class CosmicDawn{
 			$event->save();
 		}
 	}
-	
+
 	private static function read_title($xml){
 		$title_container = $xml->getElementById('container');
-		$headlines = $title_container->getElementsByTagName('h1');		
+		$headlines = $title_container->getElementsByTagName('h1');
 		foreach ($headlines as $headline){
 			return trim($headline->nodeValue);
 		}
-		return null;		
+		return null;
 	}
-	
+
 	private static function read_description($xml){
-		$container = $xml->getElementById('container');		
+		$container = $xml->getElementById('container');
 		$paragraphs = $container->getElementsByTagName('p');
-		$description = '';				
+		$description = '';
 		foreach ($paragraphs as $paragraph){
 			if ($paragraph->hasAttribute('class')){
 				$class = $paragraph->getAttribute('class');
@@ -77,12 +77,12 @@ class CosmicDawn{
 		}
 		return $description;
 	}
-	
+
 	private static function read_start($xml){
-		$container = $xml->getElementById('container');		
+		$container = $xml->getElementById('container');
 		$paragraphs = $container->getElementsByTagName('p');
-		$date = null;	
-		$time = null;			
+		$date = null;
+		$time = null;
 		foreach ($paragraphs as $paragraph){
 			$text = trim($paragraph->nodeValue);
 			if ($paragraph->hasAttribute('class') && $paragraph->getAttribute('class') == 'info') {
@@ -92,7 +92,7 @@ class CosmicDawn{
 			$pos = strpos($text, 'show:');
 			if ($time === null && $pos!==false){
 				$time = trim(substr($text,$pos+5));
-				continue;				
+				continue;
 			}
 			$pos = strpos($text, 'Start:');
 			if ($time === null && $pos!==false){
@@ -105,7 +105,7 @@ class CosmicDawn{
 				$time = trim(substr($text,$pos+6));
 				continue;
 			}
-				
+
 		}
 		$pos=strpos($time,'pm');
 		if ($pos!==false){
@@ -113,10 +113,10 @@ class CosmicDawn{
 			$time = (12+(int)$time).':00';
 		}
 		if ($time === null) $time = '21:00';
-		if ($date === null) return null;		
+		if ($date === null) return null;
 		return $date.' '.$time;
 	}
-	
+
 	private static function read_location($xml){
 		$container = $xml->getElementById('container');
 		$paragraphs = $container->getElementsByTagName('p');
@@ -130,27 +130,27 @@ class CosmicDawn{
 		}
 		return $location;
 	}
-	
+
 	private static function read_tags($title,$description){
-		return array('Kulturbahnhof', 'Jena');		
+		return array('Kulturbahnhof', 'Jena');
 	}
-	
+
 	private static function read_links($xml,$source_url){
 		$container = $xml->getElementById('container');
 		$anchors = $container->getElementsByTagName('a');
-		$url = url::create($source_url,loc('event page'));	
-		$links = array($url,);	
-		
+		$url = url::create($source_url,loc('event page'));
+		$links = array($url,);
+
 		foreach ($anchors as $anchor){
 			if ($anchor->hasAttribute('href')){
 				$text = trim($anchor->nodeValue);
 				if ($text == 'Zurück') continue;
 				$links[] = url::create($anchor->getAttribute('href'),$text);
 			}
-		}		
+		}
 		return $links;
 	}
-	
+
 	private static function read_images($xml){
 		$wrapper = $xml->getElementById('container');
 		$images = $wrapper->getElementsByTagName('img');
@@ -159,17 +159,16 @@ class CosmicDawn{
 			$address = self::$base_url.$image->getAttribute('src');
 			$mime = guess_mime_type($address);
 			$attachments[] = url::create($address,$mime);
-			
+
 		}
 		return $attachments;
 	}
-	
+
 	private static function date($text){
-		global $db_time_format;
-		$date=extract_date($text);	
-		$time=extract_time($text);	
+		$date=extract_date($text);
+		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);		
+		return date(TIME_FMT,$secs);
 	}
 }

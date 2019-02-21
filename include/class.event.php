@@ -304,7 +304,6 @@ class Event {
 
 	/** convert an RFC 2445 formatted time string to a UTC timestamp **/
 	static function convertRFC2445DateTimeToUTCtimestamp($timestring,$timezone=null){
-		global $db_time_format;
 		if (substr($timestring,-1)=='Z') $timezone='UTC';
 		while (startsWith($timestring, ';')){
 			if (startsWith($timestring, ';TZID=')){
@@ -324,12 +323,12 @@ class Event {
 			if (isset($timezone['offset'])){
 				$secs=strtotime($dummy);
 				$offset = 3600*$timezone['offset']['h']+60*$timezone['offset']['m'];
-				$dummy=date($db_time_format,$secs-$offset);
+				$dummy=date(TIME_FMT,$secs-$offset);
 			} elseif (isset($timezone['id'])){
 				if ($timezone['id']=='Europe/Berlin'){
 					$_SESSION['country']='DE';
 					$secs=strtotime($dummy);
-					$dummy=date($db_time_format,$secs-getTimezoneOffset($secs));
+					$dummy=date(TIME_FMT,$secs-getTimezoneOffset($secs));
 				} else {
 					warn(str_replace('%tz', print_r($timezone,true), loc('Handling of timezone "%tz" currently not implemented!')));
 				}
@@ -985,11 +984,11 @@ class Event {
 	}
 
 	public static function loadCurrent($tags=null,$all_keywords=true){
-		global $db,$db_time_format,$limit;
+		global $db,$limit;
 		$appointments=array();
 
 		$yesterday=time()-12*60*60; // show events in the past 12 hours, too
-		$yesterday=date($db_time_format,$yesterday);
+		$yesterday=date(TIME_FMT,$yesterday);
 
 		if ($tags!=null){
 			if (!is_array($tags)){

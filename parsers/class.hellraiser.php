@@ -2,7 +2,7 @@
 class HellRaiser{
 	private static $base_url = 'https://hellraiser-leipzig.de/';
 	private static $event_list_page = 'alle-events';
-	
+
 	private static $months = array(
 			'Januar'=>'01',
 			'Februar'=>'02',
@@ -28,14 +28,14 @@ class HellRaiser{
 			$href = $anchor->getAttribute('href');
 			if (strpos($href,'#more')===false) continue;
 			$parts = explode('#', $href);
-			$event_urls[]=reset($parts);			
+			$event_urls[]=reset($parts);
 		}
 		foreach ($event_urls as $url) self::read_event($url);
 	}
 
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
-		
+
 		// next block: find content div
 		$content = $xml->getElementById('primary');
 		$title = self::read_title($content);
@@ -45,9 +45,9 @@ class HellRaiser{
 		$coords = '51.339877, 12.460968';
 		$tags = self::read_tags($content);
 		$links = self::read_links($content,$source_url);
-		
+
 		$attachments = self::read_images($content);
-		
+
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event === null){
@@ -70,8 +70,8 @@ class HellRaiser{
 
 	private static function read_title($content){
 		$headings = $content->getElementsByTagName('h2');
-		foreach ($headings as $heading) return trim($heading->nodeValue);		
-		return null;		
+		foreach ($headings as $heading) return trim($heading->nodeValue);
+		return null;
 	}
 
 	private static function read_description(DOMNode $content){
@@ -85,19 +85,17 @@ class HellRaiser{
 	}
 
 	private static function read_start($content){
-		global $db_time_format;
-		
 		$day = null;
 		$time = null;
-		
+
 		$times = $content->getElementsByTagName('time');
 		foreach ($times as $time_tag){
 			$day = $time_tag->textContent;
 		}
 		foreach (self::$months as $name => $month) $day = str_replace(' '.$name.' ', $month.'.', $day);
-		
+
 		$paragraphs = $content->getElementsByTagName('p');
-		
+
 		foreach ($paragraphs as $paragraph){
 			$text = $paragraph->textContent;
 			$pos = strpos($text,'Uhr');
@@ -111,17 +109,17 @@ class HellRaiser{
 		$date=extract_date($day.date('Y'));
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		
-		return date($db_time_format,$secs);
+
+		return date(TIME_FMT,$secs);
 	}
 
 	private static function read_tags($content){
-		$tags = ['Hellraiser','Leipzig'];		
+		$tags = ['Hellraiser','Leipzig'];
 		return $tags;
 	}
 
 	private static function read_links($content,$source_url){
-		$url = url::create($source_url,loc('event page'));	
+		$url = url::create($source_url,loc('event page'));
 		$links = [$url];
 		$anchors = $content->getElementsByTagName('a');
 		foreach ($anchors as $anchor){
@@ -129,14 +127,14 @@ class HellRaiser{
 			$text = $anchor->nodeValue;
 			if ($text == 'Event') continue;
 			if (strpos($text,'plusone')!==false) continue;
-			
+
 			$address = $anchor->getAttribute('href');
 			if (strpos($address,'plusone')!==false) continue;
 			if (strpos($address,'share')!==false) continue;
-				
+
 			if (strpos(guess_mime_type($address),'image')===false) $links[] = url::create($address,trim($text));
 		}
-	
+
 		return $links;
 	}
 
@@ -149,18 +147,17 @@ class HellRaiser{
 			$mime = guess_mime_type($address);
 			$attachments[] = url::create($address,$mime);
 		}
-	
+
 		return $attachments;
 	}
 
 
 
 	private static function date($text){
-		global $db_time_format;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

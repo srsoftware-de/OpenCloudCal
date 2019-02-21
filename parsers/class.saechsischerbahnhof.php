@@ -2,7 +2,7 @@
 class SaechsischerBahnhof{
 	private static $base_url = 'http://club.xn--schsischer-bahnhof-ltb.de';
 	private static $event_list_page = '/index.php/programm';
-	
+
 	private static $months = array(
 			'Januar'=>'01',
 			'Februar'=>'02',
@@ -19,11 +19,11 @@ class SaechsischerBahnhof{
 
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
-		
+
 		$agenda = $xml->getElementById('icagenda');
 		if ($agenda === null) {
 			http_response_code(404);
-			die('Website not available: '.self::$base_url);			
+			die('Website not available: '.self::$base_url);
 		}
 		$links = $agenda->getElementsByTagName('a');
 		$event_pages = array();
@@ -86,12 +86,11 @@ class SaechsischerBahnhof{
 		$description = implode("\n",array_filter(array_map('trim',explode("\n",$description))));
 		$breaks = array('<br>');
 		$description = str_replace($breaks,"\n",$description);
-		
+
 		return strip_tags($description);
 	}
 
 	private static function read_start($xml){
-		global $db_time_format;
 		$divs = $xml->getElementsByTagName('div');
 		$description = '';
 		foreach ($divs as $div){
@@ -102,7 +101,7 @@ class SaechsischerBahnhof{
 			$start = str_replace(array('Daten:','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag',','), '', $raw);
 			foreach (self::$months as $name => $month){
 				$start = str_replace(' '.$name.' ', $month.'.', $start);
-			}			
+			}
 			return trim($start);
 		}
 		return null;
@@ -114,17 +113,17 @@ class SaechsischerBahnhof{
 
 	private static function read_links($xml,$source_url){
 		$description=$xml->getElementById('icagenda');
-		$url = url::create($source_url,loc('event page'));	
+		$url = url::create($source_url,loc('event page'));
 		$links = array($url,);
 		$anchors = $description->getElementsByTagName('a');
 		foreach ($anchors as $anchor){
 			if ($anchor->hasAttribute('href')){
-				$address = $anchor->getAttribute('href');				
+				$address = $anchor->getAttribute('href');
 				if (strpos(guess_mime_type($address),'image')===false){
 					if (strpos($address, 'tmpl=')!==false) continue;
 					if (strpos($address,'http')===false){
 						$address = self::$base_url.$address;
-					}						
+					}
 					$links[] = url::create($address,trim($anchor->nodeValue));
 				}
 			}
@@ -150,11 +149,10 @@ class SaechsischerBahnhof{
 
 
 	private static function date($text){
-		global $db_time_format;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

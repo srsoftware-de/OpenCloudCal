@@ -13,13 +13,13 @@ class Taeubchenthal{
 			$href = $anchor->getAttribute('href');
 			if (strpos($href,'/veranstaltungen/')!==false) $event_urls[]=$anchor->getAttribute('href');
 		}
-		
+
 		foreach ($event_urls as $url) self::read_event($url);
 	}
 
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
-		
+
 		// next block: find content div
 		$content = $xml->getElementById('content');
 		$title = self::read_title($content);
@@ -29,9 +29,9 @@ class Taeubchenthal{
 		$coords = '51.324621, 12.330507';
 		$tags = self::read_tags($content);
 		$links = self::read_links($content,$source_url);
-		
+
 		$attachments = self::read_images($content);
-		
+
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event === null){
@@ -61,7 +61,7 @@ class Taeubchenthal{
 			$parent = $heading->parentNode;
 			break;
 		}
-		
+
 		if ($parent !== null){
 			$headings = $parent->getElementsByTagName('h4');
 			foreach ($headings as $heading) {
@@ -70,8 +70,8 @@ class Taeubchenthal{
 				$title .= ' : '.$text;
 			}
 		}
-		
-		return trim($title);		
+
+		return trim($title);
 	}
 
 	private static function read_description(DOMNode $content){
@@ -79,35 +79,33 @@ class Taeubchenthal{
 		$divs = $content->getElementsByTagName('div');
 		foreach ($divs as $div){
 			if (!$div->hasAttribute('class')) continue;
-			
+
 			$class = $div->getAttribute('class');
 			if (strpos($class,'top-ma')===false) continue;
 			$paragraphs = $div->getElementsByTagName('p');
 			foreach ($paragraphs as $paragraph){
 				$description .= '<p>'.$paragraph->ownerDocument->saveHTML($paragraph)."</p>\n";
-			}	
+			}
 		}
 		return $description;
 	}
 
 	private static function read_start($content){
-		global $db_time_format;
-		
 		$day = null;
 		$time = null;
 		$headings = $content->getElementsByTagName('h1');
 		foreach ($headings as $heading){
 			$parent = $heading->parentNode;
-			
+
 			$paragraphs = $parent->getElementsByTagName('p');
-			
+
 			foreach ($paragraphs as $paragraph){
 				$text = $paragraph->textContent;
 				$pos = strpos($text,'Start');
 				if ($pos === false) $pos = strpos($text,'Beginn');
 				if ($pos === false) continue;
 				$parts = explode(': ', $text);
-				
+
 				$time = trim(end($parts));
 				if (strpos($time, ':')===false) $time=str_replace('Uhr', ':00', $time); // 22Uhr => 22:00
 				$day = trim(reset(explode(':',$text)));
@@ -118,8 +116,8 @@ class Taeubchenthal{
 		$date=extract_date($day.date('Y'));
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		
-		return date($db_time_format,$secs);
+
+		return date(TIME_FMT,$secs);
 	}
 
 	private static function read_tags($content){
@@ -145,7 +143,7 @@ class Taeubchenthal{
 	}
 
 	private static function read_links($content,$source_url){
-		$url = url::create($source_url,loc('event page'));	
+		$url = url::create($source_url,loc('event page'));
 		$links = [$url];
 		$divs = $content->getElementsByTagName('div');
 		foreach ($divs as $div){
@@ -159,7 +157,7 @@ class Taeubchenthal{
 				$links[] = url::create($address,trim($anchor->nodeValue));
 			}
 		}
-		
+
 		return $links;
 	}
 
@@ -172,18 +170,17 @@ class Taeubchenthal{
 			$mime = guess_mime_type($address);
 			$attachments[] = url::create($address,$mime);
 		}
-	
+
 		return $attachments;
 	}
 
 
 
 	private static function date($text){
-		global $db_time_format;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

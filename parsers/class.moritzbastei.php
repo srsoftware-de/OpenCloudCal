@@ -74,7 +74,6 @@ class Moritzbastei{
 	}
 
 	private static function read_start($xml){
-		global $db_time_format;
 		$spans = $xml->getElementsByTagName('span');
 		$text = '';
 		foreach ($spans as $span){
@@ -82,13 +81,12 @@ class Moritzbastei{
 			$class = $span->getAttribute('class');
 			if ($class != 'date-display-single') continue;
 			$text.= ' '.$span->nodeValue;
-			if (strpos($text,':') !== false) return trim($text);				
+			if (strpos($text,':') !== false) return trim($text);
 		}
 		return null;
 	}
 
 	private static function read_tags($xml){
-		global $db_time_format;
 		$metas = $xml->getElementsByTagName('meta');
 		$tags = array('Moritzbastei','Leipzig');
 		foreach ($metas as $meta){
@@ -141,11 +139,10 @@ class Moritzbastei{
 
 
 	private static function date($text){
-		global $db_time_format;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

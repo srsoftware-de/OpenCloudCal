@@ -12,7 +12,7 @@ if ($format=='html') {
 			}
 		}
 	}
-	$end=date($db_time_format,$start_sec+3600);
+	$end=date(TIME_FMT,$start_sec+3600);
 	?>
 <div class="addsession">
 	<h2>
@@ -40,25 +40,25 @@ if ($format=='html') {
 			</div>
 			<div class="choice">
 				<input type="radio" id="addlink" name="nextaction" value="addlink" />
-				<label for="addlink">			
+				<label for="addlink">
 					<?php echo loc('Add a link to this appointment in the next step.'); ?>
 				</label>
 			</div>
 			<div class="choice">
 				<input type="radio" id="addattachment" name="nextaction" value="addattachment" />
-				<label for="addattachment">			
+				<label for="addattachment">
 					<?php echo loc('Add an attachment to this appointment in the next step.'); ?>
 				</label>
-			</div>			
+			</div>
 			<div class="choice">
 				<input type="checkbox" id="gricalpost" name="gricalpost" <?php echo gricalValue(); ?>/>
-				<label for="gricalpost">			
+				<label for="gricalpost">
 					<?php echo loc('Send this appointment to grical, too.').'*'; ?>
 				</label>
 			</div>
 			<div class="choice">
 				<input type="checkbox" id="calciferpost" name="calciferpost"  <?php echo calciferValue(); ?>/>
-				<label for="calciferpost">			
+				<label for="calciferpost">
 					<?php echo loc('Send this appointment to calcifer, too.').'*'; ?>
 				</label>
 			</div>
