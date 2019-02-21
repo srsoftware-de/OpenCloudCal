@@ -51,7 +51,7 @@ switch ($location){
 		Kassablanca::read_events();
 		break;
 	case 16:
-		// dead // SaechsischerBahnhof::read_events();
+		JGStadtMitte::read_events();
 		break;
 	case 17:
 		SaaleGaerten::read_events();
