@@ -16,7 +16,7 @@ class EBurg{
 			'Oktober'=>'10',
 			'November'=>'11',
 			'Dezember'=>'12');
-	
+
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
 		$content = $xml->getElementById('content');
@@ -39,14 +39,14 @@ class EBurg{
 			self::read_event($page);
 		}
 	}
-	
+
 	public static function coords($location){
 		if ($location == 'Eburg Club') return '50.978339, 11.026929';
 		if (strpos($location, 'DuckDich')||strpos($location, 'Vortragsraum')) return '50.978137, 11.027100';
 		if (strpos($location, 'Biergarten')) return '50.978137, 11.027100';
-		
+
 	}
-	
+
 	public static function expand($location){
 		if ($location == 'Eburg Club') return 'Club "Eburg", Allerheiligenstraße 20/21, Erfurt';
 		if (strpos($location, 'DuckDich')||strpos($location, 'Vortragsraum')) return 'Café "DuckDich", Allerheiligenstraße 20/21, Erfurt';
@@ -63,10 +63,10 @@ class EBurg{
 		$location = self::read_category($xml,'Wo?');
 		$coords = self::coords($location);
 		$location = self::expand($location);
-		
+
 
 		$tags = self::read_tags($xml);
-		$links = self::read_links($xml,$source_url);		
+		$links = self::read_links($xml,$source_url);
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
@@ -104,24 +104,24 @@ class EBurg{
 				$children = $div->childNodes;
 				foreach ($children as $child){
 					if ($child->nodeType!=1) continue;
-					$text = trim($child->nodeValue);					
-					if ($text == '') continue;					
+					$text = trim($child->nodeValue);
+					if ($text == '') continue;
 					$type = $child->nodeName;
-					if ($type == 'h3' || $type == 'strong') continue; // skip headings				
-					
+					if ($type == 'h3' || $type == 'strong') continue; // skip headings
+
 					if ($child->hasAttribute('class')) {
 						$class = $child->getAttribute('class');
 						if ($class == 'lf_wrapper') continue;
 						if (strpos($class, 'gallery')!==false) continue; // skip gallery
 						if (strpos($class, 'printfriendly')!==false) continue; // skip gallery
-						
+
 						//print '(class: '.$child->getAttribute('class').') ';
 					}
 					if (strpos($text,'function(')!==false) continue; // skip script
 					//print $type;
 					//print ':'.NL;
 					//print $text.NL.NL;
-					$description .= $text.NL; 
+					$description .= $text.NL;
 				}
 			}
 		}
@@ -129,7 +129,6 @@ class EBurg{
 	}
 
 	private static function read_start($xml){
-		global $db_time_format;
 		$content = $xml->getElementById('content');
 		$spans = $content->getElementsByTagName('span');
 		foreach ($spans as $span){
@@ -139,26 +138,26 @@ class EBurg{
 				if ($pos !== false) $string = substr($string,$pos+1);
 				$string = str_replace('.',':',$string); // 20.00 Uhr => 20:00 Uhr
 				foreach (self::$months as $name => $month){ // 21: Mai 2016 => 21.05.2016
-					$string = str_replace(': '.$name.' ', '.'.$month.'.', $string); 
+					$string = str_replace(': '.$name.' ', '.'.$month.'.', $string);
 				}
-				$string = str_replace(array('ab ',' Uhr'),'',$string);		
+				$string = str_replace(array('ab ',' Uhr'),'',$string);
 				return trim($string);
 			}
 		}
 		return null;
 	}
-	
+
 	private static function read_category($xml,$key){
 		$content = $xml->getElementById('content');
 		$spans = $content->getElementsByTagName('span');
-		foreach ($spans as $span){			
-			if ($span->getAttribute('class') == 'category'){				
+		foreach ($spans as $span){
+			if ($span->getAttribute('class') == 'category'){
 				$text = $span->nodeValue;
 				if (strpos($text,$key)===false) continue;
 				return trim(substr($text,strlen($key))).NL;
 			}
 		}
-		error_log('category not found');		
+		error_log('category not found');
 	}
 
 	private static function read_tags($xml){
@@ -172,9 +171,9 @@ class EBurg{
 			if ($pos !== false) $tags=trim(substr($tags, $pos+1));
 			$tags=str_replace(' ', '', $tags);
 			$tags = explode(',',$tags);
-			break;			
+			break;
 		}
-		
+
 		// Fallback:
 		if ($tags === null)	$tags = explode(',',self::read_category($xml, 'Was?'));
 		$tags[] = 'Eburg';
@@ -184,7 +183,7 @@ class EBurg{
 
 	private static function read_links($xml,$source_url){
 		$content = $xml->getElementById('content');
-		$url = url::create($source_url,loc('event page'));	
+		$url = url::create($source_url,loc('event page'));
 		$links = array($url,);
 		$divs = $content->getElementsByTagName('div');
 		foreach ($divs as $div){
@@ -201,8 +200,8 @@ class EBurg{
 					}
 				}
 			}
-		}			
-		
+		}
+
 		return $links;
 	}
 
@@ -236,22 +235,21 @@ class EBurg{
 						$images[] = url::create($address,$mime);
 						continue;
 					}
-						
+
 				}
 			}
-		}			
-		
+		}
+
 		return $images;
 	}
 
 
 
 	private static function date($text){
-		global $db_time_format;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

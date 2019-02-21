@@ -3,7 +3,7 @@
 class MedClub{
 	private static $base_url = 'http://www.med-club.de';
 	private static $event_list_page = '/joomla/index.php/partyguide';
-	
+
 	private static $months = array(
 			'Januar'=>'01',
 			'Februar'=>'02',
@@ -17,7 +17,7 @@ class MedClub{
 			'Oktober'=>'10',
 			'November'=>'11',
 			'Dezember'=>'12');
-	
+
 
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
@@ -26,16 +26,16 @@ class MedClub{
 		foreach ($anchors as $anchor){
 			$href = $anchor->getAttribute('href');
 			if (strpos($href, 'guide/event')!==false){
-				$event_pages[]=$href;				
+				$event_pages[]=$href;
 			}
 		}
-		
+
 		$event_pages = array_unique($event_pages);
 		foreach ($event_pages as $page){
 			self::read_event(self::$base_url.$page);
 		}
 	}
-	
+
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
 		$title = self::read_title($xml);
@@ -70,7 +70,7 @@ class MedClub{
 
 	private static function read_title($xml){
 		$headings = $xml->getElementsByTagName('h3');
-		foreach ($headings as $heading){			
+		foreach ($headings as $heading){
 			return trim($heading->nodeValue);
 		}
 		return null;
@@ -78,7 +78,7 @@ class MedClub{
 
 	private static function read_description($xml,$title){
 		$info_div = $xml->getElementById('submenu_eventinfo');
-		$description = '';		
+		$description = '';
 		$paragraphs = ($info_div === null)?array():$info_div->getElementsByTagName('p');
 		foreach ($paragraphs as $paragraph){
 			$text = trim($paragraph->nodeValue);
@@ -100,16 +100,16 @@ class MedClub{
 			if (!$div->hasAttribute('class')) continue;
 			if ($div->getAttribute('class') !== 'mat_event_date') continue;
 			$datestring=trim($div->nodeValue);
-		} 
+		}
 		if ($datestring === null) return null;
 		if (strpos($datestring,',')!==false) $datestring = explode(',',$datestring)[1];
-		
+
 		foreach (self::$months as $name => $month) $datestring = str_replace(' '.$name.' ', $month.'.', $datestring);
 
 		return $datestring;
 	}
-	
-	private static function read_end($xml){		
+
+	private static function read_end($xml){
 		return null;
 	}
 
@@ -123,10 +123,10 @@ class MedClub{
 			if ($div->getAttribute('class') !== 'mat_event_location') continue;
 			$location=trim($div->nodeValue);
 		}
-		
+
 		return $location;
 	}
-	
+
 	private static function read_tags($xml){
 		$tags = array('MedClub','Jena');
 
@@ -140,14 +140,14 @@ class MedClub{
 			$cat_div = $div;
 		}
 		if ($cat_div === null) return $tags;
-		
+
 		$anchors = $cat_div->getElementsByTagName('a');
 		foreach ($anchors as $anchor){
 			$tag = trim($anchor->nodeValue);
 			if ($tag == 'Partys') $tag='Party';
 			$tags[]=$tag;
 		}
-		
+
 		return $tags;
 	}
 
@@ -166,7 +166,7 @@ class MedClub{
 	}
 
 	private static function read_images($xml){
-		
+
 
 		$info_div = $xml->getElementById('mat_event_details');
 		$images = $info_div->getElementsByTagName('img');
@@ -182,12 +182,11 @@ class MedClub{
 
 
 	private static function date($text){
-		global $db_time_format;
 		if ($text === null) return null;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

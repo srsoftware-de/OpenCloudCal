@@ -79,7 +79,6 @@ class ZehnTausendVolt{
 	}
 
 	private static function read_start($content){
-		global $db_time_format;
 		$spans = $content->getElementsByTagName('span');
 		$day = '';
 		foreach ($spans as $span){
@@ -111,7 +110,7 @@ class ZehnTausendVolt{
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
 
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 
 	private static function read_tags($content){

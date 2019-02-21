@@ -15,6 +15,23 @@ function loc($text,$replacements=null){
 	return $message;
 }
 
+function debug($object,$die = false,$exclude = false){
+	if ($object === null) {
+		echo 'null';
+	} else if ($object === false) {
+		echo 'false';
+	} else {
+		if ($exclude){
+			if (!is_array($exclude)) $exclude = [$exclude];
+			if (is_array($object)){
+				foreach ($exclude as $key) unset($object[$key]);
+			} else foreach ($exclude as $key) unset($object->{$key});
+		}
+		echo '<pre>'.print_r($object,true).'</pre>';
+	}
+	if ($die) die();
+}
+
 function notify($message){
 	global $notifications;
 	$notifications.='<p>'.loc($message).'</p>'.PHP_EOL;
@@ -53,12 +70,11 @@ function getTimezoneOffset($timestamp){
 }
 
 function clientTime($timestamp){
-	global $db_time_format;
 	if ($timestamp==null){
 		return null;
 	}
 	$secs=strtotime($timestamp);
-	return date($db_time_format,$secs+getTimezoneOffset($secs));
+	return date(TIME_FMT,$secs+getTimezoneOffset($secs));
 }
 /***** end of: time calculations ******/
 
@@ -117,7 +133,7 @@ function isSpam($data){
 }
 
 function parseAppointmentData($data){
-	global $db_time_format,$countries;
+	global $countries;
     if (isSpam($data)){
     	return false;
     }
@@ -141,8 +157,8 @@ function parseAppointmentData($data){
 	if ($end<$start){
 		$end=$start;
 	}
-	$start=date($db_time_format,$start);
-	$end=date($db_time_format,$end);
+	$start=date(TIME_FMT,$start);
+	$end=date(TIME_FMT,$end);
 	$app=Event::create($data['title'],$data['description'],$start,$end,$data['location'],$data['coordinates'],$data['tags'],null,null,false);
 	if (isset($data['id'])){
 		$app->id=$data['id'];
@@ -151,7 +167,6 @@ function parseAppointmentData($data){
 }
 
 function parseSessionData($data){
-	global $db_time_format;
 	if (empty($data['aid'])){
 		warn('no appointment given');
 		return false;
@@ -175,14 +190,13 @@ function parseSessionData($data){
 	if ($end<$start){
 		$end=$start;
 	}
-	$start=date($db_time_format,$start);
-	$end=date($db_time_format,$end);
+	$start=date(TIME_FMT,$start);
+	$end=date(TIME_FMT,$end);
 	$session=session::create($data['aid'],$data['description'],$start,$end,false); // create, but do not save, yet
 	return $session;
 }
 
 function parseLinkData($data){
-	global $db_time_format;
 	if (isSpam($data)){
 		return false;
 	}
@@ -207,7 +221,6 @@ function parseLinkData($data){
 }
 
 function parseAttachmentData($data){
-	global $db_time_format;
 	if (isSpam($data)){
 		return false;
 	}
@@ -426,20 +439,12 @@ function extract_time($text){
 }
 
 function parseDate($text){
-	global $db_time_format;
 	$date=extract_date($text);
 	$time=extract_time($text);
 	$datestring=date_parse($date.' '.$time);
 	$secs=parseDateTime($datestring);
-	return date($db_time_format,$secs);
+	return date(TIME_FMT,$secs);
 }
-
-function debug($object = null,$die = false){
-	if ($object === null) $object = 'null';
-	print '<pre>'.print_r($object,true).'</pre>';
-	if ($die) die();
-}
-
 
 function getMonth($m){
 	switch (strtolower(trim($m))){

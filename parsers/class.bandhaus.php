@@ -71,8 +71,6 @@ class Bandhaus{
 	}
 
 	private static function read_start($main){
-		global $db_time_format;
-
 		$text = $main->textContent;
 		preg_match('/Beginn: ?\d\d:\d\d/', $text, $matches);
 		if (empty($matches)) preg_match('/Einlass: ?\d\d:\d\d/', $text, $matches);
@@ -115,7 +113,7 @@ class Bandhaus{
 			$secs=parseDateTime($datestring);
 		}
 
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 
 	private static function read_description($main){

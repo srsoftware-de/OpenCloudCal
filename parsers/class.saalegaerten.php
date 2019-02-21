@@ -16,10 +16,10 @@ class SaaleGaerten{
 			'Oktober'=>'10',
 			'November'=>'11',
 			'Dezember'=>'12');
-	
+
 	public static function read_events(){
 		$event_pages = array();
-		
+
 		foreach (self::$event_list_pages as $event_list_page){
 			$xml = load_xml(self::$base_url . $event_list_page);
 			$programm = $xml->getElementById('programm');
@@ -33,7 +33,7 @@ class SaaleGaerten{
 				foreach ($links as $link){
 					$href = trim($link->getAttribute('href'));
 					$event_pages[]=self::$base_url.$href;
-					break;			
+					break;
 				}
 			}
 		}
@@ -47,7 +47,7 @@ class SaaleGaerten{
 		$xml = load_xml($source_url);
 
 		$title = self::read_title($xml);
-		
+
 		$description = self::read_description($xml);
 		$start = self::date(self::read_start($xml));
 		$location = 'Saalgärten 1b, 07407 Rudolstadt';
@@ -170,7 +170,7 @@ class SaaleGaerten{
 	private static function read_links($xml,$source_url){
 		$url = url::create($source_url,loc('event page'));
 		$links = array($url,);
-		
+
 		$detail = $xml->getElementById('programm-detail');
 		if ($detail === null) $detail = $xml->getElementById('filmdetail');
 		$divs = $detail->getElementsByTagName('div');
@@ -190,7 +190,7 @@ class SaaleGaerten{
 
 	private static function read_images($xml){
 		$images = array();
-		
+
 		$detail = $xml->getElementById('programm-detail');
 		if ($detail === null) $detail = $xml->getElementById('filmdetail');
 		$imgs = $detail->getElementsByTagName('img');
@@ -209,11 +209,10 @@ class SaaleGaerten{
 
 
 	private static function date($text){
-		global $db_time_format;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

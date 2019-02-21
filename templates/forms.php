@@ -1,10 +1,6 @@
 <?php
   function datepicker($name,$time=null){
-  	global $db_time_format;
-
-    if ($time==null){
-      $time=date($db_time_format);
-    }
+  	if ($time==null) $time=date(TIME_FMT);
     print '<div class="datepicker">'.PHP_EOL;
 
     $year=date('Y');
@@ -53,7 +49,7 @@
     	<option value="<?php echo (21*86400); ?>">3</option>
     	<option value="<?php echo (28*86400); ?>">4</option>
     	<option value="<?php echo (35*86400); ?>">5</option>
-    	</select>&nbsp;<?php echo loc('weeks'); 
+    	</select>&nbsp;<?php echo loc('weeks');
     }
     print '</div>'.PHP_EOL;
 
@@ -64,7 +60,7 @@
     print '<div class="timepicker">'.PHP_EOL;
 
     if ($time==null){
-      $selected_hour=0;     
+      $selected_hour=0;
     } else {
       $selected_hour = ltrim(substr($time, 11,2),'0');
     }

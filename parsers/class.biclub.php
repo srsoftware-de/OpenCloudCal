@@ -16,14 +16,14 @@ class BiClub{
 			'Oktober'=>'10',
 			'November'=>'11',
 			'Dezember'=>'12');
-	
+
 	public static function read_events(){
 		$event_pages = array();
-		
+
 		$xml = load_xml(self::$base_url . self::$event_list_page);
-		
+
 		$tables = $xml->getElementsByTagName('table');
-		foreach ($tables as $table){ 
+		foreach ($tables as $table){
 			$anchors = $table->getElementsByTagName('a');
 			foreach ($anchors as $anchor){
 				if (!$anchor->hasAttribute('href')) continue;
@@ -32,7 +32,7 @@ class BiClub{
 				$event_pages[]=self::$base_url.$href;
 			}
 		}
-		
+
 		$lists = $xml->getElementsByTagName('li');
 		$next_page = null;
 		foreach ($lists as $li){
@@ -45,11 +45,11 @@ class BiClub{
 				break 2;
 			}
 		}
-		
+
 		$xml = load_xml($next_page);
-		
+
 		$tables = $xml->getElementsByTagName('table');
-		foreach ($tables as $table){ 
+		foreach ($tables as $table){
 			$anchors = $table->getElementsByTagName('a');
 			foreach ($anchors as $anchor){
 				if (!$anchor->hasAttribute('href')) continue;
@@ -58,7 +58,7 @@ class BiClub{
 				$event_pages[]=self::$base_url.$href;
 			}
 		}
-		
+
 		$event_pages=array_unique($event_pages);
 		foreach ($event_pages as $page){
 			self::read_event($page);
@@ -69,7 +69,7 @@ class BiClub{
 		$xml = load_xml($source_url);
 
 		$title = self::read_title($xml);
-		
+
 		$description = self::read_description($xml);
 		$start = self::date(self::read_start($xml));
 		$location = 'BiClub, Max-Planck-Ring 4, 98693 Ilmenau';
@@ -77,7 +77,7 @@ class BiClub{
 		$coords = '50.682690, 10.931450';
 
 		$tags = self::read_tags($xml);
-		
+
 		$links = self::read_links($xml,$source_url);
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
@@ -177,7 +177,7 @@ class BiClub{
 	private static function read_links($xml,$source_url){
 		$url = url::create($source_url,loc('event page'));
 		$links = array($url,);
-		
+
 
 		$content = $xml->getElementById('content');
 		$divs = $content->getElementsByTagName('div');
@@ -192,13 +192,13 @@ class BiClub{
 				$links[] = url::create($href,$anchor->nodeValue);
 			}
 		}
-	
+
 		return $links;
 	}
 
 	private static function read_images($xml){
 		$images = array();
-		
+
 		$content = $xml->getElementById('content');
 		$divs = $content->getElementsByTagName('div');
 		foreach ($divs as $div){
@@ -217,13 +217,12 @@ class BiClub{
 		}
 		return $images;
 	}
-	
+
 	private static function date($text){
-		global $db_time_format;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

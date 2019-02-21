@@ -30,7 +30,7 @@ switch ($location){
 		KasseTurm::read_events();
 		break;
 	case 9:
-		// not parsable // AtEvents::read_events();
+		FestungKoenigstein::read_events();
 		break;
 	case 10:
 		Wotufa::read_events();

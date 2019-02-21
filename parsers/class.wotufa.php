@@ -12,7 +12,7 @@ class Wotufa{
 			if (strpos($class, 'kalList')!==false){
 				$links = $table->getElementsByTagName('a');
 				foreach ($links as $link){
-					$href = trim($link->getAttribute('href'));					
+					$href = trim($link->getAttribute('href'));
 					if (strpos($href,'detail')!==false){
 						$event_pages[]=$href;
 					}
@@ -37,8 +37,8 @@ class Wotufa{
 		$coords = '50.732068, 11.745464';
 
 		$tags = array('Wotufa','Neustadt.Orla');
-		$links = self::read_links($xml,$source_url);		
-		$attachments = self::read_images($xml);		
+		$links = self::read_links($xml,$source_url);
+		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event === null){
@@ -112,7 +112,7 @@ class Wotufa{
 		$imgs = $xml->getElementsByTagName('img');
 		$images = array();
 		foreach ($imgs as $img){
-			$url = $img->getAttribute('src');			
+			$url = $img->getAttribute('src');
 			if (strpos($url,'grafik')!==false) continue;
 			$mime = guess_mime_type($url);
 			$images[]=url::create($url,$mime);
@@ -123,11 +123,10 @@ class Wotufa{
 
 
 	private static function date($text){
-		global $db_time_format;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

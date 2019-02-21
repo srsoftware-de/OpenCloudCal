@@ -12,26 +12,26 @@ class Werk2{
 		foreach ($anchors as $anchor){
 			if (!$anchor->hasAttribute('href')) continue;
 			$event_urls[] = self::$base_url.$anchor->getAttribute('href');
-		}		
+		}
 		foreach ($event_urls as $url) self::read_event($url);
 	}
 
 	public static function read_event($source_url){
 		$xml = load_xml($source_url);
-		
+
 		// next block: find content div
 		$content = $xml->getElementById('main');
 		$title = self::read_title($content);
 		$description = self::read_description($content);
 		$start = self::read_start($source_url,$content);
-		
+
 		$location = 'WERK 2 - Kulturfabrik Leipzig e.V., Kochstr. 132, 04277 Leipzig';
 		$coords = '51.310107, 12.371393';
 		$tags = self::read_tags($content);
 		$links = self::read_links($content,$source_url);
-		
+
 		$attachments = self::read_images($content);
-		
+
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event === null){
@@ -61,7 +61,7 @@ class Werk2{
 			$parent = $heading->parentNode;
 			break;
 		}
-		
+
 		if ($parent !== null){
 			$headings = $parent->getElementsByTagName('h2');
 			foreach ($headings as $heading) {
@@ -70,8 +70,8 @@ class Werk2{
 				$title .= ' | '.$text;
 			}
 		}
-		
-		return trim($title);		
+
+		return trim($title);
 	}
 
 	private static function read_description(DOMNode $content){
@@ -79,24 +79,22 @@ class Werk2{
 		$paragraphs = $content->getElementsByTagName('p');
 		foreach ($paragraphs as $paragraph){
 			if (!$paragraph->hasAttribute('class')) continue;
-			
+
 			$class = $paragraph->getAttribute('class');
 			if (strpos($class,'beschreibung')===false) continue;
-			$description .= '<p>'.$paragraph->ownerDocument->saveHTML($paragraph)."</p>\n";				
+			$description .= '<p>'.$paragraph->ownerDocument->saveHTML($paragraph)."</p>\n";
 		}
 		return $description;
 	}
 
 	private static function read_start($url,$content){
-		global $db_time_format;
-		
 		$day = substr(end(explode('/',$url)),0,10);
 		$time = null;
 
 		$paragraphs = $content->getElementsByTagName('p');
 		foreach ($paragraphs as $paragraph){
 			if (!$paragraph->hasAttribute('class')) continue;
-				
+
 			$class = $paragraph->getAttribute('class');
 			if (strpos($class,'infos')===false) continue;
 			$description = $paragraph->textContent;
@@ -111,11 +109,11 @@ class Werk2{
 			}
 			if ($time !== null) break;
 		}
-		
+
 		$datestring=date_parse($day.' '.$time);
 		$secs=parseDateTime($datestring);
-		
-		return date($db_time_format,$secs);
+
+		return date(TIME_FMT,$secs);
 	}
 
 	private static function read_tags($content){
@@ -126,8 +124,8 @@ class Werk2{
 	private static function read_links($content,$source_url){
 		$url = url::create($source_url,loc('event page'));
 		$links = [$url];
-		
-		
+
+
 		$description = '';
 		$paragraphs = $content->getElementsByTagName('p');
 		foreach ($paragraphs as $paragraph){
@@ -142,7 +140,7 @@ class Werk2{
 				$links[] = url::create($address,trim($anchor->nodeValue));
 			}
 		}
-		
+
 		return $links;
 	}
 
@@ -155,18 +153,17 @@ class Werk2{
 			$mime = guess_mime_type($address);
 			$attachments[] = url::create(self::$base_url.$address,$mime);
 		}
-	
+
 		return $attachments;
 	}
 
 
 
 	private static function date($text){
-		global $db_time_format;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }

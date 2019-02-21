@@ -5,7 +5,7 @@ class TheLondoner{
 
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
-		$program = $xml->getElementById('programm');		
+		$program = $xml->getElementById('programm');
 		$headlines = $program->getElementsByTagName('h2');
 		foreach ($headlines as $headline){
 			$anchors = $headline->getElementsByTagName('a');
@@ -15,15 +15,15 @@ class TheLondoner{
 			}
 		}
 	}
-	
+
 	private static function read_title($xml){
-		$headlines = $xml->getElementsByTagName('h1');		
+		$headlines = $xml->getElementsByTagName('h1');
 		foreach ($headlines as $headline){
 			return $headline->nodeValue;
 		}
 		return null;
 	}
-	
+
 	private static function read_description($xml){
 		$sections = $xml->getElementsByTagName('section');
 		foreach ($sections as $section){
@@ -38,20 +38,20 @@ class TheLondoner{
 		}
 		return null;
 	}
-	
+
 	public static function read_event($source_url){
-		$xml = load_xml($source_url);		
+		$xml = load_xml($source_url);
 		$title = self::read_title($xml);
-		
+
 		$description = self::read_description($xml);
-		
+
 		$start = self::date(self::read_start($xml));
 		$location = 'The Londoner - English Pub, Parkstraße 15, 99867 Gotha';
-		
+
 		$coords = '50.942422,10.70167';
-		
+
 		$tags = self::read_tags($xml);
-		
+
 		$links = self::read_links($xml);
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
@@ -77,14 +77,14 @@ class TheLondoner{
 
 	private static function read_start($xml){
 		$rows= $xml->getElementsByTagName('tr');
-		
+
 		foreach ($rows as $row){
 			$row = $row->nodeValue;
 			if (strpos($row, 'Wann')===false) continue;
 			$row = trim(substr($row,8,18));
 			return $row."<br/>\n";
 		}
-		return null;		
+		return null;
 	}
 
 	private static function read_tags($container){
@@ -106,13 +106,13 @@ class TheLondoner{
 				$text = $anchor->nodeValue;
 				if (strpos($address, '://')===false){
 					$address = self::$base_url.'/'.$address;
-				}	
+				}
 				$links[] = url::create($address,$text);
 			}
 		}
 		return $links;
 	}
-	
+
 	private static function read_images($xml){
 		$articles = $xml->getElementsByTagName('article');
 		$links = array();
@@ -122,10 +122,10 @@ class TheLondoner{
 			foreach ($images as $image){
 				if (!$image->hasAttribute('src')) continue;
 				$address = $image->getAttribute('src');
-				
+
 				if (strpos($address, '://')===false){
 					$address = self::$base_url.'/'.$address;
-				}	
+				}
 				$links[] = url::create($address,guess_mime_type($address));
 			}
 		}
@@ -133,11 +133,10 @@ class TheLondoner{
 	}
 
 	private static function date($text){
-		global $db_time_format;
 		$date=extract_date($text);
 		$time=extract_time($text);
 		$datestring=date_parse($date.' '.$time);
 		$secs=parseDateTime($datestring);
-		return date($db_time_format,$secs);
+		return date(TIME_FMT,$secs);
 	}
 }
