@@ -94,6 +94,10 @@ switch ($location){
 		Werk2::read_events();
 		break;
 
+	case 30:
+		importIcal('http://dornburg-camburg.de/?plugin=all-in-one-event-calendar&controller=ai1ec_exporter_controller&action=export_events&no_html=true',['Camburg']);
+		break;
+
 	default:
 		http_response_code(404);
 		die('no valid location number given!');
