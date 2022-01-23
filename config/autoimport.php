@@ -42,7 +42,8 @@ switch ($location){
 		Rosenkeller::read_events();
 		break;
 	case 13:
-		WagnerVerein::read_events();
+		//WagnerVerein::read_events();
+		importIcal('https://cafewagner.de/de/programm/all.ics',['CafeWagner','Jena']);
 		break;
 	case 14:
 		CosmicDawn::read_events();
