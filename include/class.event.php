@@ -118,6 +118,26 @@ class Event {
 		}
 		return false;
 	}
+	
+	public static function parseDate($line,$timezone){
+	    $parts = explode(':',$line);
+	    $tag = $parts[0];
+	    $val = $parts[1];
+	    $mods = explode(';', $tag);
+	    array_shift($mods);
+	    foreach ($mods as $mod){
+	        $mod_parts = explode('=', $mod);
+	        $mod_key = $mod_parts[0];
+	        $mod_val = $mod_parts[1];
+	        switch ($mod_key){
+	            case 'TZID': $timezone = $mod_val; break;
+	            case 'VALUE':
+	                if ($mod_val == 'DATE') $val .= 'T000000';
+	                break;
+	        }
+	    }
+	    return Event::convertRFC2445DateTimeToUTCtimestamp($val,$timezone);
+	}
 
 	/** read an event from an ical file **/
 	public static function readFromIcal(&$stack,$tags=null,$timezone=null,$source_url=null){
@@ -130,30 +150,18 @@ class Event {
 		$description=null;
 		$foreignId=null;
 		$attachments=null;
-		if ($tags==null){
-			$tags=array();
-		}
-		if (!is_array($tags)){
-			$tags=array($tags);
-		}
+		if ($tags==null) $tags=[];
+		if (!is_array($tags)) $tags=[$tags];
 		while (!empty($stack)){
 			$line=array_pop($stack);
-			if (startsWith($line,' ')){
-				continue;
-			}
+			if (startsWith($line,' '))continue;
 			$line=trim($line);
 			if (startsWith($line,'UID:')){
 				$foreignId=substr($line,4).readMultilineFromIcal($stack);
 			} elseif (startsWith($line,'DTSTART')){
-				$line = substr($line,7);
-				$pos = strpos($line, ';VALUE=DATE');
-				if ($pos !== false) $line = str_replace(';VALUE=DATE', '', $line).'T000000';
-				$start = Event::convertRFC2445DateTimeToUTCtimestamp($line,$timezone); //*/
+			    $start = self::parseDate($line,$timezone);
 			} elseif (startsWith($line,'DTEND')){
-				$line = substr($line,5);
-				$pos = strpos($line, ';VALUE=DATE');
-				if ($pos !== false) $line = str_replace(';VALUE=DATE', '', $line).'T235959';
-				$end = Event::convertRFC2445DateTimeToUTCtimestamp($line,$timezone); //*/
+			    $end = self::parseDate($line,$timezone);
 			} elseif (startsWith($line,'CREATED:')){
 			} elseif (startsWith($line,'SEQUENCE:')){
 			} elseif (startsWith($line,'STATUS:')){
@@ -167,9 +175,7 @@ class Event {
 			} elseif (startsWith($line,'GEO:')){
 				$geo=str_replace('\;', ';',substr($line,4));
 			} elseif (startsWith($line,'URL')){
-				if ($links==null){
-					$links=array();
-				}
+				if ($links==null) $links=[];
 				$links[]=Event::readUrl(substr($line,3) . readMultilineFromIcal($stack));
 			} elseif (startsWith($line,'LOCATION:')){
 				$location=str_replace(array('\,','\n'), array(',',"\n"),substr($line,9) . readMultilineFromIcal($stack));
@@ -188,7 +194,7 @@ class Event {
 				$description=$line=str_replace(array('\,','\n'), array(',',"\n"), substr($line,12) . readMultilineFromIcal($stack));
 			} elseif (startsWith($line,'CLASS:')){
 				// no use for class at the moment
-			} elseif (startsWith($line,'DTSTAMP:')){
+			} elseif (startsWith($line,'DTSTAMP')){
 				// no use for ststamp at the moment
 			} elseif (startsWith($line,'RECURRENCE-ID')){
 				// no use for ststamp at the moment
@@ -242,7 +248,7 @@ class Event {
 				}
 				$app = Event::get_imported($id);
 				if ($app != null){
-					$app->set_title($summary);
+				    $app->set_title($summary);
 					$app->set_description($description);
 					$app->set_start($start);
 					$app->set_end($end);
@@ -396,11 +402,11 @@ class Event {
 		}
 		$this->auto_add_tags();
 		if (isset($this->id)){
-			$sql="UPDATE appointments SET title=:title,description=:description, start=:start, end=:end, location=:location, coords=:coords WHERE aid=:id";
+		    $sql="UPDATE appointments SET title=:title,description=:description, start=:start, end=:end, location=:location, coords=:coords WHERE aid=:id";
 			$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 			$stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':location' => $this->location,':coords' => $coords,':id'=>$this->id));
 		} else {
-			$sql="INSERT INTO appointments (title,description, start, end, location, coords) VALUES (:title,:description, :start, :end, :location, :coords)";
+		    $sql="INSERT INTO appointments (title,description, start, end, location, coords) VALUES (:title,:description, :start, :end, :location, :coords)";
 			$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 			$stm->execute(array(':title'=>$this->title,':description' => $this->description, ':start' => $this->start, ':end' => $this->end, ':location' => $this->location,':coords' => $coords));
 			$this->id=$db->lastInsertId();
@@ -408,7 +414,7 @@ class Event {
 		$this->save_tags();
 		$this->save_links();
 		$this->save_attachments();
-
+		
 		if ($this->import_src_url_hash != null){
 			$sql = 'INSERT INTO imported_appointments (aid,md5hash) VALUES (:aid,:hash)';
 			$stm=$db->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
@@ -630,6 +636,7 @@ class Event {
 				'Bad Taste'=>'BadTaste',
 				'Balkan'=>'Balkan',
 				'Black Channel'=>'Gothic',
+		        'Black Metal'=>'BlackMetal',
 				'Blues'=>'Blues',
 				'Brettspiele'=>'Brettspiele',
 				'Charts'=>'Charts',
