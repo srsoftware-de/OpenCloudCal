@@ -1,213 +1,171 @@
 <?php
+require_once 'dom_methods.php';
+
 class Psychochor{
 	private static $base_url = 'http://psycho-chor.de/';
-	private static $event_list_page = 'de/konzerte/aktuell.html';
+	private static $event_list_page = 'events';
 	private static $cities = array('Erfurt','Jena', 'Weimar');
 
 	public static function read_events(){
 		$xml = load_xml(self::$base_url . self::$event_list_page);
-		$event_div = $xml->getElementById('c1074');
-		$divs = $event_div->getElementsByTagName('div');
-
-		foreach ($divs as $event){
-			$class = $event->getAttribute('class');
-			if ($class!='csc-default') continue;
-			//if (strpos($class, 'wrapper')!==false) continue;
-			$tables = $event->getElementsByTagName('table');
-			if ($tables->length <1) continue;
-			self::read_event(self::$base_url . self::$event_list_page,$event);
+		
+	    $links = findElements($xml, ANCHOR, 'itemprop', 'url');
+	    foreach ($links as $link){
+	        if ($link->hasAttribute(LINK)) {
+	            $url = $link->getAttribute(LINK);
+	            if (strpos($url, '/termine/') !== false) self::read_event($url);
+	        }
+	        
 		}
 	}
 
-	public static function read_event($source_url,$xml){
-		$title = self::read_title($xml);
-		$table_rows = $xml->getElementsByTagName('tr');
-		$date = null;
-		$time = null;
-		$description = '';
-		$location = null;
-		foreach ($table_rows as $row){
-			$cols = $row->getElementsByTagName('td');
-			$first = null;
-			$second = null;
-			foreach ($cols as $col){
-				if ($first === null){
-					$first = trim(str_replace("\xC2\XA0", ' ', $col->nodeValue));
-				} elseif ($second === null){
-					$second = trim(str_replace("\xC2\XA0", ' ', $col->nodeValue));
-					break;
-				}
-			}
-			if ($first=='Wochentag'){
-
-			} elseif ($first == 'Datum'){
-				$date = $second;
-			} elseif ($first == 'Beginn'){
-				$time = trim(str_replace('Uhr','',$second));
-			} elseif ($first == 'Einlass'){
-				$description.=$first.': '.$second."\n";
-			} elseif ($first == 'Ort'){
-				if ($location === null){
-					$location=$second;
-				} else {
-					$location .= ", ".$second;
-				}
-			} elseif ($first == 'Adresse'){
-				if ($location === null){
-					$location=$second;
-				} else {
-					$location .= ", ".$second;
-				}
-			} elseif ($first == ''){
-				if ($location === null){
-					$location=$second;
-				} else {
-					$location .= ", ".$second;
-				}
-			} elseif ($first == 'Eintritt'){
-				$description.=$first.': '.$second."\n";
-			} elseif (preg_match('/^[0-9]{5} /', $first)) {
-				if ($location === null){
-					$location=$first;
-				} else {
-					$location .= ", ".$first;
-				}
-			} else {
-				error_log('Psychochor-Parser found unknown field "'.$first.'": "'.$second.'"');
-			}
-		}
-
-		if ($date === null || $time === null) return;
-		$start = self::date($date.' '.$time);
-		$source_url=$source_url.'?date='.$date.'&time='.$time;
-		$links = array(url::create($source_url,'Homepage'));
-		$tags = array('Chor','Psychochor','Konzert');
-		foreach (self::$cities as $city){
-			if (strpos($location, $city)!==false) $tags[]=$city;
-		}
+	public static function read_event($source_url){
+	    //debug($source_url);
+	    $xml = load_xml($source_url);
+	    $title = self::read_title($xml);
+	    $description = self::read_description($xml);
+	    $start = self::read_start($xml);
+	    $location = self::read_location($xml);
+		$coords = self::read_coords($xml);
+		$tags = self::read_tags($xml);
+		$links = self::read_links($xml, $source_url);
+		$attachments = self::read_images($xml);
+		
+		//print 'Titel:' . $title . NL . 'Description: '.$description . NL . 'start: '.$start . NL . 'location: '.$location . NL . 'coords: '.print_r($coords,true) . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
 		$event = Event::get_imported($source_url);
 		if ($event === null){
-			//print 'creating new event for '.$source_url.NL;
-			$event = Event::create($title, $description, $start, null, $location, null,$tags,$links,null,false);
-			$event->mark_imported($source_url);
+		    //print 'creating new event for '.$source_url.NL;
+		    $event = Event::create($title, $description, $start, null, $location, $coords,$tags,$links,$attachments,false);
+		    $event->mark_imported($source_url);
 		} else {
-			//print 'updating event for '.$source_url.NL;
-			$event->set_title($title);
-			$event->set_description($description);
-			$event->set_start($start);
-			$event->set_location($location);
-			foreach ($tags as $tag) $event->add_tag($tag);
-			foreach ($links as $link) $event->add_link($link);
-			$event->save();
+		    //print 'updating event for '.$source_url.NL;
+		    $event->set_title($title);
+		    $event->set_description($description);
+		    $event->set_start($start);
+		    $event->set_location($location);
+		    $event->set_coords($coords);
+		    foreach ($tags as $tag) $event->add_tag($tag);
+		    foreach ($links as $link) $event->add_link($link);
+		    foreach ($attachments as $attachment) $event->add_attachment($attachment);
+		    $event->save();
 		}
 	}
 
 	private static function read_title($xml){
-		$headings = $xml->getElementsByTagName('h1');
-		foreach ($headings as $heading){
-			$parts = explode(':',$heading->nodeValue,2);
-			return trim($parts[1]);
-		}
+	    
+	    $prefix = '';
+	    $spans = findElements($xml, SPAN, CLS, 'canceled');
+	    if ($spans) $prefix = 'Abgesagt: ';
+	    
+	    $spans = findElements($xml, SPAN, CLS, 'evcal_event_title');
+	    foreach ($spans as $span){
+	        return $prefix . trim($span->nodeValue);
+	    }
 		return null;
 	}
 
 	private static function read_description($xml){
-		$articles = $xml->getElementsByTagName('article');
-		$description = '';
-		foreach ($articles as $article){
-			$paragraphs = $article->getElementsByTagName('p');
-			$first=true;
-			foreach ($paragraphs as $paragraph){
-				if ($first){
-					$first = false;
-					continue;
-				}
-				$text = trim($paragraph->textContent);
-				if (!empty($text)) {
-					if ($text == 'Sorry, the comment form is closed at this time.') continue;
-					$description .= str_replace('€Kategorie', "€\nKategorie", $text) . NL;
-				}
-			}
-		}
-		return $description;
-	}
-
-	private static function read_start($xml){
-		$articles = $xml->getElementsByTagName('article');
-		$description = '';
-		foreach ($articles as $article){
-			$paragraphs = $article->getElementsByTagName('p');
-			foreach ($paragraphs as $paragraph){
-				$text = trim($paragraph->textContent);
-				if (preg_match('/\d\d.\d\d.\d\d:\d\d/',$text)){
-					return $text;
-				}
-				if (preg_match('/\d\d.\d\d.\d\d\d\d/',$text)){
-					return $text;
-				}
-			}
-		}
+	    $divs = findElements($xml, DIV, 'itemprop', 'description');
+	    if ($divs) foreach ($divs as $div){
+	        $text = '';
+	        $paragraphs = findElements($div, PARAGRAPH);
+	        foreach ($paragraphs as $p){
+	            $val = trim($p->nodeValue);
+	            if ($val) $text .= $val . NL;
+	        }
+	        
+	        return $text;
+	    }
 		return null;
+	}
+	
+	private static function read_start($xml){
+	    $year = null;
+	    $ems = findElements($xml, EM, CLS, 'year');
+	    foreach ($ems as $em) $year = $em->nodeValue;
+	    
+	    $month = null;
+	    $ems = findElements($xml, EM, CLS, 'month');
+	    foreach ($ems as $em) $month = MONTHS_DE_SHORT[strtolower($em->nodeValue)];
+	    
+	    $day = null;
+	    $ems = findElements($xml, EM, CLS, 'date');
+	    foreach ($ems as $em) $day = $em->nodeValue;
+	    
+	    $time = null;
+	    $ems = findElements($xml, EM, CLS, 'time');
+	    foreach ($ems as $em) $time = $em->nodeValue;
+	    if ($time === 'Ganztägig') $time = '9:00';
+	    
+	    return $year . '-' . $month . '-' . $day . ' ' . $time;
+	}
+	
+	private static function read_location($xml){
+        $ems = findElements($xml, EM, CLS, 'evcal_location');
+        if ($ems) foreach ($ems as $em) return trim($em->nodeValue);
+	    return null;
+	}
+	
+	private static function read_coords($xml){
+	    $lat = null;
+	    $lon = null;
+	    $iframes = findElements($xml, 'iframe');
+	    if ($iframes) foreach ($iframes as $iframe) {
+	        if ($iframe->hasAttribute('data-src-cmplz')){
+	            $map_url = $iframe->getAttribute('data-src-cmplz');
+	            $parts = explode('!', $map_url);
+	            foreach ($parts as $part){
+	                if (startsWith($part, '2d')) $lon = substr($part, 2);
+	                if (startsWith($part, '3d')) $lat = substr($part, 2);
+	            }	            
+	            $coords = ['lat'=>$lat,'lon'=>$lon];
+	            //debug($coords,1);
+	            return $coords;
+	        }
+	    }
+	    
+	    return null;
 	}
 
 	private static function read_tags($xml){
-		$articles = $xml->getElementsByTagName('article');
-		$description = '';
-		foreach ($articles as $article){
-			$paragraphs = $article->getElementsByTagName('p');
-			foreach ($paragraphs as $paragraph){
-				$text = trim($paragraph->textContent);
-				$pos = strpos($text, 'Kategorie:');
-				if ($pos!==false) {
-					$tags = explode(' ',substr($text, $pos+11));
-					$tags[] = 'CafeWagner';
-					$tags[] = 'Jena';
-					return $tags;
-				}
-			}
-		}
-		return array('CafeWagner','Jena');
+	    $tags = ['PsychoChor'];
+	    $ems = findElements($xml, EM, 'data-filter', 'event_type');
+	    foreach ($ems as $em) $tags[] = $em->nodeValue;
+	    
+	    $spans = findElements($xml, SPAN, CLS, 'evcal_event_subtitle');
+	    if ($spans) foreach ($spans as $span) $tags[] = $span->nodeValue;
+	    return $tags;
 	}
 
 	private static function read_links($xml,$source_url){
-		$articles = $xml->getElementsByTagName('article');
 		$url = url::create($source_url,loc('event page'));
-		$links = array($url,);
-		foreach ($articles as $article){
-			$anchors = $article->getElementsByTagName('a');
-			foreach ($anchors as $anchor){
-				if ($anchor->hasAttribute('href')){
-					$address = $anchor->getAttribute('href');
-					if (strpos(guess_mime_type($address),'image')===false){
-						$links[] = url::create($address,trim($anchor->nodeValue));
-					}
-				}
-			}
+		$links = [$url];
+		
+		$div = $xml->getElementById('evcal_list');
+		$anchors = findElements($div, ANCHOR);
+		foreach ($anchors as $a){
+		    if ($a->hasAttribute(LINK)){
+		        $url = $a->getAttribute(LINK);
+		        if ($url == $source_url) continue;
+		        $tx = $a->nodeValue;
+		        $links[] = url::create($url,$tx);
+		    }
 		}
+		
 		return $links;
 	}
 
 	private static function read_images($xml){
-		$articles = $xml->getElementsByTagName('article');
-		$attachments = array();
-		foreach ($articles as $article){
-			$images = $article->getElementsByTagName('img');
-			foreach ($images as $image){
-				$address = $image->getAttribute('src');
-				$mime = guess_mime_type($address);
-				$attachments[] = url::create($address,$mime);
-			}
-		}
-		return $attachments;
-	}
-
-
-
-	private static function date($text){
-		$date=extract_date($text);
-		$time=extract_time($text);
-		$datestring=date_parse($date.' '.$time);
-		$secs=parseDateTime($datestring);
-		return date(TIME_FMT,$secs);
+        $images = [];	    
+	    $div = $xml->getElementById('evcal_list');
+	    $imgs = findElements($div, IMAGE);
+	    if ($imgs) foreach ($imgs as $img){
+	        if ($img->hasAttribute(SOURCE)){
+	            $address = $img->getAttribute(SOURCE);
+	            $mime = guess_mime_type($address);
+	            $images[] = url::create($address,$mime);
+	        }
+	    }	    
+	    return $images;
 	}
 }
