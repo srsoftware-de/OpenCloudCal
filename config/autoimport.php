@@ -15,7 +15,7 @@ switch ($location){
 		Gewerkschaftshaus::read_events();
 		break;
 	case 4:
-		importIcal('http://www.f-haus.de/cms/?plugin=all-in-one-event-calendar&controller=ai1ec_exporter_controller&action=export_events&no_html=true',array('FHaus','Jena'));
+		importIcal('https://www.f-haus.de/cms/veranstaltungen/liste/?ical=1',array('FHaus','Jena'));
 		break;
 	case 5:
 		ZehnTausendVolt::read_events();

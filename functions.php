@@ -361,6 +361,7 @@ function importIcal($url,$tags=null){
 			readMultilineFromIcal($stack);
 		} else if (startsWith($line,'CALSCALE:')){
 		} else if (startsWith($line,'METHOD:')){
+		} else if (startsWith($line,'REFRESH-INTERVAL')){
 		} else if (startsWith($line,'X-')){
 		} else if ($line=='BEGIN:VTIMEZONE') {
 			$timezone=readTimezone($stack);
