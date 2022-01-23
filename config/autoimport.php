@@ -81,7 +81,7 @@ switch ($location){
 		importIcal('http://comma-club-gera.de/veranstaltungen-gera/?ical=1',array('Comma','Gera'));
 		break;
 	case 26:
-		// currently broken on their realm // MedClub::read_events();
+		EBurg::read_events();
 		break;
 	case 27:
 		Taeubchenthal::read_events();
