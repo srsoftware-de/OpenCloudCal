@@ -3,10 +3,12 @@
 // Tag types;
 const ANCHOR = 'a';
 const DIV = 'div';
+const EM = 'em';
 const H1 = 'h1';
 const H2 = 'h2';
 const H4 = 'h4';
 const IMAGE = 'img';
+const PARAGRAPH = 'p';
 const SOURCE = 'src';
 const SPAN = 'span';
 
@@ -33,6 +35,36 @@ const MONTHS_DE = [
     'Oktober'=>'10',
     'November'=>'11',
     'Dezember'=>'12'];
+
+const MONTHS_DE_SHORT = [
+    'jan'=>'01',
+    'feb'=>'02',
+    'mär'=>'03',
+    'apr'=>'04',
+    'mai'=>'05',
+    'jun'=>'06',
+    'jul'=>'07',
+    'aug'=>'08',
+    'sep'=>'09',
+    'okt'=>'10',
+    'nov'=>'11',
+    'dez'=>'12',
+];
+
+const MONTHS_EN_SHORT = [
+    'jan'=>'01',
+    'feb'=>'02',
+    'mar'=>'03',
+    'apr'=>'04',
+    'may'=>'05',
+    'jun'=>'06',
+    'jul'=>'07',
+    'aug'=>'08',
+    'sep'=>'09',
+    'oct'=>'10',
+    'nov'=>'11',
+    'dec'=>'12',
+];
 
 /**
  * erlaubt es ein DOM-Element nach Content zu durchsuchen.
