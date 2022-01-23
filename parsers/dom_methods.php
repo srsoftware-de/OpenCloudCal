@@ -3,7 +3,9 @@
 // Tag types;
 const ANCHOR = 'a';
 const DIV = 'div';
+const H1 = 'h1';
 const H2 = 'h2';
+const H4 = 'h4';
 const IMAGE = 'img';
 const SOURCE = 'src';
 const SPAN = 'span';
@@ -18,6 +20,19 @@ const VALUE = 2;
 const VALUES = 3;
 const CONTENT = 4;
 
+const MONTHS_DE = [
+    'Januar'=>'01',
+    'Februar'=>'02',
+    'März'=>'03',
+    'April'=>'04',
+    'Mai'=>'05',
+    'Juni'=>'06',
+    'Juli'=>'07',
+    'August'=>'08',
+    'September'=>'09',
+    'Oktober'=>'10',
+    'November'=>'11',
+    'Dezember'=>'12'];
 
 /**
  * erlaubt es ein DOM-Element nach Content zu durchsuchen.
