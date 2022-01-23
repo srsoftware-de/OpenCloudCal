@@ -24,7 +24,7 @@ class FestungKoenigstein{
 		$coords = '50.91844, 14.05813';
 		$tags = ['Festung','Königstein','Festung'];
 		$images = static::read_images($ev_div);
-		$links = findElements($ev_div, ANCHOR,LINK,null,VALUES);
+		$links = self::read_links($ev_div);
 		//debug(['source'=>$source_url,'title'=>$title,'start'=>$start,'end'=>$end,'description'=>$description,'location'=>$location,'coords'=>$coords,'tags'=>$tags,'images'=>$images]); return;
 		$event = Event::get_imported($source_url);
 		if ($event === null){
@@ -43,6 +43,21 @@ class FestungKoenigstein{
 			foreach ($images as $image) $event->add_attachment($image);
 			$event->save();
 		}
+	}
+	
+	private static function read_links($xml){
+	    $anchors = findElements($xml, ANCHOR);
+	    $links = [];
+	    if ($anchors) foreach ($anchors as $a){
+	        if ($a->hasAttribute(LINK)){
+	            $url = $a->getAttribute(LINK);
+	            if (!startsWith($url, 'http')) $url = self::$base_url . $url;
+	            $tx = trim($a->nodeValue);
+	            if ($tx == '') $tx = loc('event page');
+	            $links[] = url::create($url,$tx);
+	        }
+	    }
+	    return $links;
 	}
 
 	private static function read_images($ev_div){
