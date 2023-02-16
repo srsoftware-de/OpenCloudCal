@@ -1,37 +1,35 @@
 <?php
 class CosmicDawn{
-	private static $base_url = 'http://www.cosmic-dawn.de/';
-	private static $event_list_page = 'kulturbahnhof.html';
+	private static $base_url = 'https://www.kuba-jena.de/';
+	private static $event_list_page = 'veranstaltungen';
 
 	public static function read_events(){
+	    ini_set("user_agent","Mozilla/5.0 (Windows NT 6.1; rv:8.0) Gecko/20100101 Firefox/8.0");
 		$xml = load_xml(self::$base_url . self::$event_list_page);
 		$links = $xml->getElementsByTagName('a');
+		
 		$event_pages = array();
 		foreach ($links as $link){
 			$page = $link->getAttribute('href');
-			if (strpos($page, 'eventleser')===0) {
+			if (strpos($page, '/veranstaltung/')>0) {
 				$event_pages[$page]=true; // used as keys, so duplicates get removed
 			}
 		}
-		foreach ($event_pages as $page => $dummy){
-			self::read_event(self::$base_url . $page);
-		}
+		foreach ($event_pages as $page => $dummy) self::read_event($page);
 	}
 
 	public static function read_event($source_url){
-		$xml = load_xml($source_url);
-
-		$title = self::read_title($xml);
-		$description = self::read_description($xml);
-		$start=self::date(self::read_start($xml));
-		$location = self::read_location($xml);
-		$coords = null;
+	    $xml = load_xml($source_url);
+	    $title = self::read_title($xml);
+	    
+	    $description = self::read_description($xml);
+	    $start=self::date(self::read_start($xml));
+	    $location = self::read_location($xml);
+	    $coords = null;
 		if (stripos($location, 'Kulturbahnhof') !== false){
 			$coords = '50.93658, 11.59266';
 		}
-
-		$tags = self::read_tags($title,$description);
-
+		$tags = self::read_tags($xml);
 		$links = self::read_links($xml,$source_url);
 		$attachments = self::read_images($xml);
 		//print $title . NL . $description . NL . $start . NL . $location . NL . $coords . NL . 'Tags: '. print_r($tags,true) . NL . 'Links: '.print_r($links,true) . NL .'Attachments: '.print_r($attachments,true).NL;
@@ -54,9 +52,8 @@ class CosmicDawn{
 		}
 	}
 
-	private static function read_title($xml){
-		$title_container = $xml->getElementById('container');
-		$headlines = $title_container->getElementsByTagName('h1');
+	private static function read_title($xml){		
+		$headlines = $xml->getElementsByTagName('h1');
 		foreach ($headlines as $headline){
 			return trim($headline->nodeValue);
 		}
@@ -64,45 +61,38 @@ class CosmicDawn{
 	}
 
 	private static function read_description($xml){
-		$container = $xml->getElementById('container');
-		$paragraphs = $container->getElementsByTagName('p');
-		$description = '';
-		foreach ($paragraphs as $paragraph){
-			if ($paragraph->hasAttribute('class')){
-				$class = $paragraph->getAttribute('class');
-				if ($class == 'info') continue;
-				if ($class == 'back') continue;
-			}
-			$description .= trim($paragraph->nodeValue).NL;
+		$container = $xml->getElementById('main');
+		$divs = $container->getElementsByTagName('div');
+		foreach ($divs as $div){
+		    if (!$div->hasAttribute('class')) continue;
+		    $class = $div->getAttribute('class');
+		    if ($class != 'wpem-single-event-body-content') continue;
+		    return trim($div->nodeValue).NL;;
 		}
-		return $description;
+		return "";
 	}
 
 	private static function read_start($xml){
-		$container = $xml->getElementById('container');
-		$paragraphs = $container->getElementsByTagName('p');
+		$container = $xml->getElementById('main');
+		$spans = $container->getElementsByTagName('span');
 		$date = null;
 		$time = null;
-		foreach ($paragraphs as $paragraph){
-			$text = trim($paragraph->nodeValue);
-			if ($paragraph->hasAttribute('class') && $paragraph->getAttribute('class') == 'info') {
-				$date = substr($text,0,10);
+		$einlass = null;
+		foreach ($spans as $span){
+		    if ($date === null && $span->hasAttribute('class') && $span->getAttribute('class') == 'wpem-event-date-time-text') {
+		        $date = $span->getAttribute('content');
 				continue;
 			}
-			$pos = strpos($text, 'show:');
-			if ($time === null && $pos!==false){
-				$time = trim(substr($text,$pos+5));
-				continue;
-			}
-			$pos = strpos($text, 'Start:');
-			if ($time === null && $pos!==false){
+			$text = trim($span->nodeValue);
+			$pos = strpos($text, 'Beginn:');
+			if ($time === null && $pos !== false){
 				$keys = array('ca.','Uhr');
-				$time = trim(str_replace($keys, '', trim(substr($text,$pos+6))));
+				$time = trim(str_replace($keys, '', trim(substr($text,$pos+7))));
 				continue;
 			}
-			$pos = strpos($text, 'doors:');
-			if ($time === null && $pos!==false){
-				$time = trim(substr($text,$pos+6));
+			$pos = strpos($text, 'Einlass:');
+			if ($einlass === null && $pos !== false){
+			    $einlass = trim(substr($text,$pos+8));
 				continue;
 			}
 
@@ -112,63 +102,86 @@ class CosmicDawn{
 			$time = trim(substr($time,0,$pos));
 			$time = (12+(int)$time).':00';
 		}
+		if ($time === null) $time = $einlass;
 		if ($time === null) $time = '21:00';
 		if ($date === null) return null;
 		return $date.' '.$time;
 	}
 
 	private static function read_location($xml){
-		$container = $xml->getElementById('container');
-		$paragraphs = $container->getElementsByTagName('p');
-		$location = 'Kulturbahnhof, Spitzweidenweg 26, 07743 Jena';
-		foreach ($paragraphs as $paragraph){
-			$text = trim($paragraph->nodeValue);
-			$pos = stripos($text, 'Location:');
-			if ($pos !== false){
-				$location = trim(substr($text, $pos+9));
-			}
-		}
-		return $location;
+		return 'Kulturbahnhof, Spitzweidenweg 26, 07743 Jena';
 	}
 
-	private static function read_tags($title,$description){
-		return array('Kulturbahnhof', 'Jena');
+	private static function read_tags($xml){
+	    $tags = ['Kulturbahnhof', 'Jena'];
+	    $main = $xml->getElementById('main');
+	    $spans = $main->getElementsByTagName('span');
+	    foreach ($spans as $span){
+	        if (!$span->hasAttribute('class')) continue;
+	        $class = $span->getAttribute('class');
+	        if (strpos($class,'event-type') === false) continue;
+	        $tag = $span->nodeValue;
+	        $parts = explode('/',$tag);
+	        foreach ($parts as $part){
+	            $tags[] = trim($part);
+	        }
+	    }
+	    return $tags; 
 	}
 
 	private static function read_links($xml,$source_url){
-		$container = $xml->getElementById('container');
+		$container = $xml->getElementById('main');
 		$anchors = $container->getElementsByTagName('a');
 		$url = url::create($source_url,loc('event page'));
-		$links = array($url,);
+		$links = [$url];
 
 		foreach ($anchors as $anchor){
-			if ($anchor->hasAttribute('href')){
-				$text = trim($anchor->nodeValue);
-				if ($text == 'Zurück') continue;
-				$links[] = url::create($anchor->getAttribute('href'),$text);
-			}
+			if (!$anchor->hasAttribute('href')) continue;
+			$href = $anchor->getAttribute('href');
+			if (strpos($href,'google') !== false) continue;
+			$text = trim($anchor->nodeValue);
+			$links[] = url::create($href,$text);
 		}
 		return $links;
 	}
 
 	private static function read_images($xml){
-		$wrapper = $xml->getElementById('container');
-		$images = $wrapper->getElementsByTagName('img');
-		$attachments = array();
-		foreach ($images as $image){
-			$address = self::$base_url.$image->getAttribute('src');
-			$mime = guess_mime_type($address);
-			$attachments[] = url::create($address,$mime);
-
+		$wrapper = $xml->getElementById('main');
+		$divs = $wrapper->getElementsByTagName('div');
+		$attachments = [];
+		foreach ($divs as $div){
+		    if (! $div->hasAttribute('class')) continue;
+		    $class = $div->getAttribute('class');
+		    if ($class !== 'wpem-single-event-header-top') continue;
+    		$images = $div->getElementsByTagName('img');
+    		
+    		foreach ($images as $image){
+    			$address = $image->getAttribute('src');
+    			if (strpos($address, 'icon-check.png') !== false) continue;
+    			$mime = guess_mime_type($address);
+    			$attachments[] = url::create($address,$mime);
+    
+    		}
+		}
+		foreach ($divs as $div){
+		    if (! $div->hasAttribute('class')) continue;
+		    $class = $div->getAttribute('class');
+		    if ($class !== 'wpem-single-event-body') continue;
+		    $images = $div->getElementsByTagName('img');
+		    foreach ($images as $image){
+		        $address = $image->getAttribute('src');
+		        if (strpos($address, 'icon-check.png') !== false) continue;
+		        $mime = guess_mime_type($address);
+		        $attachments[] = url::create($address,$mime);
+		        
+		    }
 		}
 		return $attachments;
 	}
 
-	private static function date($text){
-		$date=extract_date($text);
-		$time=extract_time($text);
-		$datestring=date_parse($date.' '.$time);
-		$secs=parseDateTime($datestring);
-		return date(TIME_FMT,$secs);
+	private static function date($input){
+	    $datestring=date_parse($input);
+	    $secs=parseDateTime($datestring);
+	    return date(TIME_FMT,$secs);
 	}
 }
