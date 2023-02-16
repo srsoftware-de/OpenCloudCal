@@ -7,6 +7,10 @@ class url {
 
 	public static function create($address,$description=null){
 		$instance=new self();
+		$pos = strpos($address, '?fbclid=');
+		if ($pos !== false){
+		    $address = substr($address, 0,$pos);
+		}
 		if ($description==null){
 			$instance->description=$address;
 		} else {
