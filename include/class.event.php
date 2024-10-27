@@ -600,7 +600,7 @@ class Event {
 	private function save_tags(){
 		global $db;
 		foreach ($this->tags as $tag){
-			$sql="INSERT INTO appointment_tags (tid,aid) VALUES ($tag->id, $this->id)";
+			$sql="INSERT IGNORE INTO appointment_tags (tid,aid) VALUES ($tag->id, $this->id)";
 			$db->query($sql);
 		}
 	}
@@ -864,7 +864,7 @@ class Event {
 		global $db;
 		foreach ($this->links as $url){
 			if ($url->save()){
-				$stm=$db->prepare("INSERT INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+				$stm=$db->prepare("INSERT IGNORE INTO appointment_urls (uid,aid,description) VALUES (:uid, :aid, :description)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 				$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':description'=>$url->description));
 			}
 		}
@@ -935,7 +935,7 @@ class Event {
 		global $db;
 		foreach ($this->attachments as $url){
 			$url->save();
-			$stm=$db->prepare("INSERT INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+			$stm=$db->prepare("INSERT IGNORE INTO appointment_attachments (uid,aid,mime) VALUES (:uid, :aid, :mime)", array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 			$stm->execute(array(':uid' => $url->id,':aid' => $this->id,':mime'=>$url->description));
 		}
 	}
