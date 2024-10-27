@@ -365,7 +365,7 @@ class Event {
 		$this->sessions				= session::loadAll($this->id);
 	}
 
-	function delete($id=false){
+	static function delete($id=false){
 		global $db;
 		if (!$id){
 			return;
